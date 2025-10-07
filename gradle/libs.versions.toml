@@ -1,0 +1,73 @@
+[versions]
+agp = "8.5.2"
+asposePdfCloud = "24.6.0"
+azureIdentity = "1.15.0"
+clicksendJavaClient = "1.0.0"
+commonsCsv = "1.9.0"
+core = "3.4.1"
+dulceLib = "2.1.0"
+#hikaricp = "7.0.1"
+html2pdf = "4.0.1"
+javaxMail = "1.6.2"
+javaxMailApi = "1.6.2"
+javaxXmlSoapApi = "1.4.0"
+jdom = "2.0.2"
+fsLib = "1.8.2"
+kiluaRpcVersion = "0.0.35"
+kotlin = "2.2.0"
+kotlinCsvJvm = "1.9.2"
+kotlinxDatetime = "0.6.1"
+kotlinxHtml = "0.12.0"
+kspVersion = "2.2.0-2.0.2"
+kvision = "9.1.1"
+logbackClassic = "1.5.16"
+microsoftGraph = "6.27.0"
+mssqlJdbc = "9.4.0.jre8"
+pdfbox = "2.0.27"
+pdfservicesSdk = "4.1.0"
+pdvriezeXmlutil = "0.86.1"
+poiOoxml = "5.3.0"
+saajImpl = "1.5.3"
+serialization = "1.9.0"
+twilio = "8.31.0"
+
+[libraries]
+adobe-documentservices-pdfservices-sdk = { module = "com.adobe.documentservices:pdfservices-sdk", version.ref = "pdfservicesSdk" }
+apache-pdfbox = { module = "org.apache.pdfbox:pdfbox", version.ref = "pdfbox" }
+aspose-pdf-cloud = { module = "com.aspose:aspose-pdf-cloud", version.ref = "asposePdfCloud" }
+azure-identity = { module = "com.azure:azure-identity", version.ref = "azureIdentity" }
+clicksend-java-client = { module = "com.github.clicksend:clicksend-java-client", version.ref = "clicksendJavaClient" }
+commons-csv = { module = "org.apache.commons:commons-csv", version.ref = "commonsCsv" }
+doyaaaaaken-kotlin-csv-jvm = { module = "com.github.doyaaaaaken:kotlin-csv-jvm", version.ref = "kotlinCsvJvm" }
+fonrouge-fullStack = { module = "com.fonrouge.fsLib:fullStack", version.ref = "fsLib" }
+fonrouge-base = { module = "com.fonrouge.fsLib:base", version.ref = "fsLib" }
+fonrouge-shopify = { module = "com.fonrouge.fsLib:shopify", version.ref = "fsLib" }
+fonrouge-utils = { module = "com.fonrouge.fsLib:utils", version.ref = "fsLib" }
+google-zxing-core = { module = "com.google.zxing:core", version.ref = "core" }
+#hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
+itextpdf-html2pdf = { module = "com.itextpdf:html2pdf", version.ref = "html2pdf" }
+javax-mail = { module = "com.sun.mail:javax.mail", version.ref = "javaxMail" }
+javax-mail-api = { module = "javax.mail:javax.mail-api", version.ref = "javaxMailApi" }
+javax-xml-soap-api = { module = "javax.xml.soap:javax.xml.soap-api", version.ref = "javaxXmlSoapApi" }
+jdom = { module = "org.jdom:jdom", version.ref = "jdom" }
+kilua-rpc-ktor = { module = "dev.kilua:kilua-rpc-ktor", version.ref = "kiluaRpcVersion" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html", version.ref = "kotlinxHtml" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
+kvision-common-remote = { module = "io.kvision:kvision-common-remote", version.ref = "kvision" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logbackClassic" }
+microsoft-graph = { module = "com.microsoft.graph:microsoft-graph", version.ref = "microsoftGraph" }
+mssql-jdbc = { module = "com.microsoft.sqlserver:mssql-jdbc", version.ref = "mssqlJdbc" }
+pdvrieze-xmlutil-core = { module = "io.github.pdvrieze.xmlutil:core", version.ref = "pdvriezeXmlutil" }
+pdvrieze-xmlutil-serialization = { module = "io.github.pdvrieze.xmlutil:serialization", version.ref = "pdvriezeXmlutil" }
+poi-ooxml = { module = "org.apache.poi:poi-ooxml", version.ref = "poiOoxml" }
+saaj-impl = { module = "com.sun.xml.messaging.saaj:saaj-impl", version.ref = "saajImpl" }
+sdk-twilio = { module = "com.twilio.sdk:twilio", version.ref = "twilio" }
+
+[plugins]
+androidLibrary = { id = "com.android.library", version.ref = "agp" }
+google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "kspVersion" }
+kilua-rpc = { id = "dev.kilua.rpc", version.ref = "kiluaRpcVersion" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+kvision = { id = "io.kvision", version.ref = "kvision" }
+serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
