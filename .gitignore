@@ -1,6 +1,7 @@
-# Project exclude paths
-/.gradle/
-/build/
-/shopifyLib/build/
-/shopifyLib/build/classes/kotlin/js/main/
-/shopifyLib/build/classes/kotlin/jvm/main/
+.*/
+build/
+out/
+*.imp
+*.ipr
+*.iws
+*.idea
