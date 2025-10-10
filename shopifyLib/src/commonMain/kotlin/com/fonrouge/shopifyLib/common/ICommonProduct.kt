@@ -3,7 +3,7 @@ package com.fonrouge.shopifyLib.common
 import com.fonrouge.base.api.IApiFilter
 import com.fonrouge.base.common.ICommonContainer
 import com.fonrouge.base.types.StringId
-import com.fonrouge.shopifyLib.model.IProduct
+import com.fonrouge.shopifyLib.model.product.IProduct
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer

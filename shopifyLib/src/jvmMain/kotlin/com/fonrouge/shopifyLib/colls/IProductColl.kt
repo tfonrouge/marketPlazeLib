@@ -9,8 +9,8 @@ import com.fonrouge.base.types.StringId
 import com.fonrouge.shopifyLib.common.ICommonProduct
 import com.fonrouge.shopifyLib.model.ElementConnection
 import com.fonrouge.shopifyLib.model.IElementsData
-import com.fonrouge.shopifyLib.model.IProduct
 import com.fonrouge.shopifyLib.model.IStore
+import com.fonrouge.shopifyLib.model.product.IProduct
 import kotlinx.serialization.*
 
 abstract class IProductColl<CC : ICommonProduct<T, FILT>, T : IProduct, FILT : IApiFilter<*>, UID : Any, S : IStore>(
@@ -20,6 +20,9 @@ abstract class IProductColl<CC : ICommonProduct<T, FILT>, T : IProduct, FILT : I
     commonContainer = commonContainer,
     debug = debug,
 ) {
+    final override val shopifyIgnoredFields: Set<String> = setOf(IProduct::storeId.name)
+    final override val shopifyIdName: String = "handle"
+
     @Serializable
     data class ProductsData<T : IProduct>(
         @SerialName("products")
@@ -37,7 +40,7 @@ abstract class IProductColl<CC : ICommonProduct<T, FILT>, T : IProduct, FILT : I
         edges {
           cursor
           node {
-          $${itemProperties()}
+$${graphQLfieldNames()}
           }
         }
       }

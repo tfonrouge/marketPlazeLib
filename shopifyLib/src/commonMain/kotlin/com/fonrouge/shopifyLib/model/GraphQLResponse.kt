@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class GraphQLResponse<T>(
     val data: T? = null,
+    val errorCode: Int? = null,
     val errors: List<GraphQLError>? = null,
     val extensions: Extensions? = null,
 ) {

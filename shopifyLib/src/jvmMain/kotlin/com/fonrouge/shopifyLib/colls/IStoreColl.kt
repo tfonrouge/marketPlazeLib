@@ -18,6 +18,8 @@ abstract class IStoreColl<CC : ICommonContainer<T, OId<IStore>, FILT>, T : IStor
     commonContainer = commonContainer,
     debug = debug,
 ) {
+    override val shopifyIdName: String? = null
+
     @Serializable
     data class StoresData<T : IStore>(
         @SerialName("products")
