@@ -7,7 +7,7 @@ import kotlin.reflect.full.memberProperties
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ShopifyProductTest {
+class ShopifyTest {
     private fun mapOfAnnotatedClass(kClass: KClass<*>): List<String> {
         return kClass.memberProperties.mapNotNull { property ->
             val shopifyField = property.findAnnotation<ShopifyField>()
