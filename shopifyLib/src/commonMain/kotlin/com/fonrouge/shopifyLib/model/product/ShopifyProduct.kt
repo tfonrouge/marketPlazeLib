@@ -11,9 +11,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ShopifyProduct(
     override val _id: StringId<ShopifyProduct>,
-    override val handle: String,
     @ShopifyField(ignore = true)
     override val storeId: OId<IStore> = OId(),
+    override val handle: String,
     override val productType: String,
     override val publishedAt: Instant?,
     override val title: String,

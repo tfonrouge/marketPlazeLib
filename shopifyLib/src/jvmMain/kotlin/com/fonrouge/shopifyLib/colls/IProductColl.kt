@@ -17,14 +17,13 @@ import com.fonrouge.shopifyLib.model.product.ShopifyProduct
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
+import io.ktor.server.application.*
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.litote.kmongo.SetTo
-import org.litote.kmongo.eq
-import org.litote.kmongo.set
-import org.litote.kmongo.setTo
+import org.bson.conversions.Bson
+import org.litote.kmongo.*
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
@@ -121,5 +120,11 @@ $${graphQLfieldNames()}
             coroutine.bulkWrite(updateOneModels)
         }
         return SimpleState(isOk = true)
+    }
+
+    override fun matchStage(call: ApplicationCall?, apiFilter: FILT, resultUnit: ResultUnit): Bson? {
+        val matchDoc = mutableListOf<Bson>()
+        matchDoc += ShopifyProduct::storeId eq apiFilter.masterItemId
+        return and(matchDoc)
     }
 }
