@@ -81,13 +81,20 @@ kotlin {
 //            implementation(libs.mssql.jdbc)
         }
 
+        jvmTest.dependencies {
+            implementation(kotlin("test"))
+        }
+
         jsMain.dependencies {
         }
     }
 }
 
 apollo {
-    service("service") {
+    service("shopify") {
         packageName.set("com.fonrouge")
+        srcDir("src/commonMain/graphql")
+        schemaFile.set(file("src/commonMain/graphql/shopify-admin-2025-10.graphqls"))
+        generateKotlinModels.set(true)
     }
 }

@@ -8,8 +8,10 @@ import com.fonrouge.base.state.simpleErrorState
 import com.fonrouge.base.types.OId
 import com.fonrouge.fullStack.mongoDb.Coll
 import com.fonrouge.fullStack.mongoDb.toBsonSet
+import com.fonrouge.shopifyLib.common.GraphQLResponse
 import com.fonrouge.shopifyLib.common.annotations.ShopifyField
-import com.fonrouge.shopifyLib.model.*
+import com.fonrouge.shopifyLib.model.IStore
+import com.fonrouge.shopifyLib.model.graphQL.*
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import io.ktor.client.*
@@ -46,7 +48,7 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
                 )
             }
         }
-        private const val API_VERSION = "2025-07" // Use a stable Shopify Admin API version
+        private const val API_VERSION = "2025-10" // Use a stable Shopify Admin API version
     }
 
     abstract val shopifyIgnoredFields: Set<String>
@@ -75,7 +77,7 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
 
     abstract val elementQuery: String?
     abstract val elementSerializer: KSerializer<ED>
-    abstract val storeCollFun: () -> IStoreColl<*, S, *, *>
+    abstract val storeCollFun: () -> Coll<*, S, OId<IStore>, *, *>
 
     @OptIn(InternalSerializationApi::class)
     suspend fun graphQLRequest(

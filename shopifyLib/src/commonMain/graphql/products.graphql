@@ -18,7 +18,7 @@ query GetProductsQuery($first: Int!) {
         edges {
             cursor
             node {
-                id
+                _id: id
                 handle
                 productType
                 publishedAt

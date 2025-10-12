@@ -3,18 +3,16 @@ package com.fonrouge.shopifyLib.common
 import com.fonrouge.base.api.IApiFilter
 import com.fonrouge.base.common.ICommonContainer
 import com.fonrouge.base.types.StringId
-import com.fonrouge.shopifyLib.model.product.IProduct
+import com.fonrouge.shopifyLib.model.product.ShopifyProduct
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
-import kotlin.reflect.KClass
 
 @OptIn(InternalSerializationApi::class)
-abstract class ICommonProduct<P : IProduct, FILT : IApiFilter<*>>(
-    itemKClass: KClass<P>,
+abstract class ICommonProduct<FILT : IApiFilter<*>>(
     apiFilterSerializer: KSerializer<FILT>,
-) : ICommonContainer<P, StringId<IProduct>, FILT>(
-    itemKClass = itemKClass,
+) : ICommonContainer<ShopifyProduct, StringId<ShopifyProduct>, FILT>(
+    itemKClass = ShopifyProduct::class,
     idSerializer = StringId.serializer(serializer()),
     apiFilterSerializer = apiFilterSerializer,
     labelItem = "Shopify Product",

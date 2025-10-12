@@ -1,5 +1,6 @@
-package com.fonrouge.shopifyLib.model
+package com.fonrouge.shopifyLib.common
 
+import com.fonrouge.shopifyLib.model.graphQL.GraphQLError
 import kotlinx.serialization.Serializable
 
 @Serializable
