@@ -3,6 +3,7 @@ package com.fonrouge.shopifyLib.colls
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.ApolloResponse
 import com.apollographql.apollo.api.http.HttpHeader
+import com.apollographql.apollo.api.toJsonString
 import com.fonrouge.GetProductDetailQuery
 import com.fonrouge.GetProductsQuery
 import com.fonrouge.base.api.IApiFilter
@@ -28,10 +29,11 @@ import kotlin.reflect.full.memberProperties
 abstract class IProductColl<CC : ICommonProduct<FILT>, FILT : IApiFilter<*>, UID : Any>(
     commonContainer: CC,
     debug: Boolean = false,
-) : IShopifyColl<CC, ShopifyProduct, StringId<ShopifyProduct>, FILT, UID>(
+) : IShopifyColl<CC, ShopifyProduct, StringId<ShopifyProduct>, FILT, UID, GetProductsQuery, GetProductsQuery.Data>(
     commonContainer = commonContainer,
     debug = debug,
 ) {
+    final override val queryListKClass = GetProductsQuery::class
     final override val shopifyIgnoredFields: Set<String> = setOf(ShopifyProduct::storeId.name)
     final override val shopifyIdName: String = "id"
 
@@ -76,9 +78,13 @@ abstract class IProductColl<CC : ICommonProduct<FILT>, FILT : IApiFilter<*>, UID
     )
 
     suspend fun fetchProducts(storeId: OId<IStore>): SimpleState {
-        val response = apolloClient.query(GetProductsQuery(100)).execute()
+        val getProductsQuery: GetProductsQuery = GetProductsQuery(100)
+        val response = apolloClient.query(getProductsQuery).execute()
         val updateOneModels = mutableListOf<WriteModel<ShopifyProduct>>()
-        response.data
+        response.data?.let {
+            val x = getProductsQuery.adapter().toJsonString(it)
+            println("x = $x")
+        }
         val properties: Collection<KProperty1<GetProductsQuery.Node, *>> = GetProductsQuery.Node::class.memberProperties
         response.data?.products?.edges?.forEach { edge: GetProductsQuery.Edge ->
             val product: GetProductsQuery.Node = edge.node

@@ -1,11 +1,16 @@
 package com.fonrouge.shopifyLib.colls
 
 import com.apollographql.apollo.ApolloClient
+import com.apollographql.apollo.api.ApolloResponse
+import com.apollographql.apollo.api.Query
 import com.apollographql.apollo.api.http.HttpHeader
+import com.apollographql.apollo.api.toJsonString
 import com.fonrouge.base.api.IApiFilter
 import com.fonrouge.base.common.ICommonContainer
 import com.fonrouge.base.model.BaseDoc
 import com.fonrouge.base.state.ItemState
+import com.fonrouge.base.state.SimpleState
+import com.fonrouge.base.state.simpleErrorState
 import com.fonrouge.base.types.OId
 import com.fonrouge.fullStack.mongoDb.Coll
 import com.fonrouge.shopifyLib.common.annotations.ShopifyField
@@ -15,10 +20,12 @@ import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
 
-abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>, ID : Any, FILT : IApiFilter<*>, UID : Any>(
+abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>, ID : Any, FILT : IApiFilter<*>, UID : Any, QQ : Query<D>, D : Query.Data>(
     commonContainer: CC,
     debug: Boolean = false,
 ) : Coll<CC, T, ID, FILT, UID>(
@@ -41,6 +48,8 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
         var storeColl: IStoreColl<*, *, *, *>? = null
         private const val API_VERSION = "2025-10" // Use a stable Shopify Admin API version
     }
+
+    abstract val queryListKClass: KClass<QQ>
 
     abstract val shopifyIgnoredFields: Set<String>
     abstract val shopifyIdName: String?
@@ -76,4 +85,17 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
         "$shopDomain/admin/api/$API_VERSION/graphql.json".let {
             if (it.startsWith("https://")) it else "https://$it"
         }
+
+    suspend fun syncShopifyToLocal(storeId: OId<IStore>): SimpleState {
+        val itemState = buildApolloClient(storeId)
+        val apolloClient: ApolloClient =
+            itemState.item ?: return SimpleState(isOk = false, msgError = itemState.msgError)
+        val queryList = queryListKClass.constructors.first().call(100)
+        val response: ApolloResponse<D> = apolloClient.query(queryList).execute()
+        val rawString = response.data?.let {
+            queryList.adapter().toJsonString(it)
+        } ?: return simpleErrorState("No data")
+        println("rawString = $rawString")
+        return SimpleState(isOk = true)
+    }
 }

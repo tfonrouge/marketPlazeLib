@@ -38,9 +38,9 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
+            api("com.apollographql.apollo:apollo-runtime:4.3.3")
             implementation(libs.fonrouge.base)
             implementation(libs.fonrouge.fullStack)
-            implementation("com.apollographql.apollo:apollo-runtime:4.3.3")
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kvision.common.remote)
@@ -64,7 +64,7 @@ apollo {
         packageName.set("com.fonrouge")
         srcDir("src/commonMain/graphql")
         schemaFile.set(file("src/commonMain/graphql/shopify-admin-2025-10.graphqls"))
-//        generateKotlinModels.set(true)
-        generateFragmentImplementations.set(true)
+        generateKotlinModels.set(true)
+//        generateFragmentImplementations.set(true)
     }
 }
