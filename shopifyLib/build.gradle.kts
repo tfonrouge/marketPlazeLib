@@ -40,7 +40,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.fonrouge.base)
             implementation(libs.fonrouge.fullStack)
-            api("com.apollographql.apollo:apollo-runtime:4.3.3") // Replace with the latest version
+            implementation("com.apollographql.apollo:apollo-runtime:4.3.3")
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kvision.common.remote)
@@ -48,37 +48,6 @@ kotlin {
 
         jvmMain.dependencies {
             implementation(kotlin("reflect"))
-//            implementation(libs.ktor.client.core)
-//            implementation(libs.ktor.client.cio)
-//            implementation(libs.ktor.client.auth)
-//            implementation(libs.ktor.client.content.negotiation)
-//            implementation(libs.ktor.client.encoding)
-//            implementation(libs.ktor.serialization.kotlinx.json)
-//            implementation(libs.ktor.client.serialization)
-//            implementation(libs.ktor.server.auth)
-//            implementation(libs.ktor.server.auth.jwt)
-//            implementation(libs.ktor.server.call.logging)
-//            implementation(libs.ktor.server.compression)
-            // TODO: change api for implementation. api allows to export ApplicationCall class needed on IApiItem
-//            api(libs.ktor.server.core)
-//            implementation(libs.ktor.server.default.headers)
-//            implementation(libs.ktor.server.forwarded.header)
-//            implementation(libs.ktor.server.netty)
-//            implementation(libs.ktor.server.sessions)
-//            implementation(libs.ktor.network.tls.certificates)
-//            implementation(libs.ktor.server.auto.head.response)
-//            implementation(libs.ktor.server.http.redirect)
-//            implementation(libs.ktor.server.partial.content)
-//            implementation(libs.ktor.server.content.negotiation)
-//            implementation(libs.kmongo.coroutine.serialization)
-//            implementation(libs.kmongo.id.serialization)
-//            implementation(libs.exposed.core)
-//            implementation(libs.exposed.dao)
-//            implementation(libs.exposed.jdbc)
-//            implementation(libs.exposed.java.time)
-//            implementation(libs.kotlinx.datetime.jvm)
-//            implementation(libs.jtds)
-//            implementation(libs.mssql.jdbc)
         }
 
         jvmTest.dependencies {
@@ -95,6 +64,7 @@ apollo {
         packageName.set("com.fonrouge")
         srcDir("src/commonMain/graphql")
         schemaFile.set(file("src/commonMain/graphql/shopify-admin-2025-10.graphqls"))
-        generateKotlinModels.set(true)
+//        generateKotlinModels.set(true)
+        generateFragmentImplementations.set(true)
     }
 }

@@ -18,8 +18,6 @@ import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import com.mongodb.client.model.WriteModel
 import io.ktor.server.application.*
-import kotlinx.serialization.InternalSerializationApi
-import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.bson.conversions.Bson
@@ -27,10 +25,10 @@ import org.litote.kmongo.*
 import kotlin.reflect.KProperty1
 import kotlin.reflect.full.memberProperties
 
-abstract class IProductColl<CC : ICommonProduct<FILT>, FILT : IApiFilter<*>, UID : Any, S : IStore>(
+abstract class IProductColl<CC : ICommonProduct<FILT>, FILT : IApiFilter<*>, UID : Any>(
     commonContainer: CC,
     debug: Boolean = false,
-) : IShopifyColl<CC, ShopifyProduct, StringId<ShopifyProduct>, FILT, UID, S, IProductColl.ProductsData>(
+) : IShopifyColl<CC, ShopifyProduct, StringId<ShopifyProduct>, FILT, UID>(
     commonContainer = commonContainer,
     debug = debug,
 ) {
@@ -42,28 +40,6 @@ abstract class IProductColl<CC : ICommonProduct<FILT>, FILT : IApiFilter<*>, UID
         @SerialName("products")
         override val elements: ElementConnection<ShopifyProduct>
     ) : IElementsData<ShopifyProduct>
-
-    final override val elementQuery: String by lazy {
-        $$"""
-    query Products($first: Int!, $query: String, $after: String) {
-      product(first: $first, query: $query, after: $after) {
-        pageInfo {
-          hasNextPage
-          endCursor
-        }
-        edges {
-          cursor
-          node {
-$${graphQLfieldNames()}
-          }
-        }
-      }
-    }
-""".trimIndent()
-    }
-
-    @OptIn(InternalSerializationApi::class)
-    final override val elementSerializer: KSerializer<ProductsData> = ProductsData.serializer()
 
     val apolloClient
         get() = ApolloClient.Builder()
@@ -92,11 +68,18 @@ $${graphQLfieldNames()}
         }
     }
 
-    val properties: Collection<KProperty1<GetProductsQuery.Node, *>> = GetProductsQuery.Node::class.memberProperties
+//    val properties: Collection<KProperty1<GetProductsQuery.Node, *>> = GetProductsQuery.Node::class.memberProperties
+
+    data class A1(
+        val pageInfo: GetProductsQuery.PageInfo?,
+        val edges: List<GetProductsQuery.Edge>?,
+    )
 
     suspend fun fetchProducts(storeId: OId<IStore>): SimpleState {
         val response = apolloClient.query(GetProductsQuery(100)).execute()
         val updateOneModels = mutableListOf<WriteModel<ShopifyProduct>>()
+        response.data
+        val properties: Collection<KProperty1<GetProductsQuery.Node, *>> = GetProductsQuery.Node::class.memberProperties
         response.data?.products?.edges?.forEach { edge: GetProductsQuery.Edge ->
             val product: GetProductsQuery.Node = edge.node
             val setToList = mutableListOf<SetTo<Any?>>()
