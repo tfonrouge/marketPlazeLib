@@ -95,7 +95,8 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
         val rawString = response.data?.let {
             queryList.adapter().toJsonString(it)
         } ?: return simpleErrorState("No data")
-        println("rawString = $rawString")
+        val document = Json.parseToJsonElement(rawString) as JsonObject
+        println("rawString = $rawString, document = $document")
         return SimpleState(isOk = true)
     }
 }
