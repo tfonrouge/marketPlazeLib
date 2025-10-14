@@ -23,6 +23,8 @@ query GetProductsQuery($first: Int!, $after: String) {
                 productType
                 publishedAt
                 title
+                description
+                descriptionHtml
                 vendor
                 totalInventory
 #                mediaCount {

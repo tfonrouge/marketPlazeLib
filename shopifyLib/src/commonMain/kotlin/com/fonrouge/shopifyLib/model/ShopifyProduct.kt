@@ -17,6 +17,8 @@ data class ShopifyProduct(
     val productType: String,
     @Serializable(with = FSOffsetDateTimeSerializer::class) val publishedAt: OffsetDateTime?,
     val title: String,
+    val description: String,
+    val descriptionHtml: String,
     val vendor: String,
     val totalInventory: Int,
     val media: List<Image>? = null,
