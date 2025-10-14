@@ -38,10 +38,19 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
     }
 
     abstract val queryListKClass: KClass<QQ>
-
     abstract val shopifyIgnoredFields: Set<String>
     abstract val shopifyIdName: String?
+    open val subNodes: Map<String, Pair<String?, KClass<*>>> = mapOf()
+
+    /**
+     * Adds additional fields to a given document for a specific Shopify store.
+     *
+     * @param storeId The unique identifier of the Shopify store. Represents an instance of `IStore` using its object ID.
+     * @param document The original document to which additional fields should be appended.
+     * @return The updated document with additional fields appended.
+     */
     open fun additionalFields(storeId: OId<IStore>, document: Document): Document = document
+
     suspend fun buildApolloClient(storeId: OId<IStore>): ItemState<ApolloClient> {
         val store = storeColl?.findById(storeId) ?: return ItemState(isOk = false, msgError = "Store Coll not defined")
         val a = ApolloClient.Builder()
@@ -52,6 +61,25 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
                 )
             ).build()
         return ItemState(a)
+    }
+
+    fun processSubNodes(document: Document): Document {
+        subNodes.forEach { (key, pair) ->
+            document.get(key, Document::class.java)?.let {
+                val subDocuments = mutableListOf<Document>()
+                it.getList("edges", Document::class.java)?.forEach { edge ->
+                    edge.get("node", Document::class.java)?.let { node ->
+                        subDocuments += if (pair.first == null) {
+                            node
+                        } else {
+                            node.get(pair.first, Document::class.java)
+                        }
+                    }
+                }
+                document[key] = subDocuments
+            }
+        }
+        return document
     }
 
     private fun shopifyEndpoint(shopDomain: String) =
@@ -91,7 +119,12 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
             endCursor = pageInfo?.getString("endCursor")
             hasNextPage = (pageInfo?.getBoolean("hasNextPage") == true) && endCursor.isNullOrEmpty().not()
             edges?.getList("edges", Document::class.java)?.forEach { edge ->
-                val nodeJson = additionalFields(storeId, edge.get("node", Document::class.java))
+                val nodeJson = processSubNodes(
+                    document = additionalFields(
+                        storeId = storeId,
+                        document = edge.get("node", Document::class.java)
+                    )
+                )
                 val item: T = Json.decodeFromString(commonContainer.itemKClass.serializer(), nodeJson.toJson())
                 updateOneModels += UpdateOneModel(
                     BaseDoc<ID>::_id eq item._id,

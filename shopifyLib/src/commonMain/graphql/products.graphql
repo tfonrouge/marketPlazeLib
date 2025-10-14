@@ -24,6 +24,25 @@ query GetProductsQuery($first: Int!, $after: String) {
                 publishedAt
                 title
                 vendor
+                totalInventory
+#                mediaCount {
+#                    count
+#                    precision
+#                }
+                media(first: 10) {
+                    edges {
+                        node {
+                            ... on MediaImage {
+                                image {
+                                    id
+                                    altText
+                                    url
+                                    width
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }

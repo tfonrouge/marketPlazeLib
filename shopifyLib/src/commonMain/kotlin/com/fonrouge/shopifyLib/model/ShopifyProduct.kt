@@ -6,6 +6,7 @@ import com.fonrouge.base.types.OId
 import com.fonrouge.base.types.StringId
 import com.fonrouge.shopifyLib.common.annotations.ShopifyField
 import io.kvision.types.OffsetDateTime
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -17,4 +18,14 @@ data class ShopifyProduct(
     @Serializable(with = FSOffsetDateTimeSerializer::class) val publishedAt: OffsetDateTime?,
     val title: String,
     val vendor: String,
-) : BaseDoc<StringId<ShopifyProduct>>
+    val totalInventory: Int,
+    val media: List<Image>? = null,
+) : BaseDoc<StringId<ShopifyProduct>> {
+    @Serializable
+    data class Image(
+        val id: String,
+        val altText: String? = null,
+        val url: String? = null,
+        val width: Int? = null,
+    )
+}

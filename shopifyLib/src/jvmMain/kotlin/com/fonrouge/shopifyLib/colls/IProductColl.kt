@@ -13,6 +13,7 @@ import org.bson.conversions.Bson
 import org.litote.kmongo.and
 import org.litote.kmongo.coroutine.CoroutineCollection
 import org.litote.kmongo.eq
+import kotlin.reflect.KClass
 
 /**
  * Abstract class representing a specialized collection for Shopify products.
@@ -37,6 +38,9 @@ abstract class IProductColl<CC : ICommonProduct<FILT>, FILT : IApiFilter<*>, UID
     final override val queryListKClass = GetProductsQuery::class
     final override val shopifyIgnoredFields: Set<String> = setOf(ShopifyProduct::storeId.name)
     final override val shopifyIdName: String = "id"
+    override val subNodes: Map<String, Pair<String?, KClass<*>>> = mapOf(
+        "media" to ("image" to ShopifyProduct.Image::class)
+    )
 
     override fun additionalFields(storeId: OId<IStore>, document: Document): Document {
         return document.append(ShopifyProduct::storeId.name, storeId.id)
