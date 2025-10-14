@@ -9,8 +9,8 @@ query GetProductDetailQuery($id: ID!) {
     }
 }
 
-query GetProductsQuery($first: Int!) {
-    products(first: $first) {
+query GetProductsQuery($first: Int!, $after: String) {
+    products(first: $first, after: $after) {
         pageInfo {
             hasNextPage
             endCursor

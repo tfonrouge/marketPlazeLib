@@ -2,10 +2,12 @@ package com.fonrouge.shopifyLib.colls
 
 import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.ApolloResponse
+import com.apollographql.apollo.api.Optional
 import com.apollographql.apollo.api.Query
 import com.apollographql.apollo.api.http.HttpHeader
 import com.apollographql.apollo.api.toJsonString
 import com.fonrouge.base.api.IApiFilter
+import com.fonrouge.base.bson.toBsonSet
 import com.fonrouge.base.common.ICommonContainer
 import com.fonrouge.base.model.BaseDoc
 import com.fonrouge.base.state.ItemState
@@ -13,17 +15,15 @@ import com.fonrouge.base.state.SimpleState
 import com.fonrouge.base.state.simpleErrorState
 import com.fonrouge.base.types.OId
 import com.fonrouge.fullStack.mongoDb.Coll
-import com.fonrouge.shopifyLib.common.annotations.ShopifyField
 import com.fonrouge.shopifyLib.model.IStore
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.serialization.kotlinx.json.*
+import com.mongodb.client.model.UpdateOneModel
+import com.mongodb.client.model.UpdateOptions
+import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.serializer
+import org.bson.Document
+import org.litote.kmongo.eq
 import kotlin.reflect.KClass
-import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.full.memberProperties
 
 abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>, ID : Any, FILT : IApiFilter<*>, UID : Any, QQ : Query<D>, D : Query.Data>(
     commonContainer: CC,
@@ -33,18 +33,6 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
     debug = debug,
 ) {
     companion object {
-        val syncingElements: HashMap<OId<*>, Boolean> = HashMap()
-        val httpClient = HttpClient(CIO) {
-            install(ContentNegotiation) {
-                json(
-                    Json {
-                        ignoreUnknownKeys = true
-                        isLenient = true
-                        encodeDefaults = true
-                    }
-                )
-            }
-        }
         var storeColl: IStoreColl<*, *, *, *>? = null
         private const val API_VERSION = "2025-10" // Use a stable Shopify Admin API version
     }
@@ -53,6 +41,7 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
 
     abstract val shopifyIgnoredFields: Set<String>
     abstract val shopifyIdName: String?
+    open fun additionalFields(storeId: OId<IStore>, document: Document): Document = document
     suspend fun buildApolloClient(storeId: OId<IStore>): ItemState<ApolloClient> {
         val store = storeColl?.findById(storeId) ?: return ItemState(isOk = false, msgError = "Store Coll not defined")
         val a = ApolloClient.Builder()
@@ -65,38 +54,62 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
         return ItemState(a)
     }
 
-    protected fun graphQLFieldNames(): String =
-        commonContainer.itemKClass.memberProperties.mapNotNull { kProperty ->
-            if (kProperty.name == shopifyIdName || kProperty.name in shopifyIgnoredFields) return@mapNotNull null
-            if (kProperty.name == "_id") {
-                shopifyIdName?.let { "_id: $it" }
-            } else {
-                val shopifyField = kProperty.findAnnotation<ShopifyField>()
-                if (shopifyField?.ignore == true) return@mapNotNull null
-                val name = shopifyField?.name
-                if (name.isNullOrBlank()) kProperty.name else name
-            }
-        }.filterNot { it == "_id" || it == "storeId" }
-            .joinToString("\n") {
-                "${" ".repeat(12)}$it"
-            }
-
     private fun shopifyEndpoint(shopDomain: String) =
         "$shopDomain/admin/api/$API_VERSION/graphql.json".let {
             if (it.startsWith("https://")) it else "https://$it"
         }
 
+    /**
+     * Synchronizes data from a Shopify store to a local database.
+     *
+     * @param storeId The identifier of the Shopify store to be synchronized. Represents an instance of `IStore` using its unique object ID.
+     * @return A `SimpleState` object indicating the success or failure of the synchronization process, along with optional messages.
+     */
+    @Suppress("unused")
+    @OptIn(InternalSerializationApi::class)
     suspend fun syncShopifyToLocal(storeId: OId<IStore>): SimpleState {
-        val itemState = buildApolloClient(storeId)
+        val itemState = try {
+            buildApolloClient(storeId)
+        } catch (e: Exception) {
+            return simpleErrorState("buildApolloClient exception: ${e.message}")
+        }
         val apolloClient: ApolloClient =
             itemState.item ?: return SimpleState(isOk = false, msgError = itemState.msgError)
-        val queryList = queryListKClass.constructors.first().call(100)
-        val response: ApolloResponse<D> = apolloClient.query(queryList).execute()
-        val rawString = response.data?.let {
-            queryList.adapter().toJsonString(it)
-        } ?: return simpleErrorState("No data")
-        val document = Json.parseToJsonElement(rawString) as JsonObject
-        println("rawString = $rawString, document = $document")
-        return SimpleState(isOk = true)
+        var hasNextPage = true
+        var endCursor: String? = null
+        val updateOneModels = mutableListOf<UpdateOneModel<T>>()
+        val initTime = System.currentTimeMillis()
+        while (hasNextPage) {
+            val queryList = queryListKClass.constructors.first().call(250, Optional.present(endCursor))
+            val response: ApolloResponse<D> = apolloClient.query(queryList).execute()
+            val rawString = response.data?.let {
+                queryList.adapter().toJsonString(it)
+            } ?: return simpleErrorState("No data found")
+            val document = Document.parse(rawString)
+            val edges = document.keys.firstOrNull()?.let { document[it] as? Document }
+            val pageInfo = edges?.get("pageInfo", Document::class.java)
+            endCursor = pageInfo?.getString("endCursor")
+            hasNextPage = (pageInfo?.getBoolean("hasNextPage") == true) && endCursor.isNullOrEmpty().not()
+            edges?.getList("edges", Document::class.java)?.forEach { edge ->
+                val nodeJson = additionalFields(storeId, edge.get("node", Document::class.java))
+                val item: T = Json.decodeFromString(commonContainer.itemKClass.serializer(), nodeJson.toJson())
+                updateOneModels += UpdateOneModel(
+                    BaseDoc<ID>::_id eq item._id,
+                    item.toBsonSet(),
+                    UpdateOptions().upsert(true)
+                )
+            }
+        }
+        val useTime = System.currentTimeMillis() - initTime
+        return if (updateOneModels.isNotEmpty()) {
+            val bulkWriteResult = coroutine.bulkWrite(updateOneModels)
+            if (bulkWriteResult.wasAcknowledged()) {
+                SimpleState(isOk = true, "Updated ${bulkWriteResult.modifiedCount} documents, $useTime ms used")
+            } else {
+                SimpleState(isOk = false, "Bulk write operation was not acknowledged")
+            }
+        } else {
+            SimpleState(isOk = true, "No updates found, $useTime ms used")
+        }
     }
 }

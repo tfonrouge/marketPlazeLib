@@ -1,6 +1,6 @@
 import com.fonrouge.GetProductsQuery
 import com.fonrouge.shopifyLib.common.annotations.ShopifyField
-import com.fonrouge.shopifyLib.model.product.ShopifyProduct
+import com.fonrouge.shopifyLib.model.ShopifyProduct
 import kotlin.reflect.KClass
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.memberProperties
