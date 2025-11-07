@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "com.fonrouge"
-version = "1.0.0"
+version = libs.versions.shopifyLib.get()
 
 repositories {
     mavenCentral()
