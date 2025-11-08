@@ -9,7 +9,7 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
 
 @OptIn(InternalSerializationApi::class)
-abstract class ICommonProduct<FILT : IApiFilter<*>>(
+abstract class ICommonShopifyProduct<FILT : IApiFilter<*>>(
     apiFilterSerializer: KSerializer<FILT>,
 ) : ICommonContainer<ShopifyProduct, StringId<ShopifyProduct>, FILT>(
     itemKClass = ShopifyProduct::class,

@@ -10,12 +10,10 @@ import com.fonrouge.base.api.IApiFilter
 import com.fonrouge.base.bson.toBsonSet
 import com.fonrouge.base.common.ICommonContainer
 import com.fonrouge.base.model.BaseDoc
-import com.fonrouge.base.state.ItemState
 import com.fonrouge.base.state.SimpleState
 import com.fonrouge.base.state.simpleErrorState
-import com.fonrouge.base.types.OId
 import com.fonrouge.fullStack.mongoDb.Coll
-import com.fonrouge.shopifyLib.model.IStore
+import com.fonrouge.shopifyLib.model.IStoreId
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import kotlinx.serialization.InternalSerializationApi
@@ -34,11 +32,10 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
 ) {
     companion object {
         var storeColl: IStoreColl<*, *, *, *>? = null
-        private const val API_VERSION = "2025-10" // Use a stable Shopify Admin API version
     }
 
     abstract val queryListKClass: KClass<QQ>
-    abstract val shopifyIgnoredFields: Set<String>
+    open val shopifyIgnoredFields: Set<String> = emptySet()
     abstract val shopifyIdName: String?
     open val subNodes: Map<String, Pair<String?, KClass<*>>> = mapOf()
 
@@ -49,19 +46,31 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
      * @param document The original document to which additional fields should be appended.
      * @return The updated document with additional fields appended.
      */
-    open fun additionalFields(storeId: OId<IStore>, document: Document): Document = document
+    open fun additionalFields(storeId: IStoreId, document: Document): Document = document
 
-    suspend fun buildApolloClient(storeId: OId<IStore>): ItemState<ApolloClient> {
-        val store = storeColl?.findById(storeId) ?: return ItemState(isOk = false, msgError = "Store Coll not defined")
-        val a = ApolloClient.Builder()
-            .serverUrl(shopifyEndpoint(store.url))
+    /**
+     * Builds and returns an Apollo GraphQL client configured for a specific Shopify store.
+     *
+     * @param storeId The unique identifier of the Shopify store. Represents an instance of `IStore` using its object ID.
+     * @return An `ItemState` wrapping the `ApolloClient` instance. If the store cannot be found or if the
+     *         store collection is not defined, returns an `ItemState` indicating failure with an error message.
+     */
+    suspend fun buildApolloClient(storeId: IStoreId): ApolloClient {
+        val store = storeColl?.findById(storeId) ?: throw Exception("Store Coll not defined")
+        val apolloClient = ApolloClient.Builder()
+            .serverUrl(shopifyEndpoint(store.url, store.apiVersion))
             .httpHeaders(
                 listOf(
                     HttpHeader("X-Shopify-Access-Token", store.accessToken)
                 )
             ).build()
-        return ItemState(a)
+        return apolloClient
     }
+
+    private fun shopifyEndpoint(shopDomain: String, apiVersion: String) =
+        "$shopDomain/admin/api/$apiVersion/graphql.json".let {
+            if (it.startsWith("https://")) it else "https://$it"
+        }
 
     fun processSubNodes(document: Document): Document {
         subNodes.forEach { (key, pair) ->
@@ -82,11 +91,6 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
         return document
     }
 
-    private fun shopifyEndpoint(shopDomain: String) =
-        "$shopDomain/admin/api/$API_VERSION/graphql.json".let {
-            if (it.startsWith("https://")) it else "https://$it"
-        }
-
     /**
      * Synchronizes data from a Shopify store to a local database.
      *
@@ -95,14 +99,12 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
      */
     @Suppress("unused")
     @OptIn(InternalSerializationApi::class)
-    suspend fun syncShopifyToLocal(storeId: OId<IStore>): SimpleState {
-        val itemState = try {
+    suspend fun syncShopifyToLocal(storeId: IStoreId): SimpleState {
+        val apolloClient = try {
             buildApolloClient(storeId)
         } catch (e: Exception) {
             return simpleErrorState("buildApolloClient exception: ${e.message}")
         }
-        val apolloClient: ApolloClient =
-            itemState.item ?: return SimpleState(isOk = false, msgError = itemState.msgError)
         var hasNextPage = true
         var endCursor: String? = null
         val updateOneModels = mutableListOf<UpdateOneModel<T>>()

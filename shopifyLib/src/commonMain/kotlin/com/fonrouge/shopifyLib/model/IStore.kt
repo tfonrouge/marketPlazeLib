@@ -4,8 +4,10 @@ import com.fonrouge.base.model.BaseDoc
 import com.fonrouge.base.types.OId
 import kotlinx.serialization.Serializable
 
+typealias IStoreId = OId<IStore>
+
 @Serializable
-abstract class IStore : BaseDoc<OId<IStore>> {
+abstract class IStore : BaseDoc<IStoreId> {
     abstract val name: String
     abstract val url: String
     abstract val apiVersion: String

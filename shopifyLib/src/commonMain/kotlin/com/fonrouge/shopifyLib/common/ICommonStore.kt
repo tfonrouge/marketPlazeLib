@@ -4,6 +4,7 @@ import com.fonrouge.base.api.IApiFilter
 import com.fonrouge.base.common.ICommonContainer
 import com.fonrouge.base.types.OId
 import com.fonrouge.shopifyLib.model.IStore
+import com.fonrouge.shopifyLib.model.IStoreId
 import kotlinx.serialization.InternalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.serializer
@@ -13,7 +14,7 @@ import kotlin.reflect.KClass
 abstract class ICommonStore<S : IStore, FILT : IApiFilter<*>>(
     itemKClass: KClass<S>,
     apiFilterSerializer: KSerializer<FILT>,
-) : ICommonContainer<S, OId<IStore>, FILT>(
+) : ICommonContainer<S, IStoreId, FILT>(
     itemKClass = itemKClass,
     idSerializer = OId.serializer(serializer()),
     apiFilterSerializer = apiFilterSerializer,

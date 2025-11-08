@@ -1,0 +1,9 @@
+query GetBusinessEntitiesQuery {
+    businessEntities {
+        id
+        displayName
+        companyName
+        primary
+        archived
+    }
+}

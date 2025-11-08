@@ -2,10 +2,9 @@ package com.fonrouge.shopifyLib.colls
 
 import com.fonrouge.GetProductsQuery
 import com.fonrouge.base.api.IApiFilter
-import com.fonrouge.base.types.OId
 import com.fonrouge.base.types.StringId
-import com.fonrouge.shopifyLib.common.ICommonProduct
-import com.fonrouge.shopifyLib.model.IStore
+import com.fonrouge.shopifyLib.common.ICommonShopifyProduct
+import com.fonrouge.shopifyLib.model.IStoreId
 import com.fonrouge.shopifyLib.model.ShopifyProduct
 import io.ktor.server.application.*
 import org.bson.Document
@@ -28,7 +27,7 @@ import kotlin.reflect.KClass
  * @property shopifyIdName The name of the unique identifier field in Shopify for products.
  */
 @Suppress("unused")
-abstract class IProductColl<CC : ICommonProduct<FILT>, FILT : IApiFilter<*>, UID : Any>(
+abstract class IShopifyProductColl<CC : ICommonShopifyProduct<FILT>, FILT : IApiFilter<*>, UID : Any>(
     commonContainer: CC,
     debug: Boolean = false,
 ) : IShopifyColl<CC, ShopifyProduct, StringId<ShopifyProduct>, FILT, UID, GetProductsQuery, GetProductsQuery.Data>(
@@ -42,7 +41,7 @@ abstract class IProductColl<CC : ICommonProduct<FILT>, FILT : IApiFilter<*>, UID
         "media" to ("image" to ShopifyProduct.Image::class)
     )
 
-    override fun additionalFields(storeId: OId<IStore>, document: Document): Document {
+    override fun additionalFields(storeId: IStoreId, document: Document): Document {
         return document.append(ShopifyProduct::storeId.name, storeId.id)
     }
 

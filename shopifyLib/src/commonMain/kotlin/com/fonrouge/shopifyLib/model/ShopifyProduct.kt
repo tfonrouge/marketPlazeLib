@@ -6,13 +6,12 @@ import com.fonrouge.base.types.OId
 import com.fonrouge.base.types.StringId
 import com.fonrouge.shopifyLib.common.annotations.ShopifyField
 import io.kvision.types.OffsetDateTime
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class ShopifyProduct(
     override val _id: StringId<ShopifyProduct>,
-    @ShopifyField(ignore = true) val storeId: OId<IStore> = OId(),
+    @ShopifyField(ignore = true) val storeId: IStoreId = OId(),
     val handle: String,
     val productType: String,
     @Serializable(with = FSOffsetDateTimeSerializer::class) val publishedAt: OffsetDateTime?,
