@@ -6,8 +6,8 @@ plugins {
     id("com.apollographql.apollo") version "4.3.3"
 }
 
-group = "com.fonrouge"
-version = libs.versions.shopifyLib.get()
+group = "com.fonrouge.marketPlazeLib"
+version = libs.versions.marketPlazeLib.get()
 
 repositories {
     mavenCentral()

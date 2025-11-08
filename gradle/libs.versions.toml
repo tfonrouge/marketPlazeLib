@@ -29,7 +29,7 @@ pdvriezeXmlutil = "0.86.1"
 poiOoxml = "5.3.0"
 saajImpl = "1.5.3"
 serialization = "1.9.0"
-shopifyLib = "1.0.1"
+marketPlazeLib = "1.0.0"
 twilio = "8.31.0"
 
 [libraries]

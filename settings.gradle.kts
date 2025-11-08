@@ -15,5 +15,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "shopifyLib"
+rootProject.name = "marketPlazeLib"
+include(":commonLib")
 include(":shopifyLib")
