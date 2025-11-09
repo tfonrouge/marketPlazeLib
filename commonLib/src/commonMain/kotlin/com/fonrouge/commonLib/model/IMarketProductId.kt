@@ -1,7 +1,5 @@
 package com.fonrouge.commonLib.model
 
-import kotlinx.serialization.Serializable
-
 /**
  * Represents a unique identifier for a product in a specific marketplace.
  *
@@ -13,8 +11,7 @@ import kotlinx.serialization.Serializable
  * @property marketPlaceId The marketplace where the product is listed, identified by [MarketPlaceId].
  * @property productID The unique identifier of the product within the specified marketplace.
  */
-@Serializable
-data class MarketProductId<PID : Any>(
-    val marketPlaceId: MarketPlaceId,
+interface IMarketProductId<PID : Any> {
+    val marketPlaceId: MarketPlaceId
     val productID: PID
-)
+}
