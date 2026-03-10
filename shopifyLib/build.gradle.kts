@@ -48,6 +48,7 @@ kotlin {
 
         jvmMain.dependencies {
             implementation(kotlin("reflect"))
+            implementation(libs.fonrouge.mongodb)
         }
 
         jvmTest.dependencies {

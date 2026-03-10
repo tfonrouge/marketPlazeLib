@@ -12,7 +12,7 @@ javaxMail = "1.6.2"
 javaxMailApi = "1.6.2"
 javaxXmlSoapApi = "1.4.0"
 jdom = "2.0.2"
-fsLib = "1.9.0"
+fsLib = "3.0.0"
 kiluaRpcVersion = "0.0.42"
 kotlin = "2.3.10"
 kotlinCsvJvm = "1.9.2"
@@ -21,7 +21,7 @@ kotlinxHtml = "0.12.0"
 kspVersion = "2.3.5"
 kvision = "9.3.1"
 logbackClassic = "1.5.16"
-marketPlazeLib = "1.0.1"
+marketPlazeLib = "1.0.2"
 microsoftGraph = "6.27.0"
 mssqlJdbc = "9.4.0.jre8"
 pdfbox = "2.0.27"
@@ -40,10 +40,9 @@ azure-identity = { module = "com.azure:azure-identity", version.ref = "azureIden
 clicksend-java-client = { module = "com.github.clicksend:clicksend-java-client", version.ref = "clicksendJavaClient" }
 commons-csv = { module = "org.apache.commons:commons-csv", version.ref = "commonsCsv" }
 doyaaaaaken-kotlin-csv-jvm = { module = "com.github.doyaaaaaken:kotlin-csv-jvm", version.ref = "kotlinCsvJvm" }
-fonrouge-fullStack = { module = "com.fonrouge.fsLib:fullStack", version.ref = "fsLib" }
-fonrouge-base = { module = "com.fonrouge.fsLib:base", version.ref = "fsLib" }
-fonrouge-shopify = { module = "com.fonrouge.fsLib:shopify", version.ref = "fsLib" }
-fonrouge-utils = { module = "com.fonrouge.fsLib:utils", version.ref = "fsLib" }
+fonrouge-fullStack = { module = "com.fonrouge.fsLib:fullstack", version.ref = "fsLib" }
+fonrouge-base = { module = "com.fonrouge.fsLib:core", version.ref = "fsLib" }
+fonrouge-mongodb = { module = "com.fonrouge.fsLib:mongodb", version.ref = "fsLib" }
 google-zxing-core = { module = "com.google.zxing:core", version.ref = "core" }
 #hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
 itextpdf-html2pdf = { module = "com.itextpdf:html2pdf", version.ref = "html2pdf" }
