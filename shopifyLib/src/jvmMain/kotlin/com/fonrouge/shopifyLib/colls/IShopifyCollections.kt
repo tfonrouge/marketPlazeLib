@@ -1,7 +1,8 @@
 package com.fonrouge.shopifyLib.colls
 
-abstract class IShopifyCollections<UID : Any>() {
+import com.fonrouge.commonLib.colls.MarketPlazeCollections
+
+abstract class IShopifyCollections : MarketPlazeCollections() {
     abstract val ShopifyBusinessEntityColl: IShopifyBusinessEntityColl<*>
-    abstract val ShopifyProductColl: IShopifyProductColl<*, *, *>
-    abstract val StoreColl: IStoreColl<*, *, *, *>
+    abstract val ShopifyProductColl: IShopifyProductColl<*>
 }

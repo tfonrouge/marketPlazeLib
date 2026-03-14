@@ -12,8 +12,10 @@ import com.fonrouge.base.common.ICommonContainer
 import com.fonrouge.base.model.BaseDoc
 import com.fonrouge.base.state.SimpleState
 import com.fonrouge.base.state.simpleErrorState
+import com.fonrouge.commonLib.model.Marketplace
+import com.fonrouge.commonLib.model.MarketplaceId
+import com.fonrouge.commonLib.sync.IMarketplaceSync
 import com.fonrouge.fullStack.mongoDb.Coll
-import com.fonrouge.shopifyLib.model.IStoreId
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import kotlinx.serialization.InternalSerializationApi
@@ -29,39 +31,25 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
 ) : Coll<CC, T, ID, FILT, UID>(
     commonContainer = commonContainer,
     debug = debug,
-) {
-    companion object {
-        var storeColl: IStoreColl<*, *, *, *>? = null
-    }
+), IMarketplaceSync<T> {
 
     abstract val queryListKClass: KClass<QQ>
     open val shopifyIgnoredFields: Set<String> = emptySet()
     abstract val shopifyIdName: String?
     open val subNodes: Map<String, Pair<String?, KClass<*>>> = mapOf()
 
-    /**
-     * Adds additional fields to a given document for a specific Shopify store.
-     *
-     * @param storeId The unique identifier of the Shopify store. Represents an instance of `IStore` using its object ID.
-     * @param document The original document to which additional fields should be appended.
-     * @return The updated document with additional fields appended.
-     */
-    open fun additionalFields(storeId: IStoreId, document: Document): Document = document
+    open fun additionalFields(marketplaceId: MarketplaceId, document: Document): Document = document
 
-    /**
-     * Builds and returns an Apollo GraphQL client configured for a specific Shopify store.
-     *
-     * @param storeId The unique identifier of the Shopify store. Represents an instance of `IStore` using its object ID.
-     * @return An `ItemState` wrapping the `ApolloClient` instance. If the store cannot be found or if the
-     *         store collection is not defined, returns an `ItemState` indicating failure with an error message.
-     */
-    suspend fun buildApolloClient(storeId: IStoreId): ApolloClient {
-        val store = storeColl?.findById(storeId) ?: throw Exception("Store Coll not defined")
+    fun buildApolloClient(marketplace: Marketplace): ApolloClient {
+        val config = marketplace.connectionConfig
+        val url = config["url"] ?: throw Exception("Missing 'url' in marketplace connection config")
+        val apiVersion = config["apiVersion"] ?: throw Exception("Missing 'apiVersion' in marketplace connection config")
+        val accessToken = config["accessToken"] ?: throw Exception("Missing 'accessToken' in marketplace connection config")
         val apolloClient = ApolloClient.Builder()
-            .serverUrl(shopifyEndpoint(store.url, store.apiVersion))
+            .serverUrl(shopifyEndpoint(url, apiVersion))
             .httpHeaders(
                 listOf(
-                    HttpHeader("X-Shopify-Access-Token", store.accessToken)
+                    HttpHeader("X-Shopify-Access-Token", accessToken)
                 )
             ).build()
         return apolloClient
@@ -91,17 +79,11 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
         return document
     }
 
-    /**
-     * Synchronizes data from a Shopify store to a local database.
-     *
-     * @param storeId The identifier of the Shopify store to be synchronized. Represents an instance of `IStore` using its unique object ID.
-     * @return A `SimpleState` object indicating the success or failure of the synchronization process, along with optional messages.
-     */
     @Suppress("unused")
     @OptIn(InternalSerializationApi::class)
-    suspend fun syncShopifyToLocal(storeId: IStoreId): SimpleState {
+    suspend fun syncShopifyToLocal(marketplace: Marketplace): SimpleState {
         val apolloClient = try {
-            buildApolloClient(storeId)
+            buildApolloClient(marketplace)
         } catch (e: Exception) {
             return simpleErrorState("buildApolloClient exception: ${e.message}")
         }
@@ -123,7 +105,7 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
             edges?.getList("edges", Document::class.java)?.forEach { edge ->
                 val nodeJson = processSubNodes(
                     document = additionalFields(
-                        storeId = storeId,
+                        marketplaceId = marketplace._id,
                         document = edge.get("node", Document::class.java)
                     )
                 )
@@ -146,5 +128,9 @@ abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>,
         } else {
             SimpleState(isOk = true, "No updates found, $useTime ms used")
         }
+    }
+
+    override suspend fun syncToLocal(marketplace: Marketplace): SimpleState {
+        return syncShopifyToLocal(marketplace)
     }
 }

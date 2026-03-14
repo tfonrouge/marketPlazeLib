@@ -38,6 +38,7 @@ kotlin {
     }
     sourceSets {
         commonMain.dependencies {
+            api(project(":commonLib"))
             api("com.apollographql.apollo:apollo-runtime:4.3.3")
             implementation(libs.fonrouge.base)
             implementation(libs.fonrouge.fullStack)

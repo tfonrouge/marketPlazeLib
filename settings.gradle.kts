@@ -18,3 +18,6 @@ dependencyResolutionManagement {
 rootProject.name = "marketPlazeLib"
 include(":commonLib")
 include(":shopifyLib")
+include(":mercadoLibreLib")
+include(":amazonLib")
+include(":samples")
