@@ -12,7 +12,7 @@ javaxMail = "1.6.2"
 javaxMailApi = "1.6.2"
 javaxXmlSoapApi = "1.4.0"
 jdom = "2.0.2"
-fsLib = "3.0.3"
+fsLib = "3.0.4-SNAPSHOT"
 kiluaRpcVersion = "0.0.42"
 kotlin = "2.3.10"
 kotlinCsvJvm = "1.9.2"
@@ -42,6 +42,7 @@ commons-csv = { module = "org.apache.commons:commons-csv", version.ref = "common
 doyaaaaaken-kotlin-csv-jvm = { module = "com.github.doyaaaaaken:kotlin-csv-jvm", version.ref = "kotlinCsvJvm" }
 fonrouge-fullStack = { module = "com.fonrouge.fslib:fullstack", version.ref = "fsLib" }
 fonrouge-base = { module = "com.fonrouge.fslib:core", version.ref = "fsLib" }
+fonrouge-memorydb = { module = "com.fonrouge.fslib:memorydb", version.ref = "fsLib" }
 fonrouge-mongodb = { module = "com.fonrouge.fslib:mongodb", version.ref = "fsLib" }
 google-zxing-core = { module = "com.google.zxing:core", version.ref = "core" }
 #hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }

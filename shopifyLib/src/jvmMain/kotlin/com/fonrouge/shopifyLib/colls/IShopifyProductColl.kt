@@ -18,7 +18,7 @@ import kotlin.reflect.KClass
 @Suppress("unused")
 abstract class IShopifyProductColl<UID : Any>(
     debug: Boolean = false,
-) : IShopifyColl<CommonShopifyProduct, ShopifyProduct, StringId<ShopifyProduct>, ShopifyProductFilter, UID, GetProductsQuery, GetProductsQuery.Data>(
+) : IShopifyColl<ShopifyProduct, StringId<ShopifyProduct>, ShopifyProductFilter, UID, GetProductsQuery, GetProductsQuery.Data>(
     commonContainer = CommonShopifyProduct,
     debug = debug,
 ) {

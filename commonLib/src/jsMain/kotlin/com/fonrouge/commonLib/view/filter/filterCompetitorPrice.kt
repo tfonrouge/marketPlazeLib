@@ -9,13 +9,15 @@ import io.kvision.form.text.text
 import io.kvision.offcanvas.offcanvas
 import io.kvision.panel.fieldsetPanel
 
-fun ViewList<*, *, *, CompetitorPriceFilter, MarketplaceId>.offCanvasCompetitorPriceFilter(container: Container) =
+fun ViewList<*, *, CompetitorPriceFilter, MarketplaceId>.offCanvasCompetitorPriceFilter(container: Container) = run {
+    val viewList = this
     container.offcanvas(caption = "Filter", scrollableBody = true) {
         fieldsetPanel(legend = "Competitor Price Filter") {
-            text(label = "Competitor Name:", value = apiFilter.competitorName) {
+            text(label = "Competitor Name:", value = viewList.apiFilter.competitorName) {
                 onChange {
-                    apiFilter = apiFilter.copy(competitorName = value?.ifBlank { null })
+                    viewList.apiFilter = viewList.apiFilter.copy(competitorName = value?.ifBlank { null })
                 }
             }
         }
     }
+}

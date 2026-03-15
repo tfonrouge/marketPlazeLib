@@ -25,10 +25,10 @@ import org.bson.Document
 import org.litote.kmongo.eq
 import kotlin.reflect.KClass
 
-abstract class IShopifyColl<CC : ICommonContainer<T, ID, FILT>, T : BaseDoc<ID>, ID : Any, FILT : IApiFilter<*>, UID : Any, QQ : Query<D>, D : Query.Data>(
-    commonContainer: CC,
+abstract class IShopifyColl<T : BaseDoc<ID>, ID : Any, FILT : IApiFilter<*>, UID : Any, QQ : Query<D>, D : Query.Data>(
+    commonContainer: ICommonContainer<T, ID, FILT>,
     debug: Boolean = false,
-) : Coll<CC, T, ID, FILT, UID>(
+) : Coll<T, ID, FILT, UID>(
     commonContainer = commonContainer,
     debug = debug,
 ), IMarketplaceSync<T> {

@@ -2,7 +2,7 @@ package com.fonrouge.amazonLib.colls
 
 import com.fonrouge.amazonLib.common.CommonAmazonProduct
 import com.fonrouge.amazonLib.model.AmazonProduct
-import com.fonrouge.base.api.IApiFilter
+import com.fonrouge.amazonLib.model.AmazonProductFilter
 import com.fonrouge.base.bson.toBsonSet
 import com.fonrouge.base.model.BaseDoc
 import com.fonrouge.base.state.SimpleState
@@ -15,11 +15,10 @@ import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import org.litote.kmongo.eq
 
-abstract class IAmazonProductColl<CC : CommonAmazonProduct<FILT>, FILT : IApiFilter<*>, UID : Any>(
-    commonContainer: CC,
+abstract class IAmazonProductColl<UID : Any>(
     debug: Boolean = false,
-) : Coll<CC, AmazonProduct, StringId<AmazonProduct>, FILT, UID>(
-    commonContainer = commonContainer,
+) : Coll<AmazonProduct, StringId<AmazonProduct>, AmazonProductFilter, UID>(
+    commonContainer = CommonAmazonProduct,
     debug = debug,
 ), IMarketplaceSync<AmazonProduct> {
 

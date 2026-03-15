@@ -7,8 +7,7 @@ import com.fonrouge.shopifyLib.model.ShopifyProductFilter
 
 data object CommonShopifyProduct : ICommonContainer<ShopifyProduct, StringId<ShopifyProduct>, ShopifyProductFilter>(
     itemKClass = ShopifyProduct::class,
-    idSerializer = StringId.serializer(ShopifyProduct.serializer()),
-    apiFilterSerializer = ShopifyProductFilter.serializer(),
+    filterKClass = ShopifyProductFilter::class,
     labelItem = "Shopify Product",
     labelList = "Shopify Products"
 )

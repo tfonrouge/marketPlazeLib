@@ -1,26 +1,24 @@
 package com.fonrouge.mercadoLibreLib.colls
 
-import com.fonrouge.base.api.IApiFilter
-import com.fonrouge.base.types.StringId
-import com.fonrouge.commonLib.model.Marketplace
-import com.fonrouge.commonLib.model.MarketplaceId
-import com.fonrouge.commonLib.sync.IMarketplaceSync
+import com.fonrouge.base.bson.toBsonSet
 import com.fonrouge.base.model.BaseDoc
 import com.fonrouge.base.state.SimpleState
 import com.fonrouge.base.state.simpleErrorState
-import com.fonrouge.base.bson.toBsonSet
+import com.fonrouge.base.types.StringId
+import com.fonrouge.commonLib.model.Marketplace
+import com.fonrouge.commonLib.sync.IMarketplaceSync
 import com.fonrouge.fullStack.mongoDb.Coll
 import com.fonrouge.mercadoLibreLib.common.CommonMercadoLibreProduct
 import com.fonrouge.mercadoLibreLib.model.MercadoLibreProduct
+import com.fonrouge.mercadoLibreLib.model.MercadoLibreProductFilter
 import com.mongodb.client.model.UpdateOneModel
 import com.mongodb.client.model.UpdateOptions
 import org.litote.kmongo.eq
 
-abstract class IMercadoLibreProductColl<CC : CommonMercadoLibreProduct<FILT>, FILT : IApiFilter<*>, UID : Any>(
-    commonContainer: CC,
+abstract class IMercadoLibreProductColl<UID : Any>(
     debug: Boolean = false,
-) : Coll<CC, MercadoLibreProduct, StringId<MercadoLibreProduct>, FILT, UID>(
-    commonContainer = commonContainer,
+) : Coll<MercadoLibreProduct, StringId<MercadoLibreProduct>, MercadoLibreProductFilter, UID>(
+    commonContainer = CommonMercadoLibreProduct,
     debug = debug,
 ), IMarketplaceSync<MercadoLibreProduct> {
 

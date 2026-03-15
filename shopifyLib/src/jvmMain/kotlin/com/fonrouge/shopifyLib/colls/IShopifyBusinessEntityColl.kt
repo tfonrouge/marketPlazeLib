@@ -10,7 +10,7 @@ import com.fonrouge.shopifyLib.model.ShopifyBusinessEntity
 import kotlin.reflect.KClass
 
 abstract class IShopifyBusinessEntityColl<UID : Any>() :
-    IShopifyColl<CommonShopifyBusinessEntity, ShopifyBusinessEntity, StringId<ShopifyBusinessEntity>, ApiFilter, UID, GetBusinessEntitiesQuery, GetBusinessEntitiesQuery.Data>(
+    IShopifyColl<ShopifyBusinessEntity, StringId<ShopifyBusinessEntity>, ApiFilter, UID, GetBusinessEntitiesQuery, GetBusinessEntitiesQuery.Data>(
         commonContainer = CommonShopifyBusinessEntity,
     ) {
     final override val queryListKClass: KClass<GetBusinessEntitiesQuery> = GetBusinessEntitiesQuery::class

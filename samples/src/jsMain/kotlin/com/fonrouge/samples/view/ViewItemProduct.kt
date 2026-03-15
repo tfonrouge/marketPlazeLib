@@ -5,14 +5,23 @@ import com.fonrouge.commonLib.model.Product
 import com.fonrouge.commonLib.model.ProductFilter
 import com.fonrouge.commonLib.model.ProductId
 import com.fonrouge.commonLib.view.form.productFormFields
+import com.fonrouge.fullStack.config.configViewItem
 import com.fonrouge.fullStack.view.ViewFormPanel
 import com.fonrouge.fullStack.view.ViewItem
-import com.fonrouge.samples.configView.SampleConfigView.ConfigViewItemProduct
+import com.fonrouge.samples.services.ISampleItemService
 import io.kvision.core.Container
 
-class ViewItemProduct : ViewItem<CommonProduct, Product, ProductId, ProductFilter>(
-    configView = ConfigViewItemProduct,
+class ViewItemProduct : ViewItem<Product, ProductId, ProductFilter>(
+    configView = configViewItem,
 ) {
+    companion object {
+        val configViewItem = configViewItem(
+            viewKClass = ViewItemProduct::class,
+            commonContainer = CommonProduct,
+            apiItemFun = ISampleItemService::product,
+        )
+    }
+
     override fun Container.pageItemBody(): ViewFormPanel<Product> = viewFormPanel {
         productFormFields()
     }

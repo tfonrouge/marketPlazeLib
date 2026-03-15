@@ -8,7 +8,7 @@ import com.fonrouge.fullStack.mongoDb.Coll
 
 abstract class MarketplaceColl<UID : Any>(
     debug: Boolean = false,
-) : Coll<CommonMarketplace, Marketplace, MarketplaceId, MarketplaceFilter, UID>(
+) : Coll<Marketplace, MarketplaceId, MarketplaceFilter, UID>(
     commonContainer = CommonMarketplace,
     debug = debug,
 )

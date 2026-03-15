@@ -9,16 +9,25 @@ import com.fonrouge.commonLib.view.colDef.colDefMarketplaceName
 import com.fonrouge.commonLib.view.colDef.colDefMarketplaceType
 import com.fonrouge.commonLib.view.filter.bannerLegendMarketplaceFilter
 import com.fonrouge.commonLib.view.filter.offCanvasMarketplaceFilter
+import com.fonrouge.fullStack.config.configViewList
 import com.fonrouge.fullStack.tabulator.fsTabulator
 import com.fonrouge.fullStack.view.ViewList
-import com.fonrouge.samples.configView.SampleConfigView.ConfigViewListMarketplace
+import com.fonrouge.samples.services.ISampleListService
 import io.kvision.core.Container
 import io.kvision.offcanvas.Offcanvas
 import io.kvision.tabulator.ColumnDefinition
 
-open class ViewListMarketplace : ViewList<CommonMarketplace, Marketplace, MarketplaceId, MarketplaceFilter, Unit>(
-    configView = ConfigViewListMarketplace,
+class ViewListMarketplace : ViewList<Marketplace, MarketplaceId, MarketplaceFilter, Unit>(
+    configView = configViewList,
 ) {
+    companion object {
+        val configViewList = configViewList(
+            viewKClass = ViewListMarketplace::class,
+            commonContainer = CommonMarketplace,
+            apiListFun = ISampleListService::marketplace,
+        )
+    }
+
     override fun columnDefinitionList(): List<ColumnDefinition<Marketplace>> = listOf(
         colDefMarketplaceName(),
         colDefMarketplaceType(),

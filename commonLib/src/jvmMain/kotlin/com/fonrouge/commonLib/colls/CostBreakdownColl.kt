@@ -8,7 +8,7 @@ import com.fonrouge.fullStack.mongoDb.Coll
 
 abstract class CostBreakdownColl<UID : Any>(
     debug: Boolean = false,
-) : Coll<CommonCostBreakdown, CostBreakdown, CostBreakdownId, CostBreakdownFilter, UID>(
+) : Coll<CostBreakdown, CostBreakdownId, CostBreakdownFilter, UID>(
     commonContainer = CommonCostBreakdown,
     debug = debug,
 )

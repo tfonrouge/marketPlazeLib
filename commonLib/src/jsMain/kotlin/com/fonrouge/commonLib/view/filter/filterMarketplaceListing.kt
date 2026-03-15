@@ -9,16 +9,17 @@ import io.kvision.form.check.radioGroup
 import io.kvision.offcanvas.offcanvas
 import io.kvision.panel.fieldsetPanel
 
-fun ViewList<*, *, *, MarketplaceListingFilter, MarketplaceId>.offCanvasListingFilter(container: Container) =
+fun ViewList<*, *, MarketplaceListingFilter, MarketplaceId>.offCanvasListingFilter(container: Container) = run {
+    val viewList = this
     container.offcanvas(caption = "Filter", scrollableBody = true) {
         fieldsetPanel(legend = "Listing Filter") {
             radioGroup(
                 label = "Published:",
                 options = listOf("" to "All", "true" to "Published", "false" to "Unpublished"),
-                value = apiFilter.publishEnabled?.toString() ?: "",
+                value = viewList.apiFilter.publishEnabled?.toString() ?: "",
             ) {
                 onChange {
-                    apiFilter = apiFilter.copy(
+                    viewList.apiFilter = viewList.apiFilter.copy(
                         publishEnabled = when (value) {
                             "true" -> true
                             "false" -> false
@@ -29,3 +30,4 @@ fun ViewList<*, *, *, MarketplaceListingFilter, MarketplaceId>.offCanvasListingF
             }
         }
     }
+}

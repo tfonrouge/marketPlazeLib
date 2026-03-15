@@ -8,7 +8,7 @@ import com.fonrouge.fullStack.mongoDb.Coll
 
 abstract class CompetitorPriceColl<UID : Any>(
     debug: Boolean = false,
-) : Coll<CommonCompetitorPrice, CompetitorPrice, CompetitorPriceId, CompetitorPriceFilter, UID>(
+) : Coll<CompetitorPrice, CompetitorPriceId, CompetitorPriceFilter, UID>(
     commonContainer = CommonCompetitorPrice,
     debug = debug,
 )

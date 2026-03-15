@@ -6,16 +6,25 @@ import com.fonrouge.commonLib.view.colDef.colDefBreakdownNetProfit
 import com.fonrouge.commonLib.view.colDef.colDefBreakdownProfitMargin
 import com.fonrouge.commonLib.view.colDef.colDefBreakdownSalePrice
 import com.fonrouge.commonLib.view.colDef.colDefBreakdownTotalCosts
+import com.fonrouge.fullStack.config.configViewList
 import com.fonrouge.fullStack.tabulator.fsTabulator
 import com.fonrouge.fullStack.view.ViewList
-import com.fonrouge.samples.configView.SampleConfigView.ConfigViewListCostBreakdown
+import com.fonrouge.samples.services.ISampleListService
 import io.kvision.core.Container
 import io.kvision.tabulator.ColumnDefinition
 
-open class ViewListCostBreakdown :
-    ViewList<CommonCostBreakdown, CostBreakdown, CostBreakdownId, CostBreakdownFilter, MarketplaceId>(
-        configView = ConfigViewListCostBreakdown,
+class ViewListCostBreakdown :
+    ViewList<CostBreakdown, CostBreakdownId, CostBreakdownFilter, MarketplaceId>(
+        configView = configViewList,
     ) {
+    companion object {
+        val configViewList = configViewList(
+            viewKClass = ViewListCostBreakdown::class,
+            commonContainer = CommonCostBreakdown,
+            apiListFun = ISampleListService::costBreakdown,
+        )
+    }
+
     override fun columnDefinitionList(): List<ColumnDefinition<CostBreakdown>> = listOf(
         colDefBreakdownSalePrice(),
         colDefBreakdownTotalCosts(),
