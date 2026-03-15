@@ -2,7 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.0.1] - 2026-03-14
+## [2.0.1] - 2026-03-15
+
+### Added
+- 8 `SyncScheduler` tests: schedule, cancel, cancelAll, isRunning, onResult callback, failure resilience, reschedule (37 total tests now)
+- `@RpcBindingRoute` annotations on all 14 sample service interface methods for proper Kilua RPC route registration
+
+### Changed
+- Consolidated 6 individual CommonContainer files into single `CommonContainers.kt`
+- Renamed `ICommonShopifyProduct.kt` → `CommonShopifyProduct.kt` to match class name
+- Form builders now use `formRow`/`formColumn` layout from fsLib
+- Updated `CLAUDE.md`: data object containers, samples module, typed filters, view pattern docs
+- Bumped version to 2.0.1
+
+### Removed
+- `imageBanner.kt` — dead relic with hardcoded project-specific images
+
+## [2.0.1-pre] - 2026-03-14
 
 ### Changed
 - Upgrade to fsLib 3.0.4-SNAPSHOT — adapt to breaking API changes:

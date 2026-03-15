@@ -11,6 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ./gradlew :commonLib:jvmTest # Run commonLib tests (Money, pricing services)
 ./gradlew :shopifyLib:jvmTest  # Run shopifyLib tests specifically
 ./gradlew :shopifyLib:jvmTest --tests "ShopifyTest.shopify product properties test"  # Run a single test
+./gradlew :samples:run       # Run sample app (InMemoryRepository, no MongoDB needed)
 ./gradlew publishToMavenLocal  # Publish to local Maven repo
 ```
 
@@ -20,30 +21,33 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Modules
 
-- **commonLib** — Core domain: entity models (`Marketplace`, `Product`, `MarketplaceListing`, `CostStructure`, `CostBreakdown`, `CompetitorPrice`), `Money` value class, pricing services (`ProfitCalculator`, `MarketplaceComparator`, `PriceSuggester`), `IMarketplaceSync` interface, `SyncScheduler`, abstract `ICommonContainer` and `Coll` classes, `MarketPlazeCollections` factory, KVision view components (marketplace, product, cost structure, profit dashboard, competitor prices).
-- **shopifyLib** — Shopify-specific implementation using Apollo GraphQL against the Shopify Admin API. Implements `IMarketplaceSync`. Contains GraphQL schema/queries in `src/commonMain/graphql/`, KVision UI components in `src/jsMain/`, and database collection classes in `src/jvmMain/`.
+- **commonLib** — Core domain: entity models (`Marketplace`, `Product`, `MarketplaceListing`, `CostStructure`, `CostBreakdown`, `CompetitorPrice`), `Money` value class, pricing services (`ProfitCalculator`, `MarketplaceComparator`, `PriceSuggester`), `IMarketplaceSync` interface, `SyncScheduler`, `data object` CommonContainers, abstract `Coll` classes, `MarketPlazeCollections` factory, KVision view building blocks (column definitions, filter views, form builders).
+- **shopifyLib** — Shopify-specific implementation using Apollo GraphQL against the Shopify Admin API. Implements `IMarketplaceSync`. Contains GraphQL schema/queries in `src/commonMain/graphql/` and database collection classes in `src/jvmMain/`.
 - **mercadoLibreLib** — MercadoLibre marketplace integration. `MercadoLibreProduct` model, abstract `IMercadoLibreProductColl` with `fetchProducts()` hook implementing `IMarketplaceSync`. Consumers provide the actual MercadoLibre API client.
 - **amazonLib** — Amazon marketplace integration. `AmazonProduct` model with ASIN-based identification, abstract `IAmazonProductColl` with `fetchProducts()` hook implementing `IMarketplaceSync`. Consumers provide the actual Amazon SP-API client.
+- **samples** — Runnable sample app consuming the library. Uses fsLib's `InMemoryRepository` (no MongoDB). Ktor server on port 8080, KVision frontend with ViewList/ViewItem classes, seed data. Run with `./gradlew :samples:run`.
 
 ### Key Patterns
 
-- **Entity triple**: Each entity requires 3 files: model (`BaseDoc`), container (`ICommonContainer` subclass), and collection (`Coll` subclass in jvmMain)
+- **Entity triple**: Each entity has 3 parts: model (`BaseDoc`), container (`data object` extending `ICommonContainer`), and collection (`Coll` subclass in jvmMain)
 - **Money as cents**: `Money` is a `@JvmInline value class` wrapping `Long` — exact arithmetic, KMP-safe
 - **Marketplace connection**: `Marketplace.connectionConfig: Map<String, String>` stores credentials generically per marketplace type
 - **IMarketplaceSync interface**: Common sync contract in commonLib; implemented by `IShopifyColl`, `IMercadoLibreProductColl`, and `IAmazonProductColl`
 - **SyncScheduler**: Coroutine-based scheduler (JVM) that runs `IMarketplaceSync` tasks at configurable intervals
 - **Abstract fetch pattern**: mercadoLibreLib and amazonLib define abstract `fetchProducts(marketplace)` — consumers implement with their API client
+- **Typed filters**: Each entity has a concrete `IApiFilter` subclass (e.g., `MarketplaceFilter`, `ProductFilter`) with immutable `copy()` pattern for view updates
 - `@ShopifyField` annotation maps Kotlin properties to GraphQL node fields; tests validate these mappings via reflection
 - JVM source sets contain abstract `Coll` classes for MongoDB with bulk upsert sync patterns
-- JS source sets contain KVision view components
+- JS source sets contain reusable KVision building blocks: column definitions (`colDef`), off-canvas filter views (`filter`), form field builders (`form`)
 - GraphQL schema file (`shopify-admin-2025-10.graphqls`) is large (~3.2MB); Apollo generates Kotlin models from it
 - `MarketPlazeCollections` is the base abstract factory; `IShopifyCollections` extends it adding Shopify-specific collections
+- **View pattern**: ViewList/ViewItem classes use companion object `configViewList`/`configViewItem` with `ViewRegistry` for service manager binding (see fsLib showcase and samples module)
 
 ### Dependencies
 
 Core dependencies are managed via `gradle/libs.versions.toml`. Key ones:
-- **fsLib** (Fonrouge full-stack library) — internal dependency providing BaseDoc, ICommonContainer, Coll, OId, StringId
-- **Kilua RPC** — RPC framework
+- **fsLib** (Fonrouge full-stack library, 3.0.4-SNAPSHOT) — BaseDoc, ICommonContainer, Coll, InMemoryRepository, ViewList/ViewItem, OId, StringId
+- **Kilua RPC** — RPC framework for service interface generation
 - **KVision** — UI framework for JS target
 - **Apollo GraphQL** (4.3.3) — GraphQL client for Shopify API; configured as Apollo service "shopify" in package `com.fonrouge`
 - **kotlinx-serialization** and **kotlinx-datetime** — serialization and date/time
