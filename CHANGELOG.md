@@ -14,33 +14,17 @@ All notable changes to this project will be documented in this file.
 - `@RpcBindingRoute` annotations on all 14 sample service interface methods for proper Kilua RPC route registration
 
 ### Changed
+- Adapt to fsLib 3.0.4+ breaking API changes: `Coll`, `ViewList`, `ViewItem`, `InMemoryRepository` all dropped `CC` type parameter; `ICommonContainer` uses `filterKClass` instead of `idSerializer`/`apiFilterSerializer`; `IShopifyColl` reduced from 7 to 6 type parameters
+- **samples**: Runnable sample app following fsLib showcase pattern — `InMemoryRepository` (no MongoDB), `copyJsBundleToAssets` Gradle task, `ViewRegistry` + `KVWebManager.initialize`, companion object ConfigView, Ktor server with seed data on port 8080
+- **mercadoLibreLib/amazonLib**: Added concrete filter classes (`MercadoLibreProductFilter`, `AmazonProductFilter`), converted CommonContainers to data objects
 - Consolidated 6 individual CommonContainer files into single `CommonContainers.kt`
 - Renamed `ICommonShopifyProduct.kt` → `CommonShopifyProduct.kt` to match class name
 - Form builders now use `formRow`/`formColumn` layout from fsLib
+- Filter view extension functions capture `viewList` reference explicitly for nested lambda access
 - Updated `CLAUDE.md`: data object containers, samples module, typed filters, view pattern docs
-- Bumped version to 2.0.1
 
 ### Removed
 - `imageBanner.kt` — dead relic with hardcoded project-specific images
-
-## [2.0.1-pre] - 2026-03-14
-
-### Changed
-- Upgrade to fsLib 3.0.4-SNAPSHOT — adapt to breaking API changes:
-  - `Coll<T, ID, FILT, UID>` (removed CC type parameter)
-  - `ICommonContainer` now takes `filterKClass: KClass<FILT>` instead of `idSerializer` + `apiFilterSerializer`
-  - `ViewList<T, ID, FILT, MID>` and `ViewItem<T, ID, FILT>` (removed CC type parameter)
-  - `InMemoryRepository<T, ID, FILT, UID>` (removed CC type parameter)
-  - `IShopifyColl` reduced from 7 to 6 type parameters
-- **samples**: Runnable sample app following fsLib showcase pattern:
-  - Uses `InMemoryRepository` (memorydb) — no MongoDB required
-  - `copyJsBundleToAssets` Gradle task for JS→JVM asset pipeline
-  - `ViewRegistry` + `KVWebManager.initialize` for proper view routing
-  - Companion object `configViewList`/`configViewItem` per ViewList/ViewItem class
-  - Ktor server with seed data on port 8080
-  - Run with `./gradlew :samples:run`
-- **mercadoLibreLib/amazonLib**: Added concrete filter classes (`MercadoLibreProductFilter`, `AmazonProductFilter`), converted CommonContainers to data objects
-- Filter view extension functions capture `viewList` reference explicitly for nested lambda access
 
 ## [2.0.0] - 2026-03-14
 

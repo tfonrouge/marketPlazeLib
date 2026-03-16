@@ -46,7 +46,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Dependencies
 
 Core dependencies are managed via `gradle/libs.versions.toml`. Key ones:
-- **fsLib** (Fonrouge full-stack library, 3.0.4-SNAPSHOT) — BaseDoc, ICommonContainer, Coll, InMemoryRepository, ViewList/ViewItem, OId, StringId
+- **fsLib** (Fonrouge full-stack library, 3.1.1) — BaseDoc, ICommonContainer, Coll, InMemoryRepository, ViewList/ViewItem, OId, StringId
 - **Kilua RPC** — RPC framework for service interface generation
 - **KVision** — UI framework for JS target
 - **Apollo GraphQL** (4.3.3) — GraphQL client for Shopify API; configured as Apollo service "shopify" in package `com.fonrouge`
