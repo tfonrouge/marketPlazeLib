@@ -15,4 +15,6 @@ data class MarketplaceListing(
     val title: String,
     val price: Money = Money.ZERO,
     val publishEnabled: Boolean = false,
+    val discount: Double = 0.0,
+    val listingUrl: String? = null,
 ) : BaseDoc<MarketplaceListingId>

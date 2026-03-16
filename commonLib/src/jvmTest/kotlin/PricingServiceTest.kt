@@ -3,6 +3,7 @@ import com.fonrouge.commonLib.model.*
 import com.fonrouge.commonLib.service.MarketplaceComparator
 import com.fonrouge.commonLib.service.PriceSuggester
 import com.fonrouge.commonLib.service.ProfitCalculator
+import com.fonrouge.commonLib.service.resolveShippingCost
 import kotlinx.datetime.Clock
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -24,9 +25,9 @@ class PricingServiceTest {
     )
 
     @Test
-    fun `ProfitCalculator computes correct breakdown`() {
-        val salePrice = Money(10000) // $100.00
-        val baseCost = Money(4000)   // $40.00
+    fun `ProfitCalculator computes correct breakdown without taxes`() {
+        val salePrice = Money(10000)
+        val baseCost = Money(4000)
 
         val breakdown = ProfitCalculator.calculate(
             salePrice = salePrice,
@@ -35,79 +36,195 @@ class PricingServiceTest {
         )
 
         assertEquals(salePrice, breakdown.salePrice)
+        assertEquals(salePrice, breakdown.finalPrice) // no discount
         assertEquals(baseCost, breakdown.baseCost)
-        assertTrue(breakdown.lineItems.isNotEmpty())
 
-        // Commission: 10000 * 2.9% = 290 + 30 fixed = 320
         val commissionItem = breakdown.lineItems.first { it.type == "commission" }
         assertEquals(Money(320), commissionItem.amount)
 
-        // Fee: 2900
         val feeItem = breakdown.lineItems.first { it.type == "fee" }
         assertEquals(Money(2900), feeItem.amount)
 
-        // Total costs: 4000 (base) + 320 (commission) + 2900 (fee) = 7220
         assertEquals(Money(7220), breakdown.totalCosts)
-
-        // Net profit: 10000 - 7220 = 2780
         assertEquals(Money(2780), breakdown.netProfit)
-
-        // Margin: 2780/10000 = 27.8%
         assertEquals(27.8, breakdown.profitMarginPercent, 0.01)
+        assertEquals("HEALTHY", breakdown.healthLevel)
+    }
+
+    @Test
+    fun `ProfitCalculator with MX tax withholdings`() {
+        val mlMarketplace = Marketplace(
+            name = "MercadoLibre MX", type = "MercadoLibre",
+            ivaRate = 0.08, isrRate = 0.025, ivaIncluded = true,
+        )
+        val mlCostStructure = CostStructure(
+            marketplaceId = mlMarketplace._id,
+            name = "ML Clasica",
+            commissions = listOf(Commission(name = "Comision", percentage = 16.0)),
+            shippingTiers = listOf(
+                ShippingTier(name = "Bajo", minValue = 0.0, maxValue = 299.0, cost = Money(3700)),
+                ShippingTier(name = "Gratis", minValue = 299.0, maxValue = Double.MAX_VALUE, cost = Money.ZERO),
+            ),
+        )
+
+        val salePrice = Money(50000) // $500 MXN
+        val baseCost = Money(20000)  // $200 MXN
+
+        val breakdown = ProfitCalculator.calculate(
+            salePrice = salePrice,
+            baseCost = baseCost,
+            costStructure = mlCostStructure,
+            marketplace = mlMarketplace,
+        )
+
+        // taxableBase = 50000 / 1.16 = 43103
+        assertEquals(Money(43103), breakdown.taxableBase)
+
+        // IVA = 43103 * 0.08 = 3448
+        assertEquals(Money(3448), breakdown.ivaWithheld)
+
+        // ISR = 43103 * 0.025 = 1077
+        assertEquals(Money(1077), breakdown.isrWithheld)
+
+        // Commission = 50000 * 16% = 8000
+        val commission = breakdown.lineItems.first { it.type == "commission" }
+        assertEquals(Money(8000), commission.amount)
+
+        // Shipping = $500 > $299 → free
+        assertEquals(Money.ZERO, breakdown.shippingCost)
+
+        // Total = 20000 + 8000 + 3448 + 1077 = 32525
+        assertEquals(Money(32525), breakdown.totalCosts)
+
+        // Profit = 50000 - 32525 = 17475
+        assertEquals(Money(17475), breakdown.netProfit)
+
+        // Margin = 17475 / 50000 = 34.95%
+        assertTrue(breakdown.profitMarginPercent > 34.0)
+        assertEquals("EXCELLENT", breakdown.healthLevel)
+    }
+
+    @Test
+    fun `ProfitCalculator with discount`() {
+        val salePrice = Money(10000) // $100
+        val breakdown = ProfitCalculator.calculate(
+            salePrice = salePrice,
+            baseCost = Money(4000),
+            costStructure = basicCostStructure,
+            discount = 0.10, // 10% off
+        )
+        assertEquals(Money(9000), breakdown.finalPrice) // $90 after discount
+        assertEquals(salePrice, breakdown.salePrice) // original price preserved
+    }
+
+    @Test
+    fun `ProfitCalculator with presentation per-piece metrics`() {
+        val presentation = ProductPresentation(
+            label = "Display 10×50",
+            piecesPerPackage = 50,
+            packagesPerDisplay = 10,
+            packagingCost = Money(500),
+        )
+        assertEquals(500, presentation.totalPieces)
+
+        val breakdown = ProfitCalculator.calculate(
+            salePrice = Money(100000), // $1000
+            baseCost = Money(40000),   // $400
+            costStructure = basicCostStructure,
+            presentation = presentation,
+        )
+
+        assertEquals(500, breakdown.piecesCount)
+        assertNotNull(breakdown.pricePerPiece)
+        assertNotNull(breakdown.costPerPiece)
+        assertNotNull(breakdown.profitPerPiece)
+        assertEquals(Money(200), breakdown.pricePerPiece) // 100000/500
+    }
+
+    @Test
+    fun `resolveShippingCost finds correct tier`() {
+        val tiers = listOf(
+            ShippingTier(name = "Bajo", minValue = 0.0, maxValue = 99.0, cost = Money(2500)),
+            ShippingTier(name = "Medio", minValue = 99.0, maxValue = 299.0, cost = Money(3700)),
+            ShippingTier(name = "Gratis", minValue = 299.0, maxValue = Double.MAX_VALUE, cost = Money.ZERO),
+        )
+        assertEquals(Money(2500), resolveShippingCost(Money(5000), tiers))   // $50 → $25
+        assertEquals(Money(3700), resolveShippingCost(Money(15000), tiers))  // $150 → $37
+        assertEquals(Money.ZERO, resolveShippingCost(Money(50000), tiers))   // $500 → free
+    }
+
+    @Test
+    fun `HealthLevel classification`() {
+        assertEquals(HealthLevel.CRITICAL, HealthLevel.classify(5.0))
+        assertEquals(HealthLevel.ACCEPTABLE, HealthLevel.classify(12.0))
+        assertEquals(HealthLevel.HEALTHY, HealthLevel.classify(20.0))
+        assertEquals(HealthLevel.EXCELLENT, HealthLevel.classify(35.0))
+        assertEquals(HealthLevel.CRITICAL, HealthLevel.classify(-5.0))
     }
 
     @Test
     fun `MarketplaceComparator ranks marketplaces correctly`() {
-        val cheaperStructure = CostStructure(
-            marketplaceId = OId(),
-            name = "Cheaper Marketplace",
-            commissions = listOf(
-                Commission(name = "Fee", percentage = 1.0),
-            ),
+        val cheapMarketplace = Marketplace(name = "Cheap", type = "Test")
+        val cheapStructure = CostStructure(
+            marketplaceId = cheapMarketplace._id, name = "Cheap",
+            commissions = listOf(Commission(name = "Fee", percentage = 1.0)),
         )
-
+        val expensiveMarketplace = Marketplace(
+            name = "Expensive", type = "Test",
+            ivaRate = 0.08, isrRate = 0.025,
+        )
         val expensiveStructure = CostStructure(
-            marketplaceId = OId(),
-            name = "Expensive Marketplace",
-            commissions = listOf(
-                Commission(name = "Fee", percentage = 15.0),
-            ),
-            fees = listOf(
-                Fee(name = "Listing Fee", amount = Money(500)),
-            ),
+            marketplaceId = expensiveMarketplace._id, name = "Expensive",
+            commissions = listOf(Commission(name = "Fee", percentage = 15.0)),
+            fees = listOf(Fee(name = "Listing Fee", amount = Money(500))),
         )
 
         val result = MarketplaceComparator.compare(
             salePrice = Money(10000),
             baseCost = Money(4000),
-            costStructures = listOf(cheaperStructure, expensiveStructure),
+            pairs = listOf(
+                MarketplaceComparator.MarketplaceCostPair(cheapMarketplace, cheapStructure),
+                MarketplaceComparator.MarketplaceCostPair(expensiveMarketplace, expensiveStructure),
+            ),
         )
 
         assertEquals(2, result.breakdowns.size)
         assertNotNull(result.bestByProfit)
-        assertEquals(cheaperStructure.marketplaceId, result.bestByProfit!!.marketplaceId)
+        assertEquals(cheapStructure.marketplaceId, result.bestByProfit!!.marketplaceId)
     }
 
     @Test
     fun `PriceSuggester calculates minimum price for target margin`() {
         val costStructure = CostStructure(
-            marketplaceId = marketplaceId,
-            name = "Test",
-            commissions = listOf(
-                Commission(name = "Fee", percentage = 10.0),
-            ),
+            marketplaceId = marketplaceId, name = "Test",
+            commissions = listOf(Commission(name = "Fee", percentage = 10.0)),
         )
-        val baseCost = Money(5000) // $50.00
-
-        // With 10% commission and 20% target margin, denominator = 1 - 0.1 - 0.2 = 0.7
-        // minPrice = 5000 / 0.7 = 7142
         val minPrice = PriceSuggester.minimumPriceForMargin(
-            baseCost = baseCost,
+            baseCost = Money(5000),
             costStructure = costStructure,
             targetMarginPercent = 20.0,
         )
-
         assertEquals(Money(7142), minPrice)
+    }
+
+    @Test
+    fun `PriceSuggester with MX taxes raises minimum price`() {
+        val mlMarketplace = Marketplace(
+            name = "ML", type = "MercadoLibre",
+            ivaRate = 0.08, isrRate = 0.025, ivaIncluded = true,
+        )
+        val costStructure = CostStructure(
+            marketplaceId = mlMarketplace._id, name = "ML",
+            commissions = listOf(Commission(name = "Fee", percentage = 10.0)),
+        )
+        val minPriceNoTax = PriceSuggester.minimumPriceForMargin(
+            baseCost = Money(5000), costStructure = costStructure, targetMarginPercent = 20.0,
+        )
+        val minPriceWithTax = PriceSuggester.minimumPriceForMargin(
+            baseCost = Money(5000), costStructure = costStructure,
+            marketplace = mlMarketplace, targetMarginPercent = 20.0,
+        )
+        assertTrue(minPriceWithTax > minPriceNoTax, "Tax withholdings should raise minimum price")
     }
 
     @Test
@@ -119,13 +236,8 @@ class PricingServiceTest {
             CompetitorPrice(marketplaceId = marketplaceId, competitorName = "C", price = Money(8000), observedAt = now),
         )
 
-        val lowest = PriceSuggester.competitivePrice(prices, PriceSuggester.PriceStrategy.MATCH_LOWEST)
-        assertEquals(Money(8000), lowest)
-
-        val average = PriceSuggester.competitivePrice(prices, PriceSuggester.PriceStrategy.MATCH_AVERAGE)
-        assertEquals(Money(10000), average)
-
-        val belowAvg = PriceSuggester.competitivePrice(prices, PriceSuggester.PriceStrategy.BELOW_AVERAGE)
-        assertEquals(Money(9500), belowAvg)
+        assertEquals(Money(8000), PriceSuggester.competitivePrice(prices, PriceSuggester.PriceStrategy.MATCH_LOWEST))
+        assertEquals(Money(10000), PriceSuggester.competitivePrice(prices, PriceSuggester.PriceStrategy.MATCH_AVERAGE))
+        assertEquals(Money(9500), PriceSuggester.competitivePrice(prices, PriceSuggester.PriceStrategy.BELOW_AVERAGE))
     }
 }

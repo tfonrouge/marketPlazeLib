@@ -1,35 +1,69 @@
 # MarketPlazeLib — Traceability Matrix
 
-## Requirements → Implementation
+**Module**: MarketPlazeLib
+**Last Updated**: 2026-03-15
+**Overall Status**: 95% complete (Phase 9 pending: view building blocks)
 
-| Requirement | Source File(s) | Test |
-|-------------|---------------|------|
-| Money as Long (cents) value class | `commonLib/.../model/Money.kt` | `MoneyTest` |
-| Marketplace entity replaces MarketPlaceId enum + IStore | `commonLib/.../model/Marketplace.kt` | — |
-| Product entity with SKU and base cost | `commonLib/.../model/Product.kt` | — |
-| MarketplaceListing replaces IMarketProduct | `commonLib/.../model/MarketplaceListing.kt` | — |
-| CostStructure per marketplace | `commonLib/.../model/CostStructure.kt` | `PricingServiceTest` |
-| CostBreakdown calculated result | `commonLib/.../model/CostBreakdown.kt` | `PricingServiceTest` |
-| CompetitorPrice tracking | `commonLib/.../model/CompetitorPrice.kt` | `PricingServiceTest` |
-| ProfitCalculator service | `commonLib/.../service/ProfitCalculator.kt` | `PricingServiceTest` |
-| MarketplaceComparator service | `commonLib/.../service/MarketplaceComparator.kt` | `PricingServiceTest` |
-| PriceSuggester service | `commonLib/.../service/PriceSuggester.kt` | `PricingServiceTest` |
-| IMarketplaceSync interface | `commonLib/.../sync/IMarketplaceSync.kt` | — |
-| ICommonContainer per entity (×6) | `commonLib/.../common/Common*.kt` | — |
-| Abstract Coll per entity (×6) | `commonLib/.../colls/*Coll.kt` | — |
-| MarketPlazeCollections factory | `commonLib/.../colls/MarketPlazeCollections.kt` | — |
-| ShopifyProduct uses marketplaceId | `shopifyLib/.../model/ShopifyProduct.kt` | `ShopifyTest` |
-| IShopifyColl implements IMarketplaceSync | `shopifyLib/.../colls/IShopifyColl.kt` | — |
-| IShopifyCollections extends MarketPlazeCollections | `shopifyLib/.../colls/IShopifyCollections.kt` | — |
+## Timeline (Gantt)
 
-## Deleted → Replaced By
+```mermaid
+gantt
+    title MarketPlazeLib — Phase Progress
+    dateFormat YYYY-MM-DD
+    section Phase 1-4: Core + shopifyLib + ML/Amazon + KVision
+        Core Domain + Pricing       :done, p1, 2026-03-14, 2026-03-14
+        shopifyLib Refactor          :done, p2, 2026-03-14, 2026-03-14
+        ML + Amazon modules          :done, p3, 2026-03-14, 2026-03-14
+        KVision building blocks      :done, p4, 2026-03-14, 2026-03-15
+    section Phase 5-7: Scheduler + Samples + Cleanup
+        SyncScheduler + 8 tests      :done, p5, 2026-03-15, 2026-03-15
+        Samples module               :done, p6, 2026-03-14, 2026-03-15
+        Cleanup + fsLib 3.1.1        :done, p7, 2026-03-15, 2026-03-15
+    section Phase 8-9: MX Pricing Engine
+        MX Pricing (IVA/ISR/discount/health) :done, p8, 2026-03-15, 2026-03-15
+        Remaining view colDefs/forms  :       p9, after p8, 1d
+```
 
-| Deleted | Replaced By |
-|---------|-------------|
-| `MarketPlaceId` enum | `Marketplace.type: String` |
-| `IMarketProductId<PID>` | `MarketplaceListing.externalId` |
-| `IMarketProduct<ID>` | `Product` + `MarketplaceListing` |
-| `IMarketProductColl` | `ProductColl` + `MarketplaceListingColl` |
-| `IStore` | `Marketplace` with `connectionConfig` |
-| `IStoreColl` | `MarketplaceColl` |
-| `ICommonStore` | `CommonMarketplace` |
+## Requirement Traceability
+
+| REQ-ID | Description | Phase | Status | Test ID |
+|--------|-------------|-------|--------|---------|
+| FR-01 | Money value class | 1 | Done | TEST-001..010 |
+| FR-02 | Marketplace with IVA/ISR rates | 1,8 | Done | TEST-012 |
+| FR-03 | Product with presentations | 1,8 | Done | TEST-014 |
+| FR-04 | MarketplaceListing with discount | 1,8 | Done | TEST-013 |
+| FR-05 | CostStructure model | 1 | Done | TEST-011 |
+| FR-06 | CostBreakdown with taxes + health | 1,8 | Done | TEST-011..014 |
+| FR-07 | MarketplaceComparator | 1,8 | Done | TEST-017 |
+| FR-08 | PriceSuggester min price | 1,8 | Done | TEST-018, TEST-019 |
+| FR-09 | PriceSuggester competitive | 1 | Done | TEST-020 |
+| FR-10 | IMarketplaceSync interface | 1 | Done | — |
+| FR-11 | SyncScheduler | 5 | Done | TEST-021..028 |
+| FR-12 | Abstract Coll classes | 1 | Done | — |
+| FR-13 | data object CommonContainers | 1,7 | Done | — |
+| FR-14 | Typed filter classes | 1 | Done | TEST-030..043 |
+| FR-15 | KVision column definitions | 4 | Done | — |
+| FR-16 | Off-canvas filter views | 4 | Done | — |
+| FR-17 | Form builders | 4 | Done | — |
+| FR-18 | Shopify pull sync | 2 | Done | TEST-029 |
+| FR-19 | @ShopifyField validation | 2 | Done | TEST-029 |
+| FR-20 | MercadoLibre/Amazon hooks | 3 | Done | — |
+| FR-21 | Shipping tier resolution | 8 | Done | TEST-015 |
+| FR-22 | Health level classification | 8 | Done | TEST-016 |
+| FR-23 | Product presentations | 8 | Done | TEST-014 |
+
+## Milestone Tracker
+
+| Milestone | Planned | Actual | Delta |
+|-----------|---------|--------|-------|
+| v2.0.0 core refactoring | 2026-03-14 | 2026-03-14 | 0 |
+| v2.0.1 cleanup | 2026-03-15 | 2026-03-15 | 0 |
+| v2.0.2 fsLib 3.1.1 | 2026-03-15 | 2026-03-15 | 0 |
+| v2.1.0 MX pricing engine | 2026-03-15 | 2026-03-15 | 0 |
+| v2.1.0 view building blocks | TBD | — | — |
+
+## Open Issues
+
+| Issue | Impact | Target |
+|-------|--------|--------|
+| Phase 9: colDef/form updates for new fields (ivaRate, discount, health, presentations) | Low — cosmetic, consuming app can add its own | Next session |

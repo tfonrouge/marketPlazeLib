@@ -14,4 +14,5 @@ data class Product(
     val baseCost: Money = Money.ZERO,
     val variants: List<ProductVariant> = emptyList(),
     val images: List<ProductImage> = emptyList(),
+    val presentations: List<ProductPresentation> = emptyList(),
 ) : BaseDoc<ProductId>

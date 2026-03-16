@@ -2,6 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2026-03-15
+
+### Added
+- **Mexican marketplace pricing engine**: IVA withholding (8%), ISR withholding (2.5%), taxable base calculation (`finalPrice / 1.16`), discount support, shipping tier resolution, profit health classification (Critical/Acceptable/Healthy/Excellent), per-piece metrics
+- `Marketplace` model: `ivaRate`, `isrRate`, `ivaIncluded` fields for tax withholding configuration
+- `MarketplaceListing` model: `discount` (0.0-1.0) and `listingUrl` fields
+- `CostBreakdown` model: `finalPrice`, `taxableBase`, `ivaWithheld`, `isrWithheld`, `shippingCost`, `healthLevel`, `piecesCount`, `pricePerPiece`, `costPerPiece`, `profitPerPiece`
+- `ProductPresentation` value type (label, piecesPerPackage, packagesPerDisplay, totalPieces, packagingCost, isHypothetical)
+- `PriceListEntry` value type (name, price, currencyCode, compareAtPrice)
+- `HealthLevel` enum with `classify(marginPercent)` companion method
+- `resolveShippingCost(price, tiers)` — price-based shipping tier resolution function
+- `Product` model: `presentations: List<ProductPresentation>`
+- 6 new pricing tests: MX taxes, discount, presentation per-piece, shipping resolution, health classification, PriceSuggester with taxes (43 total tests)
+- `ShopifyPushSync(BRIDGE)` blueprint for future ERP→Shopify push capability
+- `scripts/render_flowchart.py` for rendering Mermaid diagrams to HTML
+
+### Changed
+- **BREAKING**: `ProfitCalculator.calculate()` — new params: `marketplace`, `discount`, `presentation`, `shippingCostOverride`; commissions now applied to `finalPrice` (after discount) instead of `salePrice`
+- **BREAKING**: `MarketplaceComparator.compare()` — `costStructures` param replaced by `pairs: List<MarketplaceCostPair>` (marketplace + cost structure together)
+- **BREAKING**: `PriceSuggester.minimumPriceForMargin()` — new `marketplace` param; accounts for IVA/ISR in denominator
+- **BREAKING**: `ShippingTier` — `minWeight`/`maxWeight` renamed to `minValue`/`maxValue`, added `tierType` ("price"/"weight")
+- Absorbed `MarketplacePricing(BRIDGE)` blueprint into `MarketPlazeLib(MODULE)` as Phase 8
+- Updated all MODULE blueprint artifacts (SPECIFICATION, API_CONTRACT, FLOWCHART, TEST_PLAN, TRACEABILITY_MATRIX) to reflect current state
+
+### Removed
+- `MarketplacePricing(BRIDGE)` directory — work absorbed into MODULE
+
 ## [2.0.2] - 2026-03-15
 
 ### Changed

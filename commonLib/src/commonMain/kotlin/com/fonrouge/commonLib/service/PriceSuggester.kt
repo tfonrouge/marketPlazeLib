@@ -2,12 +2,14 @@ package com.fonrouge.commonLib.service
 
 import com.fonrouge.commonLib.model.CompetitorPrice
 import com.fonrouge.commonLib.model.CostStructure
+import com.fonrouge.commonLib.model.Marketplace
 import com.fonrouge.commonLib.model.Money
 
 object PriceSuggester {
     fun minimumPriceForMargin(
         baseCost: Money,
         costStructure: CostStructure,
+        marketplace: Marketplace = Marketplace(name = "", type = ""),
         targetMarginPercent: Double,
     ): Money {
         val fixedFees = costStructure.fees.sumOf { it.amount.cents }
@@ -17,7 +19,14 @@ object PriceSuggester {
 
         val totalCommissionPercent = costStructure.commissions.sumOf { it.percentage }
 
-        val denominator = 1.0 - (totalCommissionPercent / 100.0) - (targetMarginPercent / 100.0)
+        // Account for tax withholdings in the denominator
+        val taxRate = if (marketplace.ivaIncluded) {
+            (marketplace.ivaRate + marketplace.isrRate) / 1.16
+        } else {
+            marketplace.ivaRate + marketplace.isrRate
+        }
+
+        val denominator = 1.0 - (totalCommissionPercent / 100.0) - taxRate - (targetMarginPercent / 100.0)
         if (denominator <= 0) return Money(Long.MAX_VALUE)
 
         val minPrice = (fixedCosts.toDouble() / denominator).toLong()

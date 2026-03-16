@@ -13,4 +13,7 @@ data class Marketplace(
     val type: String,
     val connectionConfig: Map<String, String> = emptyMap(),
     val enabled: Boolean = true,
+    val ivaRate: Double = 0.0,
+    val isrRate: Double = 0.0,
+    val ivaIncluded: Boolean = true,
 ) : BaseDoc<MarketplaceId>

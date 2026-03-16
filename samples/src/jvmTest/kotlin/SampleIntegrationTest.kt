@@ -201,7 +201,10 @@ class SampleIntegrationTest {
         val result = MarketplaceComparator.compare(
             salePrice = salePrice,
             baseCost = sampleProduct.baseCost,
-            costStructures = listOf(shopifyCostStructure, mlCostStructure),
+            pairs = listOf(
+                MarketplaceComparator.MarketplaceCostPair(shopifyMarketplace, shopifyCostStructure),
+                MarketplaceComparator.MarketplaceCostPair(mlMarketplace, mlCostStructure),
+            ),
             productId = sampleProduct._id,
         )
 

@@ -1,112 +1,105 @@
 # MarketPlazeLib — API Contract
 
-## commonLib Public API
+## Consumer Modules
 
-### Models (commonLib/model)
+| Consumer | Version | Integration |
+|----------|---------|-------------|
+| **mppErsaPack** | 2.1.0+ | Full: ShopifyCollections, RPC services, views |
+
+## Core Models (commonLib)
 
 ```kotlin
-// Money value class
+data class Marketplace(_id, name, type, connectionConfig: Map<String,String>, enabled,
+    ivaRate: Double, isrRate: Double, ivaIncluded: Boolean)
+
+data class Product(_id, sku, name, baseCost: Money, variants, images,
+    presentations: List<ProductPresentation>)
+
+data class MarketplaceListing(_id, productId↗, marketplaceId↗, externalId, title,
+    price: Money, publishEnabled, discount: Double, listingUrl: String?)
+
+data class CostStructure(_id, marketplaceId↗, name, commissions, fees,
+    shippingTiers, advertisingRates, publicationModalities)
+
+data class CostBreakdown(_id, productId↗, marketplaceId↗, listingId↗?,
+    salePrice, finalPrice, baseCost, taxableBase, ivaWithheld, isrWithheld,
+    shippingCost, lineItems, totalCosts, netProfit, profitMarginPercent,
+    healthLevel: String, piecesCount: Int?, pricePerPiece?, costPerPiece?, profitPerPiece?)
+
+data class CompetitorPrice(_id, marketplaceId↗, productId↗?, competitorName, price, observedAt)
+```
+
+## Value Types
+
+```kotlin
 value class Money(val cents: Long) : Comparable<Money>
-  + plus, minus, times, div, unaryMinus, compareTo
-  + Money.ZERO, Money.fromDecimal(units, decimals), toDecimal(decimals)
-
-// Entities
-data class Marketplace(_id, name, type, connectionConfig: Map<String,String>, enabled) : BaseDoc<MarketplaceId>
-data class Product(_id, sku, name, baseCost: Money, variants, images) : BaseDoc<ProductId>
-data class MarketplaceListing(_id, productId, marketplaceId, externalId, title, price: Money, publishEnabled) : BaseDoc<MarketplaceListingId>
-data class CostStructure(_id, marketplaceId, name, commissions, fees, shippingTiers, advertisingRates, publicationModalities) : BaseDoc<CostStructureId>
-data class CostBreakdown(_id, productId, marketplaceId, listingId?, salePrice, baseCost, lineItems, totalCosts, netProfit, profitMarginPercent) : BaseDoc<CostBreakdownId>
-data class CompetitorPrice(_id, marketplaceId, productId?, competitorName, price: Money, observedAt: Instant) : BaseDoc<CompetitorPriceId>
-
-// Value types
 data class Commission(name, percentage: Double, fixedAmount: Money)
 data class Fee(name, amount: Money, type: String)
-data class ShippingTier(name, minWeight, maxWeight, cost: Money)
-data class AdvertisingRate(name, costPerClick: Money, costPerImpression: Money)
-data class PublicationModality(name, fee: Money, features: List<String>)
-data class FeeLineItem(name, amount: Money, type: String)
+data class ShippingTier(name, minValue: Double, maxValue: Double, tierType: String, cost: Money)
 data class ProductVariant(sku, name, price: Money, inventory: Int)
 data class ProductImage(url, altText?, width?, height?)
+data class ProductPresentation(label, piecesPerPackage, packagesPerDisplay, packagingCost, isHypothetical)
+data class PriceListEntry(name, price: Money, currencyCode, compareAtPrice?)
+data class FeeLineItem(name, amount: Money, type: String)
+enum class HealthLevel { CRITICAL, ACCEPTABLE, HEALTHY, EXCELLENT; classify(margin%) }
 ```
 
-### ICommonContainer classes (commonLib/common)
-
-```kotlin
-abstract class CommonMarketplace<FILT>(apiFilterSerializer) : ICommonContainer<Marketplace, MarketplaceId, FILT>
-abstract class CommonProduct<FILT>(apiFilterSerializer) : ICommonContainer<Product, ProductId, FILT>
-abstract class CommonMarketplaceListing<FILT>(apiFilterSerializer) : ICommonContainer<MarketplaceListing, MarketplaceListingId, FILT>
-abstract class CommonCostStructure<FILT>(apiFilterSerializer) : ICommonContainer<CostStructure, CostStructureId, FILT>
-abstract class CommonCostBreakdown<FILT>(apiFilterSerializer) : ICommonContainer<CostBreakdown, CostBreakdownId, FILT>
-abstract class CommonCompetitorPrice<FILT>(apiFilterSerializer) : ICommonContainer<CompetitorPrice, CompetitorPriceId, FILT>
-```
-
-### Coll classes (commonLib/colls, JVM-only)
-
-```kotlin
-abstract class MarketplaceColl<CC, FILT, UID> : Coll<CC, Marketplace, MarketplaceId, FILT, UID>
-abstract class ProductColl<CC, FILT, UID> : Coll<CC, Product, ProductId, FILT, UID>
-abstract class MarketplaceListingColl<CC, FILT, UID> : Coll<CC, MarketplaceListing, MarketplaceListingId, FILT, UID>
-abstract class CostStructureColl<CC, FILT, UID> : Coll<CC, CostStructure, CostStructureId, FILT, UID>
-abstract class CostBreakdownColl<CC, FILT, UID> : Coll<CC, CostBreakdown, CostBreakdownId, FILT, UID>
-abstract class CompetitorPriceColl<CC, FILT, UID> : Coll<CC, CompetitorPrice, CompetitorPriceId, FILT, UID>
-```
-
-### Services (commonLib/service)
+## Pricing Services
 
 ```kotlin
 object ProfitCalculator {
-    fun calculate(salePrice: Money, baseCost: Money, costStructure: CostStructure, productId?, listingId?): CostBreakdown
+    fun calculate(
+        salePrice: Money, baseCost: Money, costStructure: CostStructure,
+        marketplace: Marketplace = default,  // for ivaRate, isrRate, ivaIncluded
+        discount: Double = 0.0,              // listing discount
+        presentation: ProductPresentation? = null,  // per-piece metrics
+        productId: ProductId = OId(), listingId: MarketplaceListingId? = null,
+        shippingCostOverride: Money? = null,
+    ): CostBreakdown
 }
 
+fun resolveShippingCost(price: Money, tiers: List<ShippingTier>): Money
+
 object MarketplaceComparator {
+    data class MarketplaceCostPair(marketplace: Marketplace, costStructure: CostStructure)
     data class ComparisonResult(breakdowns, bestByProfit?, bestByMargin?)
-    fun compare(salePrice: Money, baseCost: Money, costStructures: List<CostStructure>, productId?): ComparisonResult
+    fun compare(salePrice, baseCost, pairs: List<MarketplaceCostPair>,
+        discount, presentation?, productId?): ComparisonResult
 }
 
 object PriceSuggester {
-    enum class PriceStrategy { MATCH_LOWEST, BELOW_AVERAGE, MATCH_AVERAGE }
-    fun minimumPriceForMargin(baseCost: Money, costStructure: CostStructure, targetMarginPercent: Double): Money
-    fun competitivePrice(competitorPrices: List<CompetitorPrice>, strategy: PriceStrategy): Money?
+    fun minimumPriceForMargin(baseCost, costStructure, marketplace?, targetMarginPercent): Money
+    fun competitivePrice(competitorPrices, strategy): Money?
 }
 ```
 
-### Sync Interface (commonLib/sync)
+## Sync Interface
 
 ```kotlin
 interface IMarketplaceSync<T : BaseDoc<*>> {
     suspend fun syncToLocal(marketplace: Marketplace): SimpleState
 }
-```
 
-### Factory (commonLib/colls)
-
-```kotlin
-abstract class MarketPlazeCollections {
-    abstract val MarketplaceColl, ProductColl, MarketplaceListingColl,
-                 CostStructureColl, CostBreakdownColl, CompetitorPriceColl
+class SyncScheduler(scope) {
+    fun schedule(SyncTask): String
+    fun cancel(taskId) / cancelAll() / shutdown()
+    fun isRunning(taskId): Boolean / activeTaskIds(): Set<String>
 }
 ```
 
-## shopifyLib Public API
-
-### Modified Classes
+## Shopify API (shopifyLib)
 
 ```kotlin
-// ShopifyProduct — storeId replaced by marketplaceId
-data class ShopifyProduct(_id: StringId, marketplaceId: MarketplaceId, handle, productType, publishedAt, title, description, descriptionHtml, vendor, totalInventory, media?)
-
-// IShopifyColl — now implements IMarketplaceSync<T>
-abstract class IShopifyColl<CC, T, ID, FILT, UID, QQ, D> : Coll<...>, IMarketplaceSync<T>
-  fun buildApolloClient(marketplace: Marketplace): ApolloClient
-  suspend fun syncShopifyToLocal(marketplace: Marketplace): SimpleState
-  override suspend fun syncToLocal(marketplace: Marketplace): SimpleState
-
-// IShopifyCollections — extends MarketPlazeCollections
-abstract class IShopifyCollections<UID> : MarketPlazeCollections()
-  abstract val ShopifyBusinessEntityColl, ShopifyProductColl
+abstract class IShopifyColl<T, ID, FILT, UID, QQ, D> : Coll<T, ID, FILT, UID>, IMarketplaceSync<T>
+abstract class IShopifyCollections : MarketPlazeCollections()
 ```
 
-### Removed Classes
-- `IStore`, `IStoreId`, `IStoreColl`, `ICommonStore` — replaced by `Marketplace` + `MarketplaceColl`
-- `MarketPlaceId` enum — replaced by `Marketplace.type: String`
-- `IMarketProductId`, `IMarketProduct`, `IMarketProductColl` — replaced by `Product` + `MarketplaceListing`
+## Error Handling
+
+All sync operations return `SimpleState(isOk, msgOk/msgError)`.
+
+## Versioning Policy
+
+- Major (X.0.0): breaking API changes
+- Minor (2.X.0): new features, backward compatible
+- Patch (2.0.X): fixes, dependency upgrades

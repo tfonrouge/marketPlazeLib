@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MarketPlazeLib — Flowcharts</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #2d3148;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #1e1f2e;
+      color: #fff;
+      padding: 24px 40px;
+      border-bottom: 3px solid #4f5bd5;
+    }
+
+    header h1 {
+      margin: 0 0 4px 0;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #9899b0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 40px;
+    }
+
+    .toc {
+      background: #fff;
+      border: 1px solid #e2e4ef;
+      border-radius: 10px;
+      padding: 20px 28px;
+      margin-bottom: 36px;
+    }
+
+    .toc h2 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9899b0;
+      margin: 0 0 12px 0;
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .toc li {
+      margin: 6px 0;
+    }
+
+    .toc a {
+      color: #4f5bd5;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .toc a:hover {
+      text-decoration: underline;
+    }
+
+    .diagram-section {
+      background: #fff;
+      border: 1px solid #e2e4ef;
+      border-radius: 10px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+
+    .diagram-header {
+      padding: 16px 28px;
+      border-bottom: 1px solid #e2e4ef;
+      background: #fafbff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .diagram-number {
+      background: #4f5bd5;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .diagram-header h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #2d3148;
+    }
+
+    .diagram-body {
+      padding: 28px;
+      overflow-x: auto;
+    }
+
+    .prose-block {
+      padding: 12px 28px;
+      color: #555870;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      border-bottom: 1px solid #f0f1f8;
+    }
+
+    .prose-block p { margin: 6px 0; }
+    .prose-block ul, .prose-block ol { margin: 6px 0; padding-left: 22px; }
+    .prose-block li { margin: 4px 0; }
+    .prose-block code {
+      background: #f0f1f8;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.88em;
+    }
+
+    .code-block {
+      position: relative;
+      margin: 0;
+      background: #1e1f2e;
+      border-top: 1px solid #e2e4ef;
+    }
+
+    .code-lang {
+      display: block;
+      padding: 6px 16px 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9899b0;
+      background: #161724;
+    }
+
+    .code-block pre {
+      margin: 0;
+      padding: 16px 20px;
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #c9d1d9;
+      white-space: pre;
+    }
+
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      min-height: 80px;
+    }
+
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .render-error {
+      background: #fff5f5;
+      border: 1px solid #fca5a5;
+      border-radius: 6px;
+      padding: 12px 16px;
+      color: #dc2626;
+      font-size: 0.85rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: #9899b0;
+      font-size: 0.8rem;
+      border-top: 1px solid #e2e4ef;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MarketPlazeLib — Flowcharts</h1>
+    <p>Generated from <code>FLOWCHART.md</code> &mdash; open in any browser, no plugins required</p>
+  </header>
+
+  <div class="container">
+    <div class="toc"><h2>Diagrams in this document</h2><ol><li><a href="#1-happy-path-shopify-pull-sync">1. Happy Path: Shopify Pull Sync</a></li>
+<li><a href="#2-decision-tree-sync-engine-selection">2. Decision Tree: Sync Engine Selection</a></li>
+<li><a href="#3-exception-handling-sync-failures">3. Exception Handling: Sync Failures</a></li>
+<li><a href="#4-profit-calculation-flow-with-mx-taxes">4. Profit Calculation Flow (with MX taxes)</a></li>
+<li><a href="#5-marketplace-comparison-flow">5. Marketplace Comparison Flow</a></li>
+<li><a href="#6-price-suggestion-flow">6. Price Suggestion Flow</a></li>
+<li><a href="#7-syncscheduler-lifecycle">7. SyncScheduler Lifecycle</a></li></ol></div>
+    <div class="diagram-section"><div class="diagram-header"><div class="diagram-number">1</div><h2 id="1-happy-path-shopify-pull-sync">1. Happy Path: Shopify Pull Sync</h2></div><div class="diagram-body"><div class="mermaid">sequenceDiagram
+    participant App
+    participant Scheduler as SyncScheduler
+    participant Sync as IShopifyColl
+    participant Apollo as Apollo GraphQL Client
+    participant API as Shopify Admin API
+    participant DB as MongoDB
+
+    App-&gt;&gt;Scheduler: schedule(SyncTask(marketplace, syncEngine, interval))
+    loop Every interval
+        Scheduler-&gt;&gt;Sync: syncToLocal(marketplace)
+        Sync-&gt;&gt;Sync: buildApolloClient(marketplace.connectionConfig)
+        Sync-&gt;&gt;API: GetProductsQuery(first=250, after=null)
+        loop while hasNextPage
+            API--&gt;&gt;Sync: page {edges, pageInfo}
+            Sync-&gt;&gt;Sync: processSubNodes(media→images)
+            Sync-&gt;&gt;Sync: additionalFields(marketplaceId)
+            Sync-&gt;&gt;DB: bulkWrite(UpdateOneModel, upsert=true)
+            Sync-&gt;&gt;API: GetProductsQuery(first=250, after=endCursor)
+        end
+        Sync--&gt;&gt;Scheduler: SimpleState(isOk=true, "Updated N documents")
+        Scheduler-&gt;&gt;App: onResult(SimpleState)
+    end</div></div></div>
+<div class="diagram-section"><div class="diagram-header"><div class="diagram-number">2</div><h2 id="2-decision-tree-sync-engine-selection">2. Decision Tree: Sync Engine Selection</h2></div><div class="diagram-body"><div class="mermaid">flowchart TD
+    A[App wants to sync marketplace] --&gt; B{marketplace.type?}
+    B --&gt;|Shopify| C[IShopifyColl.syncToLocal]
+    B --&gt;|MercadoLibre| D[IMercadoLibreProductColl.syncToLocal]
+    B --&gt;|Amazon| E[IAmazonProductColl.syncToLocal]
+    B --&gt;|Unknown| F[Error: no sync engine for type]
+    C --&gt; G{connectionConfig has url + apiVersion + accessToken?}
+    G --&gt;|Yes| H[Build Apollo client → paginated fetch]
+    G --&gt;|No| I[Error: Missing connection config keys]
+    D --&gt; J{Consumer implemented fetchProducts?}
+    J --&gt;|Yes| K[Fetch → bulk upsert]
+    J --&gt;|No| L[Abstract method — consumer must implement]
+    E --&gt; J</div></div></div>
+<div class="diagram-section"><div class="diagram-header"><div class="diagram-number">3</div><h2 id="3-exception-handling-sync-failures">3. Exception Handling: Sync Failures</h2></div><div class="diagram-body"><div class="mermaid">flowchart TD
+    A[syncToLocal called] --&gt; B{Build Apollo client}
+    B --&gt;|Missing config key| C[Return simpleErrorState: Missing key in connectionConfig]
+    B --&gt;|Success| D{Execute GraphQL query}
+    D --&gt;|Network error| E[Return simpleErrorState: connection failed]
+    D --&gt;|Auth error 401| F[Return simpleErrorState: invalid access token]
+    D --&gt;|Rate limit 429| G[Return simpleErrorState: rate limited]
+    D --&gt;|Success| H{Parse response}
+    H --&gt;|No data| I[Return simpleErrorState: No data found]
+    H --&gt;|Parse error| J[Return simpleErrorState: deserialization failed]
+    H --&gt;|Success| K{Bulk write to MongoDB}
+    K --&gt;|Not acknowledged| L[Return SimpleState isOk=false: not acknowledged]
+    K --&gt;|Success| M[Return SimpleState isOk=true: Updated N docs]
+
+    N[SyncScheduler catches exceptions] --&gt; O{Exception type}
+    O --&gt;|Any| P[Wrap in SimpleState isOk=false]
+    P --&gt; Q[Call onResult callback]
+    Q --&gt; R[Continue scheduling — do NOT crash]</div></div></div>
+<div class="diagram-section"><div class="diagram-header"><div class="diagram-number">4</div><h2 id="4-profit-calculation-flow-with-mx-taxes">4. Profit Calculation Flow (with MX taxes)</h2></div><div class="diagram-body"><div class="mermaid">flowchart TD
+    A["salePrice + baseCost + costStructure + marketplace + discount + presentation?"] --&gt; B["finalPrice = salePrice × (1 - discount)"]
+    B --&gt; C{"marketplace.ivaIncluded?"}
+    C --&gt;|true| D["taxableBase = finalPrice / 1.16"]
+    C --&gt;|false| E["taxableBase = finalPrice"]
+    D --&gt; F["ivaWithheld = taxableBase × ivaRate"]
+    E --&gt; F
+    F --&gt; G["isrWithheld = taxableBase × isrRate"]
+    G --&gt; H[Apply Commissions: finalPrice × % + fixed]
+    H --&gt; I[Apply Fees + Modality Fees]
+    I --&gt; J["shippingCost = resolveShippingCost(finalPrice, tiers)"]
+    J --&gt; K["totalCosts = baseCost + packagingCost + all lineItems"]
+    K --&gt; L["netProfit = finalPrice - totalCosts"]
+    L --&gt; M["margin% = netProfit / finalPrice × 100"]
+    M --&gt; N["healthLevel = classify(margin%)"]
+    N --&gt; O{"presentation.totalPieces &gt; 0?"}
+    O --&gt;|yes| P["per-piece: price/cost/profit ÷ totalPieces"]
+    O --&gt;|no| Q[per-piece = null]
+    P --&gt; R[CostBreakdown]
+    Q --&gt; R</div></div></div>
+<div class="diagram-section"><div class="diagram-header"><div class="diagram-number">5</div><h2 id="5-marketplace-comparison-flow">5. Marketplace Comparison Flow</h2></div><div class="diagram-body"><div class="mermaid">flowchart TD
+    A[Product + N CostStructures] --&gt; B[MarketplaceComparator.compare]
+    B --&gt; C[For each CostStructure]
+    C --&gt; D[ProfitCalculator.calculate]
+    D --&gt; E[List of CostBreakdowns]
+    E --&gt; F[maxByOrNull netProfit → bestByProfit]
+    E --&gt; G[maxByOrNull profitMargin → bestByMargin]
+    F --&gt; H[ComparisonResult]
+    G --&gt; H</div></div></div>
+<div class="diagram-section"><div class="diagram-header"><div class="diagram-number">6</div><h2 id="6-price-suggestion-flow">6. Price Suggestion Flow</h2></div><div class="diagram-body"><div class="mermaid">flowchart TD
+    A[Base Cost + CostStructure + Marketplace + Target Margin] --&gt; B[PriceSuggester.minimumPriceForMargin]
+    B --&gt; C[fixedCosts = baseCost + fees + fixedCommissions + modalityFees]
+    C --&gt; D["taxRate = (ivaRate + isrRate) / 1.16 if ivaIncluded"]
+    D --&gt; D2["denominator = 1 - commissionRate - taxRate - marginRate"]
+    D --&gt; E{"denominator ≤ 0?"}
+    E --&gt;|Yes| F["Return Money(Long.MAX_VALUE) — impossible margin"]
+    E --&gt;|No| G["minPrice = fixedCosts / denominator"]
+    G --&gt; H[Money]
+
+    I[Competitor Prices + Strategy] --&gt; J[PriceSuggester.competitivePrice]
+    J --&gt; K{"prices empty?"}
+    K --&gt;|Yes| L[Return null]
+    K --&gt;|No| M{Strategy?}
+    M --&gt;|MATCH_LOWEST| N[min of prices]
+    M --&gt;|MATCH_AVERAGE| O[average of prices]
+    M --&gt;|BELOW_AVERAGE| P["95% of average"]</div></div></div>
+<div class="diagram-section"><div class="diagram-header"><div class="diagram-number">7</div><h2 id="7-syncscheduler-lifecycle">7. SyncScheduler Lifecycle</h2></div><div class="diagram-body"><div class="mermaid">stateDiagram-v2
+    [*] --&gt; Idle: SyncScheduler created
+    Idle --&gt; Running: schedule(SyncTask)
+    Running --&gt; Running: schedule(same marketplace) — cancel old + start new
+    Running --&gt; Running: schedule(different marketplace) — add concurrent
+    Running --&gt; PartialStop: cancel(taskId)
+    PartialStop --&gt; Idle: last task cancelled
+    PartialStop --&gt; Running: schedule(new task)
+    Running --&gt; Idle: cancelAll()
+    Running --&gt; Terminated: shutdown()
+    Idle --&gt; Terminated: shutdown()
+    PartialStop --&gt; Terminated: shutdown()
+
+    state Running {
+        [*] --&gt; Syncing
+        Syncing --&gt; WaitingInterval: sync complete (ok or error)
+        WaitingInterval --&gt; Syncing: interval elapsed
+    }</div></div></div>
+  </div>
+
+  <footer>
+    Generated by render_flowchart.py &bull; business-module-workflow skill
+  </footer>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: { curve: 'basis', useMaxWidth: true },
+      sequence: { useMaxWidth: true },
+      themeVariables: {
+        primaryColor: '#4f5bd5',
+        primaryTextColor: '#2d3148',
+        primaryBorderColor: '#3d4ac4',
+        lineColor: '#6b7280',
+        secondaryColor: '#f0f1f8',
+        tertiaryColor: '#fafbff',
+      }
+    });
+  </script>
+</body>
+</html>

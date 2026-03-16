@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShopifyPushSync — Entity Descriptor</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f5f6fa;
+      color: #2d3148;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: #1e1f2e;
+      color: #fff;
+      padding: 24px 40px;
+      border-bottom: 3px solid #4f5bd5;
+    }
+
+    header h1 {
+      margin: 0 0 4px 0;
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    header p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: #9899b0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 40px;
+    }
+
+    .toc {
+      background: #fff;
+      border: 1px solid #e2e4ef;
+      border-radius: 10px;
+      padding: 20px 28px;
+      margin-bottom: 36px;
+    }
+
+    .toc h2 {
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9899b0;
+      margin: 0 0 12px 0;
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .toc li {
+      margin: 6px 0;
+    }
+
+    .toc a {
+      color: #4f5bd5;
+      text-decoration: none;
+      font-size: 0.95rem;
+    }
+
+    .toc a:hover {
+      text-decoration: underline;
+    }
+
+    .diagram-section {
+      background: #fff;
+      border: 1px solid #e2e4ef;
+      border-radius: 10px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+
+    .diagram-header {
+      padding: 16px 28px;
+      border-bottom: 1px solid #e2e4ef;
+      background: #fafbff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .diagram-number {
+      background: #4f5bd5;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .diagram-header h2 {
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #2d3148;
+    }
+
+    .diagram-body {
+      padding: 28px;
+      overflow-x: auto;
+    }
+
+    .prose-block {
+      padding: 12px 28px;
+      color: #555870;
+      font-size: 0.92rem;
+      line-height: 1.65;
+      border-bottom: 1px solid #f0f1f8;
+    }
+
+    .prose-block p { margin: 6px 0; }
+    .prose-block ul, .prose-block ol { margin: 6px 0; padding-left: 22px; }
+    .prose-block li { margin: 4px 0; }
+    .prose-block code {
+      background: #f0f1f8;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.88em;
+    }
+
+    .code-block {
+      position: relative;
+      margin: 0;
+      background: #1e1f2e;
+      border-top: 1px solid #e2e4ef;
+    }
+
+    .code-lang {
+      display: block;
+      padding: 6px 16px 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #9899b0;
+      background: #161724;
+    }
+
+    .code-block pre {
+      margin: 0;
+      padding: 16px 20px;
+      overflow-x: auto;
+    }
+
+    .code-block code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: #c9d1d9;
+      white-space: pre;
+    }
+
+    .mermaid {
+      display: flex;
+      justify-content: center;
+      min-height: 80px;
+    }
+
+    .mermaid svg {
+      max-width: 100%;
+      height: auto;
+    }
+
+    .render-error {
+      background: #fff5f5;
+      border: 1px solid #fca5a5;
+      border-radius: 6px;
+      padding: 12px 16px;
+      color: #dc2626;
+      font-size: 0.85rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 24px;
+      color: #9899b0;
+      font-size: 0.8rem;
+      border-top: 1px solid #e2e4ef;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ShopifyPushSync — Entity Descriptor</h1>
+    <p>Generated from <code>ENTITY_DESCRIPTOR.md</code> &mdash; open in any browser, no plugins required</p>
+  </header>
+
+  <div class="container">
+    <div class="toc"><h2>Diagrams in this document</h2><ol><li><a href="#entity-overview">Entity Overview</a></li>
+<li><a href="#state-machine-product-sync-lifecycle">State Machine: Product Sync Lifecycle</a></li>
+<li><a href="#business-rules">Business Rules</a></li>
+<li><a href="#data-model">Data Model</a></li>
+<li><a href="#integration-flow">Integration Flow</a></li>
+<li><a href="#actor-matrix">Actor Matrix</a></li></ol></div>
+    <div class="diagram-section"><div class="diagram-header"><div class="diagram-number">1</div><h2 id="entity-overview">Entity Overview</h2></div></div>
+<div class="diagram-section"><div class="diagram-header"><h2 id="shopifycollection" style="font-size:0.95rem">ShopifyCollection</h2></div><div class="prose-block"><p>Represents a Shopify product collection (manual or automated). Used to organize products into browsable groups on the storefront. Synced bidirectionally — pulled from Shopify and managed via mutations.</p></div></div>
+<div class="diagram-section"><div class="diagram-header"><h2 id="product-enriched-existing-entity" style="font-size:0.95rem">Product (enriched — existing entity)</h2></div><div class="prose-block"><p>The <code>Product</code> entity in commonLib is enriched with ERP-facing attributes needed for marketplace publishing: ERP source ID, price lists, inventory quantity, rich description, publish control, tags, weight, barcode, SEO metadata.</p>
+<p>---</p></div></div>
+<div class="diagram-section"><div class="diagram-header"><div class="diagram-number">2</div><h2 id="state-machine-product-sync-lifecycle">State Machine: Product Sync Lifecycle</h2></div><div class="diagram-body"><div class="mermaid">stateDiagram-v2
+    [*] --&gt; InErpOnly: Product read from ERP
+    InErpOnly --&gt; Creating: publishEnabled=true, no MarketplaceListing exists
+    Creating --&gt; Synced: createProduct mutation succeeds → MarketplaceListing created
+    Creating --&gt; CreateFailed: Shopify API error
+    CreateFailed --&gt; Creating: retry
+
+    Synced --&gt; Updating: ERP data changed (price, inventory, description)
+    Updating --&gt; Synced: updateProduct mutation succeeds
+    Updating --&gt; UpdateFailed: Shopify API error
+    UpdateFailed --&gt; Updating: retry
+
+    Synced --&gt; Unpublishing: publishEnabled set to false
+    Unpublishing --&gt; Unpublished: publishableUnpublish succeeds
+
+    Unpublished --&gt; Creating: publishEnabled set to true again
+
+    InErpOnly --&gt; Skipped: publishEnabled=false
+    Skipped --&gt; InErpOnly: publishEnabled changed to true
+
+    [*] --&gt; OrphanedOnShopify: product exists on Shopify but not in ERP
+    OrphanedOnShopify --&gt; [*]: manual review / delete decision</div></div></div>
+<div class="diagram-section"><div class="diagram-header"><div class="diagram-number">3</div><h2 id="business-rules">Business Rules</h2></div><div class="prose-block"><ul>
+<li>BR-01: The system SHALL read product data from the ERP via <code>IErpProductReader</code> — the library defines the interface, the consuming app implements it</li>
+<li>BR-02: The system SHALL only push products where <code>publishEnabled = true</code> to Shopify</li>
+<li>BR-03: The system SHALL create a <code>MarketplaceListing</code> record when a product is first pushed to Shopify, storing the Shopify product ID as <code>externalId</code></li>
+<li>BR-04: The system SHALL update (not recreate) existing Shopify products when <code>MarketplaceListing.externalId</code> already exists</li>
+<li>BR-05: The system SHALL map <code>Product.priceLists</code> entries to Shopify variant prices based on price list name matching (e.g., a "Shopify" price list maps to the Shopify selling price)</li>
+<li>BR-06: The system SHALL update Shopify inventory quantities per location via <code>inventorySetQuantities</code> mutation</li>
+<li>BR-07: The system SHALL upload images via Shopify's staged uploads pattern (stagedUploadsCreate → HTTP POST → productCreateMedia)</li>
+<li>BR-08: The system SHALL support image deletion and reordering on Shopify products</li>
+<li>BR-09: The system SHALL support adding/removing products from Shopify collections</li>
+<li>BR-10: The system SHALL produce a <code>SyncReport</code> from <code>reconcile()</code> listing: products to create, products to update (with changed fields), orphaned Shopify products not in ERP</li>
+<li>BR-11: The system SHALL handle Shopify API rate limits gracefully — retry with backoff or report as partial failure, never crash</li>
+<li>BR-12: The <code>IMarketplaceSync</code> interface SHALL be extended with <code>syncToRemote(marketplace): SimpleState</code> for the push direction</li>
+</ul></div></div>
+<div class="diagram-section"><div class="diagram-header"><div class="diagram-number">4</div><h2 id="data-model">Data Model</h2></div></div>
+<div class="diagram-section"><div class="diagram-header"><h2 id="product-enriched-fields-added-to-existing-entity" style="font-size:0.95rem">Product (enriched fields — added to existing entity)</h2></div><div class="prose-block"><table style="border-collapse:collapse;width:100%;font-size:0.9rem;margin:8px 0">
+<tr><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Field</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Type</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Constraint</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Purpose</th></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>erpSourceId</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Optional</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">ID in ERP origin table</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>priceLists</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>List<PriceListEntry></code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Default empty</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Multiple price tiers</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>inventoryQuantity</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>Int</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Default 0</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Available inventory</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>descriptionHtml</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Optional</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Rich HTML description</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>publishEnabled</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>Boolean</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Default false</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Publish to marketplaces</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>status</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">"active"/"draft"/"archived"</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Product lifecycle status</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>tags</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>List<String></code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Default empty</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Categorization tags</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>weight</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>Double?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Optional</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Product weight</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>weightUnit</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">"kg"/"g"/"lb"/"oz"</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Weight unit</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>barcode</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Optional</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">GTIN/UPC/EAN</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>seoTitle</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Optional</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">SEO meta title</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>seoDescription</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Optional</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">SEO meta description</td></tr>
+</table></div></div>
+<div class="diagram-section"><div class="diagram-header"><h2 id="pricelistentry-new-value-type" style="font-size:0.95rem">PriceListEntry (new value type)</h2></div><div class="prose-block"><table style="border-collapse:collapse;width:100%;font-size:0.9rem;margin:8px 0">
+<tr><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Field</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Type</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Purpose</th></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>name</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">"Retail", "Wholesale", "Shopify"</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>price</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>Money</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Price amount in cents</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>currencyCode</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">ISO 4217 currency code (default "MXN")</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>compareAtPrice</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>Money?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Strikethrough/compare-at price</td></tr>
+</table></div></div>
+<div class="diagram-section"><div class="diagram-header"><h2 id="productvariant-enriched-fields" style="font-size:0.95rem">ProductVariant (enriched fields)</h2></div><div class="prose-block"><table style="border-collapse:collapse;width:100%;font-size:0.9rem;margin:8px 0">
+<tr><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Field</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Type</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Purpose</th></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>compareAtPrice</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>Money?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Variant compare-at price</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>barcode</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Variant barcode</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>weight</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>Double?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Variant weight</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>weightUnit</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Variant weight unit</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>options</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>Map<String, String></code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Option values: "Color"→"Red"</td></tr>
+</table></div></div>
+<div class="diagram-section"><div class="diagram-header"><h2 id="productimage-enriched-fields" style="font-size:0.95rem">ProductImage (enriched fields)</h2></div><div class="prose-block"><table style="border-collapse:collapse;width:100%;font-size:0.9rem;margin:8px 0">
+<tr><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Field</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Type</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Purpose</th></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>position</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>Int</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Display order (0-based)</td></tr>
+</table></div></div>
+<div class="diagram-section"><div class="diagram-header"><h2 id="shopifycollection-new-entity" style="font-size:0.95rem">ShopifyCollection (new entity)</h2></div><div class="prose-block"><table style="border-collapse:collapse;width:100%;font-size:0.9rem;margin:8px 0">
+<tr><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Field</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Type</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Constraint</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Purpose</th></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>_id</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>StringId<ShopifyCollection></code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">PK</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Shopify collection GID</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>marketplaceId</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>MarketplaceId</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">FK</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Which Shopify store</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>title</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Required</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Collection title</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>handle</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Required</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">URL handle</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>descriptionHtml</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String?</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Optional</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Collection description</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>sortOrder</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>String</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Default "BEST_SELLING"</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Sort order</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>productsCount</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>Int</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Default 0</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Number of products</td></tr>
+</table></div></div>
+<div class="diagram-section"><div class="diagram-header"><h2 id="syncreport-new-value-type" style="font-size:0.95rem">SyncReport (new value type)</h2></div><div class="prose-block"><table style="border-collapse:collapse;width:100%;font-size:0.9rem;margin:8px 0">
+<tr><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Field</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Type</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Purpose</th></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>toCreate</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>List<Product></code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Products in ERP but not on Shopify</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>toUpdate</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>List<SyncDiff></code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Products with changed fields</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>orphaned</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>List<ShopifyProduct></code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Products on Shopify but not in ERP</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>inSync</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>Int</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Count of products that match</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>errors</code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;"><code>List<SyncError></code></td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Failures during reconciliation</td></tr>
+</table>
+<p>---</p></div></div>
+<div class="diagram-section"><div class="diagram-header"><div class="diagram-number">5</div><h2 id="integration-flow">Integration Flow</h2></div><div class="diagram-body"><div class="mermaid">sequenceDiagram
+    participant ERP as Consumer App (IErpProductReader)
+    participant Engine as ShopifyBidirectionalSyncEngine
+    participant CommonLib as commonLib (Product, MarketplaceListing)
+    participant ShopifyLib as shopifyLib (IShopifyPushService)
+    participant Shopify as Shopify Admin API
+
+    ERP-&gt;&gt;Engine: readProducts()
+    Engine-&gt;&gt;CommonLib: lookup MarketplaceListings for marketplace
+    Engine-&gt;&gt;Engine: match ERP products to existing listings by productId
+
+    loop Products to create
+        Engine-&gt;&gt;ShopifyLib: createProduct(marketplace, product)
+        ShopifyLib-&gt;&gt;Shopify: mutation productCreate
+        Shopify--&gt;&gt;ShopifyLib: shopifyId
+        ShopifyLib--&gt;&gt;Engine: SimpleState(ok)
+        Engine-&gt;&gt;CommonLib: insert MarketplaceListing(externalId=shopifyId)
+    end
+
+    loop Products to update
+        Engine-&gt;&gt;ShopifyLib: updateProduct(marketplace, product, shopifyId)
+        ShopifyLib-&gt;&gt;Shopify: mutation productUpdate
+        Engine-&gt;&gt;ShopifyLib: updateInventory(marketplace, shopifyId, qty)
+        ShopifyLib-&gt;&gt;Shopify: mutation inventorySetQuantities
+    end
+
+    Engine-&gt;&gt;Engine: manage images (staged uploads)
+    Engine-&gt;&gt;Engine: manage collections (add/remove)
+    Engine--&gt;&gt;ERP: SimpleState(summary)</div></div></div>
+<div class="diagram-section"><div class="diagram-header"><div class="diagram-number">6</div><h2 id="actor-matrix">Actor Matrix</h2></div><div class="prose-block"><table style="border-collapse:collapse;width:100%;font-size:0.9rem;margin:8px 0">
+<tr><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Actor</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Create Product</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Read Product</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Update Product</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Sync to Shopify</th><th style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;background:#f0f1f8;font-weight:600;">Manage Collections</th></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">ERP System (via IErpProductReader)</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">—</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Read</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">—</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">—</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">—</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">ShopifyPushService</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Create on Shopify</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">—</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Update on Shopify</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Execute</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Manage</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">SyncEngine</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">—</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Read local</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">—</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Orchestrate</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Orchestrate</td></tr>
+<tr><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">App Admin (via consuming app)</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">—</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">View reports</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">—</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Trigger</td><td style="padding:7px 12px;border:1px solid #e2e4ef;text-align:left;">Configure</td></tr>
+</table></div></div>
+  </div>
+
+  <footer>
+    Generated by render_flowchart.py &bull; business-module-workflow skill
+  </footer>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      flowchart: { curve: 'basis', useMaxWidth: true },
+      sequence: { useMaxWidth: true },
+      themeVariables: {
+        primaryColor: '#4f5bd5',
+        primaryTextColor: '#2d3148',
+        primaryBorderColor: '#3d4ac4',
+        lineColor: '#6b7280',
+        secondaryColor: '#f0f1f8',
+        tertiaryColor: '#fafbff',
+      }
+    });
+  </script>
+</body>
+</html>

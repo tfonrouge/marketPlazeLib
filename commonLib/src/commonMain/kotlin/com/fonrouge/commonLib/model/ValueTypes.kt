@@ -19,8 +19,9 @@ data class Fee(
 @Serializable
 data class ShippingTier(
     val name: String,
-    val minWeight: Double = 0.0,
-    val maxWeight: Double = Double.MAX_VALUE,
+    val minValue: Double = 0.0,
+    val maxValue: Double = Double.MAX_VALUE,
+    val tierType: String = "price",
     val cost: Money,
 )
 
@@ -60,3 +61,38 @@ data class ProductImage(
     val width: Int? = null,
     val height: Int? = null,
 )
+
+@Serializable
+data class ProductPresentation(
+    val label: String,
+    val piecesPerPackage: Int = 1,
+    val packagesPerDisplay: Int = 1,
+    val packagingCost: Money = Money.ZERO,
+    val isHypothetical: Boolean = false,
+) {
+    val totalPieces: Int get() = piecesPerPackage * packagesPerDisplay
+}
+
+@Serializable
+data class PriceListEntry(
+    val name: String,
+    val price: Money,
+    val currencyCode: String = "MXN",
+    val compareAtPrice: Money? = null,
+)
+
+enum class HealthLevel(val label: String, val minMargin: Double) {
+    CRITICAL("Crítico", 0.0),
+    ACCEPTABLE("Aceptable", 10.0),
+    HEALTHY("Saludable", 15.0),
+    EXCELLENT("Excelente", 30.0);
+
+    companion object {
+        fun classify(marginPercent: Double): HealthLevel = when {
+            marginPercent >= 30.0 -> EXCELLENT
+            marginPercent >= 15.0 -> HEALTHY
+            marginPercent >= 10.0 -> ACCEPTABLE
+            else -> CRITICAL
+        }
+    }
+}

@@ -4,6 +4,11 @@ import com.fonrouge.base.types.OId
 import com.fonrouge.commonLib.model.*
 
 object MarketplaceComparator {
+    data class MarketplaceCostPair(
+        val marketplace: Marketplace,
+        val costStructure: CostStructure,
+    )
+
     data class ComparisonResult(
         val breakdowns: List<CostBreakdown>,
         val bestByProfit: CostBreakdown?,
@@ -13,14 +18,19 @@ object MarketplaceComparator {
     fun compare(
         salePrice: Money,
         baseCost: Money,
-        costStructures: List<CostStructure>,
+        pairs: List<MarketplaceCostPair>,
+        discount: Double = 0.0,
+        presentation: ProductPresentation? = null,
         productId: ProductId = OId(),
     ): ComparisonResult {
-        val breakdowns = costStructures.map { cs ->
+        val breakdowns = pairs.map { (marketplace, costStructure) ->
             ProfitCalculator.calculate(
                 salePrice = salePrice,
                 baseCost = baseCost,
-                costStructure = cs,
+                costStructure = costStructure,
+                marketplace = marketplace,
+                discount = discount,
+                presentation = presentation,
                 productId = productId,
             )
         }
