@@ -6,4 +6,5 @@ import com.fonrouge.commonLib.model.Marketplace
 
 interface IMarketplaceSync<T : BaseDoc<*>> {
     suspend fun syncToLocal(marketplace: Marketplace): SimpleState
+    suspend fun syncToRemote(marketplace: Marketplace): SimpleState
 }

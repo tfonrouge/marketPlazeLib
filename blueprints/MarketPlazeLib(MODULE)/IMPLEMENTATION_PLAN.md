@@ -1,6 +1,6 @@
 # MarketPlazeLib — Implementation Plan
 
-**Status: COMPLETED** — All phases shipped as v2.0.2
+**Status: COMPLETED** — All phases shipped as v1.0.0
 
 ## Phase 1: Core Domain (commonLib) ✅
 - **Deliverable**: Entity models, Money, value types, pricing services
@@ -105,3 +105,6 @@
 | Shopify GraphQL schema changes | Medium — @ShopifyField test catches mismatches | ShopifyTest validates at compile time via reflection | Mitigated |
 | KVision view building blocks too thin | Low — consuming app can extend | Provide samples module as reference | Accepted |
 | MercadoLibre/Amazon abstract implementations untested | Low — consumer responsibility | Document the pattern, provide fetchProducts() hook | Accepted |
+
+---
+[← Index](../INDEX.md) · [BRIEF](BRIEF.md) · [SPEC](SPECIFICATION.md) · [FLOWCHART](FLOWCHART.md) · [API SURFACE](API_SURFACE.md) · [VIEWS](VIEW_MAP.md) · **PLAN** · [TESTS](TEST_PLAN.md) · [MATRIX](TRACEABILITY_MATRIX.md) · [AUDIT](AUDIT.md)

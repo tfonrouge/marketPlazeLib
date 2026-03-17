@@ -1,0 +1,45 @@
+query GetCollectionsQuery($first: Int!, $after: String) {
+    collections(first: $first, after: $after) {
+        pageInfo {
+            hasNextPage
+            endCursor
+        }
+        edges {
+            node {
+                _id: id
+                title
+                handle
+                descriptionHtml
+                sortOrder
+                productsCount {
+                    count
+                }
+            }
+        }
+    }
+}
+
+mutation CollectionAddProducts($id: ID!, $productIds: [ID!]!) {
+    collectionAddProducts(id: $id, productIds: $productIds) {
+        collection {
+            id
+            title
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+
+mutation CollectionRemoveProducts($id: ID!, $productIds: [ID!]!) {
+    collectionRemoveProducts(id: $id, productIds: $productIds) {
+        job {
+            id
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}

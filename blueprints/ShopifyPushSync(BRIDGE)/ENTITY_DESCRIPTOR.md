@@ -161,4 +161,7 @@ sequenceDiagram
 | ERP System (via IErpProductReader) | — | Read | — | — | — |
 | ShopifyPushService | Create on Shopify | — | Update on Shopify | Execute | Manage |
 | SyncEngine | — | Read local | — | Orchestrate | Orchestrate |
+
+---
+[← Index](../INDEX.md) · [BRIEF](BRIEF.md) · **ENTITY** · [CONTRACTS](SERVICE_CONTRACTS.md) · [VIEWS](VIEW_MAP.md) · [ORDER](IMPLEMENTATION_ORDER.md) · [AUDIT](AUDIT.md)
 | App Admin (via consuming app) | — | View reports | — | Trigger | Configure |

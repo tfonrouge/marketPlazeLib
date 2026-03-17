@@ -24,6 +24,10 @@ abstract class IAmazonProductColl<UID : Any>(
 
     abstract suspend fun fetchProducts(marketplace: Marketplace): List<AmazonProduct>
 
+    override suspend fun syncToRemote(marketplace: Marketplace): SimpleState {
+        return SimpleState(isOk = false, "syncToRemote not supported for Amazon")
+    }
+
     override suspend fun syncToLocal(marketplace: Marketplace): SimpleState {
         val initTime = System.currentTimeMillis()
         val products = try {

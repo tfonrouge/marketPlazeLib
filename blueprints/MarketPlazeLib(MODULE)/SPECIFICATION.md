@@ -108,3 +108,6 @@ Library — role management delegated to consuming app. The library provides:
 - SC-02: Shopify access tokens via HTTPS only
 - SC-03: No credentials logged or serialized in error messages
 - SC-04: `userCollFun` hook enables RBAC
+
+---
+[← Index](../INDEX.md) · [BRIEF](BRIEF.md) · **SPEC** · [FLOWCHART](FLOWCHART.md) · [API SURFACE](API_SURFACE.md) · [VIEWS](VIEW_MAP.md) · [PLAN](IMPLEMENTATION_PLAN.md) · [TESTS](TEST_PLAN.md) · [MATRIX](TRACEABILITY_MATRIX.md) · [AUDIT](AUDIT.md)

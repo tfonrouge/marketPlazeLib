@@ -116,3 +116,6 @@ No domain events emitted. All operations are synchronous request/response via Gr
 | `MarketplaceListing` | commonLib ↔ shopifyLib | `externalId` stores Shopify GID |
 | `Marketplace` | commonLib ↔ shopifyLib | `connectionConfig` provides Shopify credentials |
 | `ShopifyCollection` | shopifyLib ↔ consumer app | New entity |
+
+---
+[← Index](../INDEX.md) · [BRIEF](BRIEF.md) · [ENTITY](ENTITY_DESCRIPTOR.md) · **CONTRACTS** · [VIEWS](VIEW_MAP.md) · [ORDER](IMPLEMENTATION_ORDER.md) · [AUDIT](AUDIT.md)

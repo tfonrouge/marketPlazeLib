@@ -188,3 +188,6 @@
 - Shopify GraphQL live sync — requires real Shopify store credentials
 - MercadoLibre/Amazon sync — abstract implementations, tested by consumer
 - MongoDB Coll persistence — tested in consuming app with real/embedded MongoDB
+
+---
+[← Index](../INDEX.md) · [BRIEF](BRIEF.md) · [SPEC](SPECIFICATION.md) · [FLOWCHART](FLOWCHART.md) · [API SURFACE](API_SURFACE.md) · [VIEWS](VIEW_MAP.md) · [PLAN](IMPLEMENTATION_PLAN.md) · **TESTS** · [MATRIX](TRACEABILITY_MATRIX.md) · [AUDIT](AUDIT.md)

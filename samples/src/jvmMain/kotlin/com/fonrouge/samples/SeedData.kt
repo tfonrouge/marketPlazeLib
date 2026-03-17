@@ -50,10 +50,25 @@ object SeedData {
             name = "Premium Widget",
             baseCost = Money(5000),
             variants = listOf(
-                ProductVariant(sku = "WIDGET-001-S", name = "Small", price = Money(9900), inventory = 50),
-                ProductVariant(sku = "WIDGET-001-L", name = "Large", price = Money(12900), inventory = 30),
+                ProductVariant(sku = "WIDGET-001-S", name = "Small", price = Money(9900), inventory = 50, options = mapOf("Size" to "Small")),
+                ProductVariant(sku = "WIDGET-001-L", name = "Large", price = Money(12900), inventory = 30, options = mapOf("Size" to "Large")),
             ),
-            images = listOf(ProductImage(url = "https://via.placeholder.com/200", altText = "Widget")),
+            images = listOf(ProductImage(url = "https://via.placeholder.com/200", altText = "Widget", position = 0)),
+            erpSourceId = "ERP-W001",
+            priceLists = listOf(
+                PriceListEntry(name = "Retail", price = Money(9900)),
+                PriceListEntry(name = "Wholesale", price = Money(7500), compareAtPrice = Money(9900)),
+            ),
+            inventoryQuantity = 80,
+            descriptionHtml = "<p>Premium quality widget for everyday use.</p>",
+            publishEnabled = true,
+            status = "active",
+            tags = listOf("widget", "premium", "electronics"),
+            weight = 0.5,
+            weightUnit = "kg",
+            barcode = "7501234567890",
+            seoTitle = "Premium Widget | My Store",
+            seoDescription = "Best premium widget available online",
         )
         val gadget = Product(
             sku = "GADGET-002",
@@ -62,11 +77,19 @@ object SeedData {
             variants = listOf(
                 ProductVariant(sku = "GADGET-002-STD", name = "Standard", price = Money(15900), inventory = 100),
             ),
+            erpSourceId = "ERP-G002",
+            priceLists = listOf(PriceListEntry(name = "Retail", price = Money(15900))),
+            inventoryQuantity = 100,
+            publishEnabled = true,
+            status = "active",
+            tags = listOf("gadget", "tech"),
         )
         val cable = Product(
             sku = "CABLE-003",
             name = "USB-C Cable 2m",
             baseCost = Money(800),
+            publishEnabled = false,
+            status = "draft",
         )
         collections.ProductColl.seed(listOf(widget, gadget, cable))
 

@@ -2,16 +2,18 @@
 
 | Field | Value |
 |-------|-------|
-| Module Name | `MarketPlazeLib` |
+| Library Name | `MarketPlazeLib` |
 | Business Owner | Teo Fonrouge |
 | Business Justification | Replace the single-marketplace Shopify-only sync library with a multi-marketplace intelligence platform: unified product management, cost structure modeling, profit calculation, competitive pricing, and pluggable sync for Shopify/MercadoLibre/Amazon |
-| Key Stakeholders | Teo Fonrouge (architecture), ErsaPack consuming team |
-| Target Go-Live | v2.1.0 — shipped 2026-03-15 |
-| Integration Surface | **mppErsaPack** (primary consumer), **fsLib** (infrastructure dependency) |
+| Platform/Runtime Targets | KMP — JVM + JS (ES2015, IR compiler) |
+| Published Artifacts | Maven `com.fonrouge.marketPlazeLib:commonLib`, `:shopifyLib`, `:mercadoLibreLib`, `:amazonLib`; `samples` (demo only — InMemoryRepository, Ktor + KVision, 14 integration tests) |
+| Consumer Modules | **mppErsaPack** (primary consumer) |
+| Integration Surface | **fsLib** 3.1.1 (infrastructure dependency) |
+| Target Go-Live | v1.0.0 — shipped 2026-03-15 |
 
 ## Status
 
-**COMPLETED.** All phases shipped. Published as Maven artifacts v2.0.2 under `com.fonrouge.marketPlazeLib`.
+**COMPLETED.** All phases shipped. Published as Maven artifacts v1.0.0 under `com.fonrouge.marketPlazeLib`.
 
 ## Scope
 
@@ -35,7 +37,7 @@
 - **Connection config**: Generic `Map<String, String>` per marketplace
 - **CommonContainers**: Concrete `data object` singletons with `filterKClass` (not abstract classes)
 - **Coll signature**: 4 type params `<T, ID, FILT, UID>` (fsLib 3.1.1)
-- **No backward compatibility**: Breaking change from v1.x (v2.0.0)
+- **No backward compatibility**: Breaking change from pre-release versions
 - **fsLib**: 3.1.1 (stable release)
 
 ## Architecture
@@ -49,3 +51,6 @@ mercadoLibreLib (MercadoLibre model + abstract fetch)
 amazonLib (Amazon model + abstract fetch)
 samples (runnable sample app with InMemoryRepository)
 ```
+
+---
+[← Index](../INDEX.md) · **BRIEF** · [SPEC](SPECIFICATION.md) · [FLOWCHART](FLOWCHART.md) · [API SURFACE](API_SURFACE.md) · [VIEWS](VIEW_MAP.md) · [PLAN](IMPLEMENTATION_PLAN.md) · [TESTS](TEST_PLAN.md) · [MATRIX](TRACEABILITY_MATRIX.md) · [AUDIT](AUDIT.md)

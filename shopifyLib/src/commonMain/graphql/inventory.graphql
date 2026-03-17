@@ -1,0 +1,24 @@
+mutation InventorySetQuantities($input: InventorySetQuantitiesInput!) {
+    inventorySetQuantities(input: $input) {
+        inventoryAdjustmentGroup {
+            reason
+        }
+        userErrors {
+            field
+            message
+            code
+        }
+    }
+}
+
+query GetLocations($first: Int!) {
+    locations(first: $first) {
+        edges {
+            node {
+                id
+                name
+                isActive
+            }
+        }
+    }
+}

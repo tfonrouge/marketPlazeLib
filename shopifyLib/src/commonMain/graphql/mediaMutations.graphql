@@ -1,0 +1,59 @@
+mutation StagedUploadsCreate($input: [StagedUploadInput!]!) {
+    stagedUploadsCreate(input: $input) {
+        stagedTargets {
+            url
+            resourceUrl
+            parameters {
+                name
+                value
+            }
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+
+mutation ProductCreateMedia($productId: ID!, $media: [CreateMediaInput!]!) {
+    productCreateMedia(productId: $productId, media: $media) {
+        media {
+            ... on MediaImage {
+                id
+                image {
+                    url
+                    altText
+                }
+            }
+        }
+        mediaUserErrors {
+            field
+            message
+            code
+        }
+    }
+}
+
+mutation ProductDeleteMedia($productId: ID!, $mediaIds: [ID!]!) {
+    productDeleteMedia(productId: $productId, mediaIds: $mediaIds) {
+        deletedMediaIds
+        mediaUserErrors {
+            field
+            message
+            code
+        }
+    }
+}
+
+mutation ProductReorderMedia($id: ID!, $moves: [MoveInput!]!) {
+    productReorderMedia(id: $id, moves: $moves) {
+        job {
+            id
+        }
+        mediaUserErrors {
+            field
+            message
+            code
+        }
+    }
+}

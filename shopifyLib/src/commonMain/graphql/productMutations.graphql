@@ -1,0 +1,39 @@
+mutation ProductCreate($product: ProductCreateInput, $media: [CreateMediaInput!]) {
+    productCreate(product: $product, media: $media) {
+        product {
+            id
+            handle
+            title
+            status
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+
+mutation ProductUpdate($product: ProductUpdateInput, $media: [CreateMediaInput!]) {
+    productUpdate(product: $product, media: $media) {
+        product {
+            id
+            handle
+            title
+            status
+        }
+        userErrors {
+            field
+            message
+        }
+    }
+}
+
+mutation ProductDelete($input: ProductDeleteInput!) {
+    productDelete(input: $input) {
+        deletedProductId
+        userErrors {
+            field
+            message
+        }
+    }
+}

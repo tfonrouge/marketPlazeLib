@@ -15,6 +15,8 @@ data class ProductFilter(
     override var masterItemId: Unit? = null,
     var sku: String? = null,
     var name: String? = null,
+    var publishEnabled: Boolean? = null,
+    var status: String? = null,
 ) : IApiFilter<Unit>()
 
 @Serializable

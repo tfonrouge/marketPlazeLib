@@ -1,0 +1,42 @@
+query GetProductInventoryItems($productId: ID!) {
+    product(id: $productId) {
+        variants(first: 100) {
+            edges {
+                node {
+                    id
+                    sku
+                    inventoryItem {
+                        id
+                    }
+                }
+            }
+        }
+    }
+}
+
+query GetProductVariants($first: Int!, $after: String) {
+    products(first: $first, after: $after) {
+        pageInfo {
+            hasNextPage
+            endCursor
+        }
+        edges {
+            node {
+                id
+                handle
+                variants(first: 100) {
+                    edges {
+                        node {
+                            id
+                            sku
+                            inventoryItem {
+                                id
+                            }
+                            inventoryQuantity
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -93,3 +93,6 @@ Navigation handled by fsLib's `ViewRegistry` + `KVWebManager`:
 - `ConfigViewList.openView()` → navigates to list view
 - `ConfigViewItem.navigateToQueryRead(id)` → navigates to item detail
 - App registers service managers: `ViewRegistry.listServiceManager`, `ViewRegistry.itemServiceManager`
+
+---
+[← Index](../INDEX.md) · [BRIEF](BRIEF.md) · [SPEC](SPECIFICATION.md) · [FLOWCHART](FLOWCHART.md) · [API SURFACE](API_SURFACE.md) · **VIEWS** · [PLAN](IMPLEMENTATION_PLAN.md) · [TESTS](TEST_PLAN.md) · [MATRIX](TRACEABILITY_MATRIX.md) · [AUDIT](AUDIT.md)

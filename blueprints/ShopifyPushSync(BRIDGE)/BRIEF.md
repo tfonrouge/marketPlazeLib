@@ -8,4 +8,9 @@
 | New Entities | `ShopifyCollection` (1 entity) |
 | Out of Scope | MercadoLibre push sync, Amazon push sync, Shopify webhook/event listeners, Shopify order management, Shopify discount/coupon management, multi-currency price list management beyond Shopify's built-in, ERP-specific data mapping (that's the consumer's job via IErpProductReader) |
 | Owner | Teo Fonrouge |
-| Target | TBD |
+| Target | Shipped 2026-03-16 |
+| **Library Version Target** | **MarketPlazeLib v1.1.0** (breaking: adds `syncToRemote()` to `IMarketplaceSync`) |
+| **Lifecycle Type** | **Permanent** |
+
+---
+[← Index](../INDEX.md) · **BRIEF** · [ENTITY](ENTITY_DESCRIPTOR.md) · [CONTRACTS](SERVICE_CONTRACTS.md) · [VIEWS](VIEW_MAP.md) · [ORDER](IMPLEMENTATION_ORDER.md) · [AUDIT](AUDIT.md)

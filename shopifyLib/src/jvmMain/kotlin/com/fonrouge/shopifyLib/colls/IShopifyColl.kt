@@ -133,4 +133,8 @@ abstract class IShopifyColl<T : BaseDoc<ID>, ID : Any, FILT : IApiFilter<*>, UID
     override suspend fun syncToLocal(marketplace: Marketplace): SimpleState {
         return syncShopifyToLocal(marketplace)
     }
+
+    override suspend fun syncToRemote(marketplace: Marketplace): SimpleState {
+        return SimpleState(isOk = false, "syncToRemote not implemented for ${this::class.simpleName}")
+    }
 }

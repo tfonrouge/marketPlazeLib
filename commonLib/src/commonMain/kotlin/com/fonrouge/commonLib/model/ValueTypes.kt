@@ -52,6 +52,11 @@ data class ProductVariant(
     val name: String = "",
     val price: Money = Money.ZERO,
     val inventory: Int = 0,
+    val compareAtPrice: Money? = null,
+    val barcode: String? = null,
+    val weight: Double? = null,
+    val weightUnit: String? = null,
+    val options: Map<String, String> = emptyMap(),
 )
 
 @Serializable
@@ -60,6 +65,7 @@ data class ProductImage(
     val altText: String? = null,
     val width: Int? = null,
     val height: Int? = null,
+    val position: Int = 0,
 )
 
 @Serializable
@@ -79,6 +85,12 @@ data class PriceListEntry(
     val price: Money,
     val currencyCode: String = "MXN",
     val compareAtPrice: Money? = null,
+)
+
+@Serializable
+data class ProductOption(
+    val name: String,
+    val values: List<String> = emptyList(),
 )
 
 enum class HealthLevel(val label: String, val minMargin: Double) {

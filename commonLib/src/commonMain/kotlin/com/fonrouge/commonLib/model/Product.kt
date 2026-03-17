@@ -15,4 +15,17 @@ data class Product(
     val variants: List<ProductVariant> = emptyList(),
     val images: List<ProductImage> = emptyList(),
     val presentations: List<ProductPresentation> = emptyList(),
+    // ShopifyPushSync enrichment
+    val erpSourceId: String? = null,
+    val priceLists: List<PriceListEntry> = emptyList(),
+    val inventoryQuantity: Int = 0,
+    val descriptionHtml: String? = null,
+    val publishEnabled: Boolean = false,
+    val status: String = "draft",
+    val tags: List<String> = emptyList(),
+    val weight: Double? = null,
+    val weightUnit: String? = null,
+    val barcode: String? = null,
+    val seoTitle: String? = null,
+    val seoDescription: String? = null,
 ) : BaseDoc<ProductId>

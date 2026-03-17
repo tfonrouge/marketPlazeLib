@@ -34,3 +34,6 @@
 
 - `colDefCollectionTitle()`, `colDefCollectionHandle()`, `colDefCollectionProductsCount()` — new column definitions for ShopifyCollection
 - Extended `productFormFields()` — enriched form builder with all new fields
+
+---
+[← Index](../INDEX.md) · [BRIEF](BRIEF.md) · [ENTITY](ENTITY_DESCRIPTOR.md) · [CONTRACTS](SERVICE_CONTRACTS.md) · **VIEWS** · [ORDER](IMPLEMENTATION_ORDER.md) · [AUDIT](AUDIT.md)

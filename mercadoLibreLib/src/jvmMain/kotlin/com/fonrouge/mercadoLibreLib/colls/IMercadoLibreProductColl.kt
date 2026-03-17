@@ -24,6 +24,10 @@ abstract class IMercadoLibreProductColl<UID : Any>(
 
     abstract suspend fun fetchProducts(marketplace: Marketplace): List<MercadoLibreProduct>
 
+    override suspend fun syncToRemote(marketplace: Marketplace): SimpleState {
+        return SimpleState(isOk = false, "syncToRemote not supported for MercadoLibre")
+    }
+
     override suspend fun syncToLocal(marketplace: Marketplace): SimpleState {
         val initTime = System.currentTimeMillis()
         val products = try {

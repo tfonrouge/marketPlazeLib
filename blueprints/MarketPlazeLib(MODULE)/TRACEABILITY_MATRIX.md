@@ -56,14 +56,14 @@ gantt
 
 | Milestone | Planned | Actual | Delta |
 |-----------|---------|--------|-------|
-| v2.0.0 core refactoring | 2026-03-14 | 2026-03-14 | 0 |
-| v2.0.1 cleanup | 2026-03-15 | 2026-03-15 | 0 |
-| v2.0.2 fsLib 3.1.1 | 2026-03-15 | 2026-03-15 | 0 |
-| v2.1.0 MX pricing engine | 2026-03-15 | 2026-03-15 | 0 |
-| v2.1.0 view building blocks | TBD | — | — |
+| v1.0.0 initial release | 2026-03-15 | 2026-03-15 | 0 |
+| v1.1.0 ShopifyPushSync | TBD | — | — |
 
 ## Open Issues
 
 | Issue | Impact | Target |
 |-------|--------|--------|
 | Phase 9: colDef/form updates for new fields (ivaRate, discount, health, presentations) | Low — cosmetic, consuming app can add its own | Next session |
+
+---
+[← Index](../INDEX.md) · [BRIEF](BRIEF.md) · [SPEC](SPECIFICATION.md) · [FLOWCHART](FLOWCHART.md) · [API SURFACE](API_SURFACE.md) · [VIEWS](VIEW_MAP.md) · [PLAN](IMPLEMENTATION_PLAN.md) · [TESTS](TEST_PLAN.md) · **MATRIX** · [AUDIT](AUDIT.md)

@@ -19,12 +19,16 @@ class SyncSchedulerTest {
             syncCount++
             return SimpleState(isOk = true, "Sync #$syncCount")
         }
+        override suspend fun syncToRemote(marketplace: Marketplace): SimpleState =
+            SimpleState(isOk = false, "not implemented")
     }
 
     private class FailingSyncEngine : IMarketplaceSync<BaseDoc<*>> {
         override suspend fun syncToLocal(marketplace: Marketplace): SimpleState {
             throw RuntimeException("API connection failed")
         }
+        override suspend fun syncToRemote(marketplace: Marketplace): SimpleState =
+            SimpleState(isOk = false, "not implemented")
     }
 
     private val testMarketplace = Marketplace(
