@@ -75,6 +75,10 @@ data class ProductPresentation(
     val packagesPerDisplay: Int = 1,
     val packagingCost: Money = Money.ZERO,
     val isHypothetical: Boolean = false,
+    val packageWeight: Double = 0.0,
+    val packageLength: Double = 0.0,
+    val packageWidth: Double = 0.0,
+    val packageHeight: Double = 0.0,
 ) {
     val totalPieces: Int get() = piecesPerPackage * packagesPerDisplay
 }
@@ -93,14 +97,43 @@ data class ProductOption(
     val values: List<String> = emptyList(),
 )
 
+@Serializable
+data class CargoFijoTier(
+    val minPrice: Double,
+    val maxPrice: Double? = null,
+    val cost: Money,
+)
+
+@Serializable
+data class EnvioTier(
+    val minWeight: Double,
+    val maxWeight: Double? = null,
+    val cost: Money,
+)
+
+@Serializable
+data class EnvioDiscount(
+    val minPrice: Double,
+    val maxPrice: Double? = null,
+    val discountRate: Double,
+)
+
+@Serializable
+enum class PublicationType {
+    CLASICA,
+    PREMIUM,
+}
+
 enum class HealthLevel(val label: String, val minMargin: Double) {
+    NO_DATA("Sin datos", -1.0),
     CRITICAL("Crítico", 0.0),
     ACCEPTABLE("Aceptable", 10.0),
     HEALTHY("Saludable", 15.0),
     EXCELLENT("Excelente", 30.0);
 
     companion object {
-        fun classify(marginPercent: Double): HealthLevel = when {
+        fun classify(marginPercent: Double, baseCost: Money = Money(1)): HealthLevel = when {
+            baseCost.cents <= 0 -> NO_DATA
             marginPercent >= 30.0 -> EXCELLENT
             marginPercent >= 15.0 -> HEALTHY
             marginPercent >= 10.0 -> ACCEPTABLE

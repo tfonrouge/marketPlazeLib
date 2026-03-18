@@ -14,6 +14,12 @@ object ProfitCalculator {
         productId: ProductId = OId(),
         listingId: MarketplaceListingId? = null,
         shippingCostOverride: Money? = null,
+        publicationType: PublicationType = PublicationType.CLASICA,
+        cargoFijoOverride: Money? = null,
+        envioOverride: Money? = null,
+        envioCliente: Money = Money.ZERO,
+        referralKitCost: Money = Money.ZERO,
+        productWeight: Double = 0.0,
     ): CostBreakdown {
         val finalPrice = if (discount > 0.0) {
             Money((salePrice.cents * (1.0 - discount)).toLong())
@@ -33,9 +39,16 @@ object ProfitCalculator {
 
         val lineItems = mutableListOf<FeeLineItem>()
 
-        for (commission in costStructure.commissions) {
-            val amount = Money((finalPrice.cents * commission.percentage / 100.0).toLong()) + commission.fixedAmount
-            lineItems += FeeLineItem(name = commission.name, amount = amount, type = "commission")
+        // Commission: marketplace dual rates take precedence over costStructure
+        val commissionRate = resolveCommissionRate(marketplace, costStructure, publicationType)
+        if (commissionRate != null) {
+            val amount = Money((finalPrice.cents * commissionRate).toLong())
+            lineItems += FeeLineItem(name = "Comisión", amount = amount, type = "commission")
+        } else {
+            for (commission in costStructure.commissions) {
+                val amount = Money((finalPrice.cents * commission.percentage / 100.0).toLong()) + commission.fixedAmount
+                lineItems += FeeLineItem(name = commission.name, amount = amount, type = "commission")
+            }
         }
 
         for (fee in costStructure.fees) {
@@ -55,23 +68,49 @@ object ProfitCalculator {
             lineItems += FeeLineItem(name = "ISR Retenido", amount = isrWithheld, type = "isr_withholding")
         }
 
-        val shippingCost = shippingCostOverride
-            ?: resolveShippingCost(finalPrice, costStructure.shippingTiers)
+        // Cargo fijo: marketplace tiers take precedence, then costStructure shippingTiers
+        val cargoFijo = if (marketplace.cargoFijoTiers.isNotEmpty()) {
+            ShippingCalculator.resolveCargoFijo(finalPrice, marketplace.cargoFijoTiers, cargoFijoOverride)
+        } else {
+            // Legacy fallback: use costStructure shippingTiers for cargo fijo
+            shippingCostOverride ?: resolveShippingCost(finalPrice, costStructure.shippingTiers)
+        }
 
-        if (shippingCost != Money.ZERO) {
-            lineItems += FeeLineItem(name = "Envío", amount = shippingCost, type = "shipping")
+        if (cargoFijo != Money.ZERO) {
+            lineItems += FeeLineItem(name = "Cargo fijo", amount = cargoFijo, type = "cargo_fijo")
+        }
+
+        // Envio logistico
+        val costoEnvioLogistico = ShippingCalculator.calculateShippingCost(
+            productWeight = productWeight,
+            presentation = presentation,
+            salePrice = finalPrice,
+            envioTiers = marketplace.envioTiers,
+            envioDiscounts = marketplace.envioDiscounts,
+            envioOverride = envioOverride,
+        )
+
+        if (costoEnvioLogistico != Money.ZERO) {
+            lineItems += FeeLineItem(name = "Envío logístico", amount = costoEnvioLogistico, type = "envio_logistico")
+        }
+
+        // Envio cliente
+        if (envioCliente != Money.ZERO) {
+            lineItems += FeeLineItem(name = "Envío cliente", amount = envioCliente, type = "envio_cliente")
         }
 
         val packagingCost = presentation?.packagingCost ?: Money.ZERO
+        val totalPieces = presentation?.totalPieces?.takeIf { it > 0 } ?: 1
+        val scaledBaseCost = baseCost * totalPieces
 
         val totalFees = lineItems.fold(Money.ZERO) { acc, item -> acc + item.amount }
-        val totalCosts = baseCost + packagingCost + totalFees
+        val totalCosts = scaledBaseCost + packagingCost + referralKitCost + totalFees
         val netProfit = finalPrice - totalCosts
         val profitMarginPercent = if (finalPrice.cents > 0) {
             netProfit.cents.toDouble() / finalPrice.cents.toDouble() * 100.0
         } else 0.0
 
-        val healthLevel = HealthLevel.classify(profitMarginPercent)
+        val healthLevel = HealthLevel.classify(profitMarginPercent, baseCost)
         val piecesCount = presentation?.totalPieces?.takeIf { it > 0 }
 
         return CostBreakdown(
@@ -84,7 +123,11 @@ object ProfitCalculator {
             taxableBase = taxableBase,
             ivaWithheld = ivaWithheld,
             isrWithheld = isrWithheld,
-            shippingCost = shippingCost,
+            shippingCost = cargoFijo + costoEnvioLogistico,
+            cargoFijo = cargoFijo,
+            costoEnvioLogistico = costoEnvioLogistico,
+            envioCliente = envioCliente,
+            referralKitCost = referralKitCost,
             lineItems = lineItems,
             totalCosts = totalCosts,
             netProfit = netProfit,
@@ -95,6 +138,18 @@ object ProfitCalculator {
             costPerPiece = piecesCount?.let { Money(totalCosts.cents / it) },
             profitPerPiece = piecesCount?.let { Money(netProfit.cents / it) },
         )
+    }
+
+    private fun resolveCommissionRate(
+        marketplace: Marketplace,
+        costStructure: CostStructure,
+        publicationType: PublicationType,
+    ): Double? {
+        val rate = when (publicationType) {
+            PublicationType.CLASICA -> marketplace.commissionRateClassic
+            PublicationType.PREMIUM -> marketplace.commissionRatePremium
+        }
+        return if (rate > 0.0) rate else null
     }
 }
 

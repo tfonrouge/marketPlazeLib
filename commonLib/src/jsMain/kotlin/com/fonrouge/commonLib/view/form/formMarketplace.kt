@@ -5,8 +5,6 @@ import com.fonrouge.fullStack.layout.formColumn
 import com.fonrouge.fullStack.layout.formRow
 import com.fonrouge.fullStack.view.ViewFormPanel
 import io.kvision.form.check.checkBox
-import io.kvision.form.text.Text
-import io.kvision.form.text.TextArea
 import io.kvision.form.text.text
 
 fun ViewFormPanel<Marketplace>.marketplaceFormFields() {
@@ -19,6 +17,14 @@ fun ViewFormPanel<Marketplace>.marketplaceFormFields() {
         }
         formColumn(3) {
             checkBox(label = "Enabled").bind(Marketplace::enabled)
+        }
+    }
+    formRow {
+        formColumn(3) {
+            checkBox(label = "Default").bind(Marketplace::isDefault)
+        }
+        formColumn(3) {
+            checkBox(label = "IVA Included").bind(Marketplace::ivaIncluded)
         }
     }
 }

@@ -2,6 +2,7 @@ package com.fonrouge.commonLib.view.colDef
 
 import com.fonrouge.base.fieldName
 import com.fonrouge.commonLib.model.MarketplaceListing
+import com.fonrouge.commonLib.model.PublicationType
 import io.kvision.html.Span
 import io.kvision.tabulator.ColumnDefinition
 import io.kvision.tabulator.Editor
@@ -45,5 +46,18 @@ fun <T : Any> colDefListingPublishEnabled(vararg kPath: KProperty1<*, *>) = Colu
             content = if (enabled) "Yes" else "No",
             className = if (enabled) "badge bg-success" else "badge bg-secondary"
         )
+    }
+)
+
+fun <T : Any> colDefListingPublicationType(vararg kPath: KProperty1<*, *>) = ColumnDefinition<T>(
+    title = "Pub. Type",
+    field = fieldName(*(kPath + MarketplaceListing::publicationType)),
+    headerSort = true,
+    headerSortTristate = true,
+    formatterComponentFunction = { cell, _, _ ->
+        val value = cell.getValue()?.toString() ?: PublicationType.CLASICA.name
+        val label = if (value == PublicationType.PREMIUM.name) "Premium" else "Clásica"
+        val cls = if (value == PublicationType.PREMIUM.name) "badge bg-warning" else "badge bg-info"
+        Span(content = label, className = cls)
     }
 )

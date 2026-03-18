@@ -16,4 +16,11 @@ data class Marketplace(
     val ivaRate: Double = 0.0,
     val isrRate: Double = 0.0,
     val ivaIncluded: Boolean = true,
+    val commissionRateClassic: Double = 0.0,
+    val commissionRatePremium: Double = 0.0,
+    val cargoFijoTiers: List<CargoFijoTier> = emptyList(),
+    val envioTiers: List<EnvioTier> = emptyList(),
+    val envioDiscounts: List<EnvioDiscount> = emptyList(),
+    val isDefault: Boolean = false,
+    val minimumPrice: Money = Money.ZERO,
 ) : BaseDoc<MarketplaceId>

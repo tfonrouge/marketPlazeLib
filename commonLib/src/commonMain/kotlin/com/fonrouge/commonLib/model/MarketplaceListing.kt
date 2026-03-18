@@ -17,4 +17,8 @@ data class MarketplaceListing(
     val publishEnabled: Boolean = false,
     val discount: Double = 0.0,
     val listingUrl: String? = null,
+    val presentationIndex: Int? = null,
+    val publicationType: PublicationType = PublicationType.CLASICA,
+    val cargoFijoOverride: Money? = null,
+    val envioOverride: Money? = null,
 ) : BaseDoc<MarketplaceListingId>

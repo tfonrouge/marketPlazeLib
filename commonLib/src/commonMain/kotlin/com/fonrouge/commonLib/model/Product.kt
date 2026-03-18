@@ -12,6 +12,7 @@ data class Product(
     val sku: String,
     val name: String,
     val baseCost: Money = Money.ZERO,
+    val referralKitCost: Money = Money.ZERO,
     val variants: List<ProductVariant> = emptyList(),
     val images: List<ProductImage> = emptyList(),
     val presentations: List<ProductPresentation> = emptyList(),

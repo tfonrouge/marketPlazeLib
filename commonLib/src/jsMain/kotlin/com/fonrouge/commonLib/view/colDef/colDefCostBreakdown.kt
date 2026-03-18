@@ -52,3 +52,43 @@ fun <T : Any> colDefBreakdownTotalCosts(vararg kPath: KProperty1<*, *>) = Column
         Span(content = "$${cents / 100.0}")
     }
 )
+
+fun <T : Any> colDefBreakdownCargoFijo(vararg kPath: KProperty1<*, *>) = ColumnDefinition<T>(
+    title = "Cargo Fijo",
+    field = fieldName(*(kPath + CostBreakdown::cargoFijo)),
+    headerSort = true,
+    headerSortTristate = true,
+    formatterComponentFunction = { cell, _, _ ->
+        val cents = cell.getValue() as? Long ?: 0L
+        Span(content = "$${cents / 100.0}")
+    }
+)
+
+fun <T : Any> colDefBreakdownEnvioLogistico(vararg kPath: KProperty1<*, *>) = ColumnDefinition<T>(
+    title = "Envío Logístico",
+    field = fieldName(*(kPath + CostBreakdown::costoEnvioLogistico)),
+    headerSort = true,
+    headerSortTristate = true,
+    formatterComponentFunction = { cell, _, _ ->
+        val cents = cell.getValue() as? Long ?: 0L
+        Span(content = "$${cents / 100.0}")
+    }
+)
+
+fun <T : Any> colDefBreakdownHealthLevel(vararg kPath: KProperty1<*, *>) = ColumnDefinition<T>(
+    title = "Health",
+    field = fieldName(*(kPath + CostBreakdown::healthLevel)),
+    headerSort = true,
+    headerSortTristate = true,
+    formatterComponentFunction = { cell, _, _ ->
+        val level = cell.getValue()?.toString() ?: ""
+        val cls = when (level) {
+            "EXCELLENT" -> "badge bg-success"
+            "HEALTHY" -> "badge bg-info"
+            "ACCEPTABLE" -> "badge bg-warning"
+            "NO_DATA" -> "badge bg-secondary"
+            else -> "badge bg-danger"
+        }
+        Span(content = level.lowercase().replaceFirstChar { it.uppercase() }, className = cls)
+    }
+)

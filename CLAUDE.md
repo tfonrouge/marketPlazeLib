@@ -21,7 +21,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Modules
 
-- **commonLib** — Core domain: entity models (`Marketplace`, `Product`, `MarketplaceListing`, `CostStructure`, `CostBreakdown`, `CompetitorPrice`), `Money` value class, pricing services (`ProfitCalculator`, `MarketplaceComparator`, `PriceSuggester`), `IMarketplaceSync` interface, `SyncScheduler`, `data object` CommonContainers, abstract `Coll` classes, `MarketPlazeCollections` factory, KVision view building blocks (column definitions, filter views, form builders).
+- **commonLib** — Core domain: entity models (`Marketplace`, `Product`, `MarketplaceListing`, `CostStructure`, `CostBreakdown`, `CompetitorPrice`), `Money` value class, pricing services (`ProfitCalculator`, `MarketplaceComparator`, `PriceSuggester`, `ShippingCalculator`, `PresentationComparator`, `MarketplaceDefaults`), `IMarketplaceSync` interface, `SyncScheduler`, `data object` CommonContainers, abstract `Coll` classes, `MarketPlazeCollections` factory, KVision view building blocks (column definitions, filter views, form builders).
 - **shopifyLib** — Shopify-specific implementation using Apollo GraphQL against the Shopify Admin API. Implements `IMarketplaceSync`. Contains GraphQL schema/queries in `src/commonMain/graphql/` and database collection classes in `src/jvmMain/`.
 - **mercadoLibreLib** — MercadoLibre marketplace integration. `MercadoLibreProduct` model, abstract `IMercadoLibreProductColl` with `fetchProducts()` hook implementing `IMarketplaceSync`. Consumers provide the actual MercadoLibre API client.
 - **amazonLib** — Amazon marketplace integration. `AmazonProduct` model with ASIN-based identification, abstract `IAmazonProductColl` with `fetchProducts()` hook implementing `IMarketplaceSync`. Consumers provide the actual Amazon SP-API client.
@@ -42,6 +42,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - GraphQL schema file (`shopify-admin-2025-10.graphqls`) is large (~3.2MB); Apollo generates Kotlin models from it
 - `MarketPlazeCollections` is the base abstract factory; `IShopifyCollections` extends it adding Shopify-specific collections
 - **View pattern**: ViewList/ViewItem classes use companion object `configViewList`/`configViewItem` with `ViewRegistry` for service manager binding (see fsLib showcase and samples module)
+- **Mexican marketplace pricing**: `Marketplace` supports dual commission rates (classic/premium), `CargoFijoTier`, `EnvioTier`, `EnvioDiscount` for Mexican marketplace cost modeling. `ShippingCalculator` handles volumetric weight (`L×W×H/5000`), tier-based shipping costs, and price-based discounts. `MarketplaceDefaults` provides pre-configured ML Mexico (21 envío tiers, 3 discounts, 4 cargo fijo tiers) and Amazon Mexico defaults.
+- **Publication types**: `MarketplaceListing.publicationType` (CLASICA/PREMIUM) determines which commission rate applies. `ProfitCalculator` resolves commission from marketplace dual rates or falls back to `CostStructure.commissions[]`.
+- **PresentationComparator**: Compares multiple `ProductPresentation` entries for a product, ranking by `profitPerPiece`
+- **HealthLevel.NO_DATA**: Returned when `baseCost <= 0` — distinguishes missing cost data from genuinely bad margins
 
 ### Dependencies
 
