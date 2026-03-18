@@ -2,6 +2,29 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.2.0] - 2026-03-18
+
+### Added
+- **Mexican marketplace pricing engine** imported from MarketPlaceCalc blueprint
+- `Marketplace` model: `commissionRateClassic`, `commissionRatePremium` (dual commission rates), `cargoFijoTiers`, `envioTiers`, `envioDiscounts`, `isDefault`, `minimumPrice`
+- `Product` model: `referralKitCost: Money`
+- `MarketplaceListing` model: `presentationIndex`, `publicationType` (CLASICA/PREMIUM), `cargoFijoOverride`, `envioOverride`
+- `CostBreakdown` model: `cargoFijo`, `costoEnvioLogistico`, `envioCliente`, `referralKitCost`
+- `ProductPresentation`: `packageWeight`, `packageLength`, `packageWidth`, `packageHeight` for volumetric weight
+- `CargoFijoTier`, `EnvioTier`, `EnvioDiscount` value types for tier-based cost resolution
+- `PublicationType` enum (CLASICA, PREMIUM)
+- `HealthLevel.NO_DATA` — returned when `baseCost <= 0`
+- `ShippingCalculator` service: volumetric weight (`L×W×H/5000`), weight-tier resolution, price-based discounts, override support, `resolveCargoFijo()`
+- `PresentationComparator` service: ranks presentations by `profitPerPiece`
+- `MarketplaceDefaults` service: pre-configured MercadoLibre Mexico (21 envío tiers, 3 discounts, 4 cargo fijo tiers) and Amazon Mexico
+- KVision column definitions for marketplace commissions, listing publicationType, breakdown cargoFijo/envíoLogístico/healthLevel
+- 17 new tests: ShippingCalculator (8), PresentationComparator (2), ProfitCalculator expanded (7 — dual commissions, cargo fijo, envío, referralKit, envioCliente, NO_DATA, cost×pieces)
+
+### Changed
+- **ProfitCalculator**: baseCost now scaled by `totalPieces`; dual commission rates from Marketplace take precedence over CostStructure commissions; integrates ShippingCalculator for cargo fijo and envío logístico
+- **HealthLevel.classify()**: new optional `baseCost` parameter — returns `NO_DATA` when cost is zero/negative
+- Sample app seed data updated: uses `MarketplaceDefaults`, presentations with dimensions, listings with publicationType
+
 ## [2.1.0] - 2026-03-15
 
 ### Added

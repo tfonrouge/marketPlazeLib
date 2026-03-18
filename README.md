@@ -2,7 +2,7 @@
 
 A Kotlin Multiplatform library providing marketplace intelligence abstractions: multi-marketplace product management, cost structure modeling, profit calculation, competitive pricing, and sync interfaces.
 
-**Version:** 1.1.0 | **Targets:** JVM · JavaScript (ES2015, IR)
+**Version:** 1.2.0 | **Targets:** JVM · JavaScript (ES2015, IR)
 
 ---
 
@@ -24,7 +24,7 @@ A Kotlin Multiplatform library providing marketplace intelligence abstractions: 
 
 ```toml
 [versions]
-marketPlazeLib = "1.1.0"
+marketPlazeLib = "1.2.0"
 
 [libraries]
 marketPlaze-common = { module = "com.fonrouge.marketPlazeLib:commonLib", version.ref = "marketPlazeLib" }
@@ -67,40 +67,93 @@ val total = price + tax      // Money(2159)
 
 | Entity | Description |
 |--------|-------------|
-| `Marketplace` | A sales channel (Shopify, MercadoLibre, Amazon). Holds `connectionConfig: Map<String,String>` for credentials and tax rates (`ivaRate`, `isrRate`, `ivaIncluded`). |
-| `Product` | A sellable item with SKU, cost, variants, images, presentations, and ERP publishing fields (priceLists, inventory, SEO, tags, barcode). |
-| `MarketplaceListing` | A `Product` listed on a `Marketplace` — tracks `externalId`, `price`, `discount`, `listingUrl`. |
+| `Marketplace` | A sales channel (Shopify, MercadoLibre, Amazon). Holds `connectionConfig`, tax rates (`ivaRate`, `isrRate`, `ivaIncluded`), dual commission rates (`commissionRateClassic`, `commissionRatePremium`), `cargoFijoTiers`, `envioTiers`, `envioDiscounts`, `minimumPrice`, `isDefault`. |
+| `Product` | A sellable item with SKU, cost, `referralKitCost`, variants, images, presentations (with package dimensions), and ERP publishing fields. |
+| `MarketplaceListing` | A `Product` listed on a `Marketplace` — tracks `externalId`, `price`, `discount`, `publicationType` (CLASICA/PREMIUM), `presentationIndex`, `cargoFijoOverride`, `envioOverride`. |
 | `CostStructure` | Commission tiers, fixed fees, shipping tiers, advertising costs, and modalities per marketplace. |
-| `CostBreakdown` | Calculated profit metrics: `finalPrice`, `taxableBase`, `ivaWithheld`, `isrWithheld`, `shippingCost`, `margin`, `healthLevel`, per-piece metrics. |
+| `CostBreakdown` | Calculated profit metrics: `finalPrice`, `taxableBase`, `ivaWithheld`, `isrWithheld`, `cargoFijo`, `costoEnvioLogistico`, `envioCliente`, `referralKitCost`, `margin`, `healthLevel`, per-piece metrics. |
 | `CompetitorPrice` | Observed competitor pricing for a listing. |
 
 ### Pricing Services
 
 ```kotlin
-// Calculate a full cost breakdown for a given sale price
-val breakdown: CostBreakdown = ProfitCalculator.calculate(
-    listing = listing,
+// Calculate a full cost breakdown with Mexican marketplace cost modeling
+val breakdown = ProfitCalculator.calculate(
+    salePrice = Money(50000),       // $500 MXN
+    baseCost = Money(20000),        // $200 MXN per piece
     costStructure = costStructure,
-    marketplace = marketplace
+    marketplace = marketplace,      // holds dual commissions, cargo fijo, envío tiers
+    presentation = presentation,    // piecesPerPackage, package dimensions
+    publicationType = PublicationType.CLASICA,
+    referralKitCost = Money(200),
+    productWeight = 1.5,            // kg — used for envío logístico
 )
 
 // Compare profitability across multiple marketplaces
-val best: Marketplace = MarketplaceComparator.findBest(listings, costStructures, marketplaces)
+val result = MarketplaceComparator.compare(
+    salePrice = salePrice,
+    baseCost = baseCost,
+    pairs = listOf(
+        MarketplaceCostPair(shopify, shopifyCosts),
+        MarketplaceCostPair(mercadoLibre, mlCosts),
+    ),
+)
+val best = result.bestByProfit
 
-// Suggest minimum price to achieve a target margin
-val minPrice: Money = PriceSuggester.suggestMinPrice(
-    product = product,
+// Compare presentations of a product (rank by profit per piece)
+val comparison = PresentationComparator.compare(
+    inputs = listOf(
+        PresentationInput(individual, Money(15000)),
+        PresentationInput(packX6, Money(70000)),
+    ),
+    baseCost = Money(5000),
     costStructure = costStructure,
     marketplace = marketplace,
-    targetMarginPercent = 20.0
+)
+val bestPresentation = comparison.bestByProfitPerPiece
+
+// Suggest minimum price to achieve a target margin
+val minPrice = PriceSuggester.minimumPriceForMargin(
+    baseCost = Money(5000),
+    costStructure = costStructure,
+    marketplace = marketplace,
+    targetMarginPercent = 20.0,
+)
+
+// Pre-configured marketplace defaults
+val ml = MarketplaceDefaults.mercadoLibreMexico()   // 21 envío tiers, 4 cargo fijo tiers, 3 discounts
+val amz = MarketplaceDefaults.amazonMexico()
+```
+
+### Shipping Calculator
+
+```kotlin
+// Volumetric weight: L×W×H / 5000, billable = max(real, volumetric)
+val shippingCost = ShippingCalculator.calculateShippingCost(
+    productWeight = 1.5,
+    presentation = presentation,    // packageLength/Width/Height for volumetric
+    salePrice = Money(50000),       // determines discount tier
+    envioTiers = marketplace.envioTiers,
+    envioDiscounts = marketplace.envioDiscounts,
+)
+
+// Cargo fijo resolution with override support
+val cargoFijo = ShippingCalculator.resolveCargoFijo(
+    finalPrice = Money(15000),
+    cargoFijoTiers = marketplace.cargoFijoTiers,
+    cargoFijoOverride = listing.cargoFijoOverride,
 )
 ```
 
 ### Health Level
 
 ```kotlin
-val health: HealthLevel = HealthLevel.classify(marginPercent = 18.5)
-// GOOD / NORMAL / BAD / CRITICAL
+val health = HealthLevel.classify(marginPercent = 18.5)
+// EXCELLENT (≥30%) / HEALTHY (≥15%) / ACCEPTABLE (≥10%) / CRITICAL (<10%)
+
+// NO_DATA when cost is unknown
+val noData = HealthLevel.classify(marginPercent = 50.0, baseCost = Money.ZERO)
+// → NO_DATA
 ```
 
 ---
@@ -250,9 +303,9 @@ A runnable full-stack demo (no MongoDB required):
 
 The sample uses `fsLib`'s `InMemoryRepository` and seeds:
 - 3 Marketplaces (Shopify, MercadoLibre, Amazon)
-- 3 Products with variants
-- 5 Marketplace listings
-- Cost structures, breakdowns, and competitor prices
+- 3 Products with variants and presentations (with package dimensions)
+- 6 Marketplace listings (with publicationType and presentationIndex)
+- Cost structures, breakdowns (with envío logístico), and competitor prices
 
 Frontend: KVision app with 7 list views and 3 item detail views.
 
@@ -269,7 +322,7 @@ Frontend: KVision app with 7 list views and 3 item detail views.
 ./gradlew publishToMavenLocal     # Publish to local Maven repo
 ```
 
-The test suite covers `Money` arithmetic, `ProfitCalculator` (including IVA/ISR withholding), `MarketplaceComparator`, `PriceSuggester`, `SyncScheduler`, Shopify `@ShopifyField` annotation mappings, `Product` enrichment serialization, and `ShopifyBidirectionalSyncEngine` reconcile/push logic.
+The test suite covers `Money` arithmetic, `ProfitCalculator` (IVA/ISR withholding, dual commissions, cargo fijo, envío logístico, cost×pieces scaling, referralKitCost, envioCliente, NO_DATA health), `ShippingCalculator` (volumetric weight, tier resolution, overrides), `PresentationComparator`, `MarketplaceDefaults`, `MarketplaceComparator`, `PriceSuggester`, `SyncScheduler`, Shopify `@ShopifyField` annotation mappings, `Product` enrichment serialization, and `ShopifyBidirectionalSyncEngine` reconcile/push logic.
 
 ---
 
@@ -291,6 +344,7 @@ The test suite covers `Money` arithmetic, `ProfitCalculator` (including IVA/ISR 
 
 - **Money as cents**: All monetary values use `Money(Long)` — never `Double` or `BigDecimal`.
 - **Marketplace credentials**: Stored as `Map<String, String>` in `Marketplace.connectionConfig` — keyed by marketplace type.
+- **Mexican marketplace pricing (v1.2.0)**: Full cost modeling for MercadoLibre and Amazon Mexico — dual commission rates (clásica/premium), cargo fijo tiers, envío logístico with volumetric weight, price-based shipping discounts, referralKitCost, envioCliente, per-piece cost scaling, and `HealthLevel.NO_DATA`. `MarketplaceDefaults` provides ready-to-use configurations. `PresentationComparator` ranks presentations by profit per piece.
 - **Mexican tax support**: `ProfitCalculator` handles IVA withholding (8%) and ISR withholding (2.5%) for MercadoLibre Mexico (`ivaIncluded = true`).
 - **Bidirectional sync (v1.1.0)**: `ShopifyPushEngine` + `ShopifyBidirectionalSyncEngine` enable ERP→Shopify product publishing. Consumers implement `IErpProductReader`; the engine handles reconciliation, creation, updates, inventory, media, and collection management.
 - **Multiplatform safety**: All core domain logic lives in `commonMain`; MongoDB and coroutine-heavy code is in `jvmMain`.
