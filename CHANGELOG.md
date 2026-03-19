@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+- Upgrade fsLib from 3.1.2-SNAPSHOT to 3.1.2 (stable release)
+
 ## [1.2.0] - 2026-03-18
 
 ### Added
