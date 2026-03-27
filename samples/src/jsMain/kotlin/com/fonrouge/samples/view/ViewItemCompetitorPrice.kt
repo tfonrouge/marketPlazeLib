@@ -6,8 +6,8 @@ import com.fonrouge.commonLib.model.CompetitorPriceFilter
 import com.fonrouge.commonLib.model.CompetitorPriceId
 import com.fonrouge.commonLib.view.form.competitorPriceFormFields
 import com.fonrouge.fullStack.config.configViewItem
-import com.fonrouge.fullStack.view.ViewFormPanel
 import com.fonrouge.fullStack.view.ViewItem
+import io.kvision.form.FormPanel
 import com.fonrouge.samples.services.ISampleItemService
 import io.kvision.core.Container
 
@@ -22,7 +22,7 @@ class ViewItemCompetitorPrice : ViewItem<CompetitorPrice, CompetitorPriceId, Com
         )
     }
 
-    override fun Container.pageItemBody(): ViewFormPanel<CompetitorPrice> = viewFormPanel {
+    override fun Container.pageItemBody(): FormPanel<CompetitorPrice> = viewFormPanel {
         competitorPriceFormFields()
     }
 }

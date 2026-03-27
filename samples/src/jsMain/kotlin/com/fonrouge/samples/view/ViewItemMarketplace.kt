@@ -6,8 +6,8 @@ import com.fonrouge.commonLib.model.MarketplaceFilter
 import com.fonrouge.commonLib.model.MarketplaceId
 import com.fonrouge.commonLib.view.form.marketplaceFormFields
 import com.fonrouge.fullStack.config.configViewItem
-import com.fonrouge.fullStack.view.ViewFormPanel
 import com.fonrouge.fullStack.view.ViewItem
+import io.kvision.form.FormPanel
 import com.fonrouge.samples.services.ISampleItemService
 import io.kvision.core.Container
 
@@ -22,7 +22,7 @@ class ViewItemMarketplace : ViewItem<Marketplace, MarketplaceId, MarketplaceFilt
         )
     }
 
-    override fun Container.pageItemBody(): ViewFormPanel<Marketplace> = viewFormPanel {
+    override fun Container.pageItemBody(): FormPanel<Marketplace> = viewFormPanel {
         marketplaceFormFields()
     }
 }
