@@ -1,5 +1,5 @@
 # Blueprints Index
-**Updated**: 2026-03-16
+**Updated**: 2026-03-27
 
 ## Active Modules & Libraries
 | Name | Mode | Status | Phase | Owner | Notes |
@@ -10,6 +10,11 @@
 | Bridge | Connects | Type | Status | Expiry Condition |
 |--------|----------|------|--------|-----------------|
 | [ShopifyPushSync(BRIDGE)](ShopifyPushSync(BRIDGE)/BRIEF.md) | commonLib ↔ shopifyLib | Permanent | ✅ Complete (22/22) | — |
+
+## Active Features
+| Feature | Module | Status | Owner | Notes |
+|---------|--------|--------|-------|-------|
+| [MercadoLibreOrders(FEATURE)](MercadoLibreOrders(FEATURE)/BRIEF.md) | mercadoLibreLib | 🔵 Planning | @tfonrouge | Order models + abstract coll + sync logic |
 
 ## Planned (blueprint only)
 | Bridge | Connects | Type | Status | Expiry Condition |
@@ -25,7 +30,9 @@
 ```mermaid
 graph LR
   MarketPlazeLib --> ShopifyPushSync
+  MarketPlazeLib --> MercadoLibreOrders
   ShopifyPushSync --> mppErsaPack
+  MercadoLibreOrders --> mppErsaPack
 ```
 
 ## Status Legend
