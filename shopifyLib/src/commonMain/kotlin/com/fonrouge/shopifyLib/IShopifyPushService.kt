@@ -17,4 +17,8 @@ interface IShopifyPushService {
     suspend fun uploadImage(marketplace: Marketplace, shopifyId: String, imageUrl: String, altText: String?): SimpleState
     suspend fun deleteImage(marketplace: Marketplace, shopifyId: String, imageId: String): SimpleState
     suspend fun reorderImages(marketplace: Marketplace, shopifyId: String, imageIds: List<String>): SimpleState
+    suspend fun createCollection(marketplace: Marketplace, collection: ShopifyCollection): SimpleState
+    suspend fun updateCollection(marketplace: Marketplace, collection: ShopifyCollection): SimpleState
+    suspend fun deleteCollection(marketplace: Marketplace, collectionId: String): SimpleState
+    suspend fun uploadImageFromBytes(marketplace: Marketplace, shopifyId: String, imageBytes: ByteArray, filename: String, altText: String? = null): SimpleState
 }

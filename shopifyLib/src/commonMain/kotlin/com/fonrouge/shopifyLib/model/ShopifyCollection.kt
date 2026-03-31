@@ -17,4 +17,7 @@ data class ShopifyCollection(
     val descriptionHtml: String? = null,
     val sortOrder: String = "BEST_SELLING",
     val productsCount: Int = 0,
+    val rules: List<CollectionRule> = emptyList(),
+    val isSmartCollection: Boolean = false,
+    val image: String? = null,
 ) : BaseDoc<ShopifyCollectionId>

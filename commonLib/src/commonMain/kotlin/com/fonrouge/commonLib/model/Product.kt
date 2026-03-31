@@ -27,6 +27,8 @@ data class Product(
     val weight: Double? = null,
     val weightUnit: String? = null,
     val barcode: String? = null,
+    val vendor: String? = null,
+    val productType: String? = null,
     val seoTitle: String? = null,
     val seoDescription: String? = null,
 ) : BaseDoc<ProductId>

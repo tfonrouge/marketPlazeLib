@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 data class SyncDiff(
     val product: Product,
     val shopifyId: StringId<ShopifyProduct>,
-    val changedFields: List<String> = emptyList(),
+    val changedFields: List<FieldChange> = emptyList(),
 )
 
 @Serializable

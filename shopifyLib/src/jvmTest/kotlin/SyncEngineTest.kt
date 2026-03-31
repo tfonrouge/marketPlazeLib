@@ -55,6 +55,10 @@ class SyncEngineTest {
         override suspend fun uploadImage(marketplace: Marketplace, shopifyId: String, imageUrl: String, altText: String?) = SimpleState(isOk = true, msgOk = "OK")
         override suspend fun deleteImage(marketplace: Marketplace, shopifyId: String, imageId: String) = SimpleState(isOk = true, msgOk = "OK")
         override suspend fun reorderImages(marketplace: Marketplace, shopifyId: String, imageIds: List<String>) = SimpleState(isOk = true, msgOk = "OK")
+        override suspend fun createCollection(marketplace: Marketplace, collection: ShopifyCollection) = SimpleState(isOk = true, msgOk = "gid://shopify/Collection/1")
+        override suspend fun updateCollection(marketplace: Marketplace, collection: ShopifyCollection) = SimpleState(isOk = true, msgOk = "OK")
+        override suspend fun deleteCollection(marketplace: Marketplace, collectionId: String) = SimpleState(isOk = true, msgOk = "OK")
+        override suspend fun uploadImageFromBytes(marketplace: Marketplace, shopifyId: String, imageBytes: ByteArray, filename: String, altText: String?) = SimpleState(isOk = true, msgOk = "OK")
     }
 
     @Test
@@ -100,7 +104,7 @@ class SyncEngineTest {
         val report = engine.reconcile(marketplace)
         assertEquals(0, report.toCreate.size)
         assertEquals(1, report.toUpdate.size)
-        assertTrue(report.toUpdate[0].changedFields.contains("title"))
+        assertTrue(report.toUpdate[0].changedFields.any { it.fieldName == "title" })
     }
 
     @Test

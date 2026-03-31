@@ -8,4 +8,5 @@ interface IErpProductReader {
     suspend fun readProductById(erpId: String): Product?
     suspend fun readInventoryLevels(): Map<String, Int>        // sku → quantity
     suspend fun readPriceLists(): Map<String, List<PriceListEntry>>  // sku → prices
+    suspend fun readInventoryByLocation(): Map<String, Map<String, Int>> = emptyMap()  // sku → (locationId → qty)
 }

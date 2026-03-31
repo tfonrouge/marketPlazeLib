@@ -2,10 +2,33 @@
 
 All notable changes to this project will be documented in this file.
 
-## [Unreleased]
+## [2.3.0] - 2026-03-31
+
+### Added
+- **Shopify smart collection CRUD**: `createCollection`, `updateCollection`, `deleteCollection` in `IShopifyPushService` + `ShopifyPushEngine` via Apollo GraphQL `CollectionCreate`, `CollectionUpdate`, `CollectionDelete` mutations
+- **`CollectionRule`** data class (`column`, `relation`, `condition`) matching Shopify's `CollectionRuleInput` schema
+- **`ShopifyCollection`** expanded with `rules: List<CollectionRule>`, `isSmartCollection: Boolean`, `image: String?`
+- **Binary image upload**: `uploadImageFromBytes()` in `IShopifyPushService` — 3-step flow: `stagedUploadsCreate` → HTTP multipart PUT → `productCreateMedia`
+- **Image processing pipeline** (JVM-only, no external deps): `ImageProcessor.pipeline().resize(w,h).watermark(text,pos,opacity).toJpeg(quality).process(bytes)` using `java.awt`
+- **`ImageHasher`**: SHA-256 deduplication via `java.security.MessageDigest`
+- **`ImageSize`** enum: `BASE(470)`, `SMALL(320)`, `THUMBNAIL(100)`
+- Image utilities: `ByteArray.isValidImage()` (magic bytes), `ByteArray.imageDimensions()`
+- **Field-level diff engine**: `detectChanges()` enhanced from 2 fields to 10+: title, descriptionHtml, price, barcode, vendor, weight, tags, published, inventoryQuantity, productType
+- **`FieldChange`** data class (`fieldName`, `oldValue`, `newValue`) for rich diff reporting
+- **`BulkSyncResult`** data class (`created`, `updated`, `failed`, `errors`) for batch operation reporting
+- **`bulkSyncToRemote()`** in `ShopifyBidirectionalSyncEngine`: batched create/update with configurable batch size and delay between API calls
+- **`Product`** expanded with `vendor: String?`, `productType: String?`
+- **`MarketplaceListing`** expanded with 7 diff-tracking fields: `descriptionHtml`, `barcode`, `vendor`, `weight`, `tags`, `inventoryQuantity`, `productType`
+- **`IErpProductReader`**: `readInventoryByLocation(): Map<String, Map<String, Int>>` for per-location inventory sync (default empty map, backward compatible)
+- Richer listing persistence in `syncToRemote()` — saves all expanded fields for accurate next-reconcile comparison
 
 ### Changed
-- Upgrade fsLib from 3.1.2-SNAPSHOT to 3.1.2 (stable release)
+- **BREAKING**: `SyncDiff.changedFields` type changed from `List<String>` to `List<FieldChange>`. Migration: replace `.contains("title")` with `.any { it.fieldName == "title" }`
+
+### Dependencies
+- Kotlin 2.3.20, fsLib 3.2.0, KVision 9.5.0, kilua-rpc 0.0.43, KSP 2.3.6 (all stable releases, no SNAPSHOTs)
+
+## [Unreleased]
 
 ## [1.2.0] - 2026-03-18
 
