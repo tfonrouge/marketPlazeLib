@@ -21,6 +21,7 @@ data class MercadoLibreProduct(
     val thumbnail: String = "",
     val pictures: List<Picture> = emptyList(),
     val status: String = "active",
+    val sellerSku: String = "",
 ) : BaseDoc<StringId<MercadoLibreProduct>> {
     @Serializable
     data class Picture(
