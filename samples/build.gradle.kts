@@ -8,7 +8,7 @@ plugins {
     alias(libs.plugins.kvision)
 }
 
-version = "1.0.0-SNAPSHOT"
+version = libs.versions.marketPlazeLib.get()
 group = "com.fonrouge.samples"
 
 repositories {

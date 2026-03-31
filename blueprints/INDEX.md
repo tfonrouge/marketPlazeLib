@@ -1,5 +1,5 @@
 # Blueprints Index
-**Updated**: 2026-03-27
+**Updated**: 2026-03-31
 
 ## Active Modules & Libraries
 | Name | Mode | Status | Phase | Owner | Notes |
@@ -14,6 +14,7 @@
 ## Active Features
 | Feature | Module | Status | Owner | Notes |
 |---------|--------|--------|-------|-------|
+| [FullShopifySync(FEATURE)](FullShopifySync(FEATURE)/BRIEF.md) | shopifyLib + commonLib | 🔵 Planning | @tfonrouge | v2.0.0: collection CRUD, image pipeline, diff engine, bulk ops, dep stabilization |
 | [MercadoLibreOrders(FEATURE)](MercadoLibreOrders(FEATURE)/BRIEF.md) | mercadoLibreLib | 🔵 Planning | @tfonrouge | Order models + abstract coll + sync logic |
 
 ## Planned (blueprint only)
@@ -30,9 +31,11 @@
 ```mermaid
 graph LR
   MarketPlazeLib --> ShopifyPushSync
+  MarketPlazeLib --> FullShopifySync
   MarketPlazeLib --> MercadoLibreOrders
-  ShopifyPushSync --> mppErsaPack
-  MercadoLibreOrders --> mppErsaPack
+  FullShopifySync --> ConsumerApps[Consumer Applications]
+  ShopifyPushSync --> ConsumerApps
+  MercadoLibreOrders --> ConsumerApps
 ```
 
 ## Status Legend
