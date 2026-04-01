@@ -11,10 +11,10 @@ Enhance marketPlazeLib from v1.3.0 to v2.0.0 with full Shopify sync capabilities
 | ID | Requirement |
 |----|-------------|
 | **FR-MPL-001** | The library SHALL provide `createCollection(marketplace, collection)` in `IShopifyPushService` that creates a Shopify smart collection with title, rules, sort order, description, and image via `collectionCreate` GraphQL mutation |
-| **FR-MPL-002** | The library SHALL provide `updateCollection(marketplace, collectionId, collection)` that updates an existing collection via `collectionUpdate` GraphQL mutation |
+| **FR-MPL-002** | The library SHALL provide `updateCollection(marketplace, collection)` that updates an existing collection via `collectionUpdate` GraphQL mutation (ID read from `collection._id`) |
 | **FR-MPL-003** | The library SHALL provide `deleteCollection(marketplace, collectionId)` that removes a collection via `collectionDelete` GraphQL mutation |
 | **FR-MPL-004** | `ShopifyCollection` SHALL include `rules: List<CollectionRule>`, `isSmartCollection: Boolean`, `image: String?` |
-| **FR-MPL-005** | `CollectionRule` SHALL be a data class: `field: String, relation: String, condition: String` matching Shopify's `CollectionRuleInput` |
+| **FR-MPL-005** | `CollectionRule` SHALL be a data class: `column: String, relation: String, condition: String` matching Shopify's `CollectionRuleInput` schema field naming |
 
 ### Image Processing Pipeline
 
@@ -30,14 +30,14 @@ Enhance marketPlazeLib from v1.3.0 to v2.0.0 with full Shopify sync capabilities
 | ID | Requirement |
 |----|-------------|
 | **FR-MPL-010** | `ShopifyBidirectionalSyncEngine.detectChanges()` SHALL compare: title, descriptionHtml, price, barcode, vendor, weight, tags, published status, image count, productType |
-| **FR-MPL-011** | `SyncDiff.changedFields` SHALL use `List<FieldChange>` where `FieldChange(fieldName: String, erpValue: String?, shopifyValue: String?)` — BREAKING CHANGE replacing `List<String>` |
+| **FR-MPL-011** | `SyncDiff.changedFields` SHALL use `List<FieldChange>` where `FieldChange(fieldName: String, oldValue: String?, newValue: String?)` — BREAKING CHANGE replacing `List<String>` |
 
 ### Bulk Sync Operations
 
 | ID | Requirement |
 |----|-------------|
-| **FR-MPL-012** | The library SHALL provide `bulkCreateProducts(marketplace, products, batchSize=50): BulkSyncResult` with rate limiting between batches |
-| **FR-MPL-013** | The library SHALL provide `bulkUpdateProducts(marketplace, diffs, batchSize=50): BulkSyncResult` |
+| **FR-MPL-012** | `ShopifyBidirectionalSyncEngine` SHALL provide `bulkSyncToRemote(marketplace, batchSize=50, delayMs=500): BulkSyncResult` that batches product creates and updates with rate limiting between Shopify API calls |
+| **FR-MPL-013** | `bulkSyncToRemote` SHALL reconcile first, then execute creates and updates in configurable batches, accumulating errors into `BulkSyncResult` |
 | **FR-MPL-014** | `BulkSyncResult` SHALL report `created: Int, updated: Int, failed: Int, errors: List<SyncError>` |
 
 ### Dependency Stabilization
@@ -56,7 +56,7 @@ Enhance marketPlazeLib from v1.3.0 to v2.0.0 with full Shopify sync capabilities
 | **BR-MPL-002** | Image resize preserves aspect ratio; maxWidth/maxHeight are upper bounds |
 | **BR-MPL-003** | Watermark defaults to BOTTOM_RIGHT, 50% opacity |
 | **BR-MPL-004** | Bulk operations use 500ms delay between Shopify API calls |
-| **BR-MPL-005** | `FieldChange.erpValue` and `shopifyValue` are `String?` (serializable) |
+| **BR-MPL-005** | `FieldChange.oldValue` and `newValue` are `String?` (serializable) |
 | **BR-MPL-006** | Image maximum size per Shopify: 20MB. Pipeline validates before upload |
 
 ## 4. Consumer Roles
@@ -73,8 +73,8 @@ Enhance marketPlazeLib from v1.3.0 to v2.0.0 with full Shopify sync capabilities
 
 | Model | Module | Fields |
 |-------|--------|--------|
-| `CollectionRule` | shopifyLib | `field: String, relation: String, condition: String` |
-| `FieldChange` | shopifyLib | `fieldName: String, erpValue: String?, shopifyValue: String?` |
+| `CollectionRule` | shopifyLib | `column: String, relation: String, condition: String` |
+| `FieldChange` | shopifyLib | `fieldName: String, oldValue: String?, newValue: String?` |
 | `BulkSyncResult` | shopifyLib | `created: Int, updated: Int, failed: Int, errors: List<SyncError>` |
 | `ImageSize` | commonLib | Enum: `BASE(470), SMALL(320), THUMBNAIL(100)` |
 

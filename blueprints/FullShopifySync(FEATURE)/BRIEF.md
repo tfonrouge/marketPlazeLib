@@ -10,8 +10,8 @@
 | **Business Owner** | Library maintainer |
 | **Business Justification** | shopifyLib currently supports product CRUD, inventory, and media management via GraphQL, but lacks smart collection lifecycle management, server-side image processing before upload, comprehensive field-level diff detection, and bulk sync operations. These are essential for any production ERP→Shopify integration. |
 | **Key Stakeholders** | Any consumer application implementing `IErpProductReader` for ERP→Shopify sync |
-| **Target Version** | 2.0.0 (major bump due to breaking `SyncDiff.changedFields` type change) |
-| **Current Version** | 1.3.0 |
+| **Target Version** | 2.3.0 (shipped) |
+| **Current Version** | 2.3.0 |
 
 ## What Already Exists (v1.3.0)
 

@@ -30,6 +30,8 @@
 | `DiffViewerPanel` | shopifyLib/jsMain | Component | Two-column panel: ERP vs Shopify values per field |
 | `CollectionRuleEditor` | shopifyLib/jsMain | Component | Dynamic form: add/remove rules with field/relation/condition dropdowns |
 
+> **Status**: These components are specified but not yet implemented in shopifyLib/jsMain. Consumer apps (e.g., mppDulce) provide equivalent UI directly in their view layer.
+
 ## 3. Consumer Assembly Pattern
 
 ```kotlin

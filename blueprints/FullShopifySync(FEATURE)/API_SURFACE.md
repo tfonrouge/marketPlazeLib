@@ -23,7 +23,7 @@
 ```kotlin
 @Serializable
 data class CollectionRule(
-    val field: String,      // "tag", "type", "vendor", etc.
+    val column: String,     // "tag", "type", "vendor", etc.
     val relation: String,   // "equals", "contains", "starts_with", etc.
     val condition: String,
 )
@@ -44,8 +44,8 @@ val image: String? = null
 @Serializable
 data class FieldChange(
     val fieldName: String,
-    val erpValue: String?,
-    val shopifyValue: String?,
+    val oldValue: String? = null,
+    val newValue: String? = null,
 )
 ```
 
@@ -84,7 +84,7 @@ Existing 10 methods unchanged. New methods:
 ```kotlin
 // Collection CRUD (FR-MPL-001..003)
 suspend fun createCollection(marketplace: Marketplace, collection: ShopifyCollection): SimpleState
-suspend fun updateCollection(marketplace: Marketplace, collectionId: String, collection: ShopifyCollection): SimpleState
+suspend fun updateCollection(marketplace: Marketplace, collection: ShopifyCollection): SimpleState  // ID read from collection._id
 suspend fun deleteCollection(marketplace: Marketplace, collectionId: String): SimpleState
 
 // Binary image upload (FR-MPL-009)
@@ -96,9 +96,8 @@ suspend fun uploadImageFromBytes(
     altText: String? = null,
 ): SimpleState
 
-// Bulk operations (FR-MPL-012..013)
-suspend fun bulkCreateProducts(marketplace: Marketplace, products: List<Product>, batchSize: Int = 50): BulkSyncResult
-suspend fun bulkUpdateProducts(marketplace: Marketplace, diffs: List<SyncDiff>, batchSize: Int = 50): BulkSyncResult
+// Bulk operations live on ShopifyBidirectionalSyncEngine, not IShopifyPushService:
+// suspend fun bulkSyncToRemote(marketplace: Marketplace, batchSize: Int = 50, delayMs: Long = 500): BulkSyncResult
 ```
 
 ### `ImageProcessor` — NEW (commonLib/jvmMain)
