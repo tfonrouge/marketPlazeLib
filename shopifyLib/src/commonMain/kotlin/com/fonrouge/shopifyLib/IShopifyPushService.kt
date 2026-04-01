@@ -1,10 +1,12 @@
 package com.fonrouge.shopifyLib
 
+import com.fonrouge.base.state.ItemState
 import com.fonrouge.base.state.SimpleState
 import com.fonrouge.base.types.StringId
 import com.fonrouge.commonLib.model.Marketplace
 import com.fonrouge.commonLib.model.Product
 import com.fonrouge.shopifyLib.model.ShopifyCollection
+import com.fonrouge.shopifyLib.model.ShopifyProduct
 
 interface IShopifyPushService {
     suspend fun createProduct(marketplace: Marketplace, product: Product): SimpleState
@@ -21,4 +23,5 @@ interface IShopifyPushService {
     suspend fun updateCollection(marketplace: Marketplace, collection: ShopifyCollection): SimpleState
     suspend fun deleteCollection(marketplace: Marketplace, collectionId: String): SimpleState
     suspend fun uploadImageFromBytes(marketplace: Marketplace, shopifyId: String, imageBytes: ByteArray, filename: String, altText: String? = null): SimpleState
+    suspend fun getProduct(marketplace: Marketplace, shopifyId: String): ItemState<ShopifyProduct>
 }

@@ -85,7 +85,46 @@ sequenceDiagram
     Engine-->>App: BulkSyncResult
 ```
 
-## 5. Error Handling
+## 5. Smoke Test — Round-Trip Verification
+
+```mermaid
+sequenceDiagram
+    participant Test as ShopifySmokeTest
+    participant Push as IShopifyPushService
+    participant GQL as Shopify GraphQL
+
+    Test->>Push: getProduct(marketplace, shopifyId)
+    Push->>GQL: GetProductDetailQuery
+    GQL-->>Push: Product (original title)
+    Push-->>Test: ItemState<Product> — capture originalTitle
+
+    Note over Test: testTitle = originalTitle + " [SMOKE TEST]"
+
+    Test->>Push: updateProduct(marketplace, modifiedProduct, shopifyId)
+    Push->>GQL: ProductUpdateMutation
+    GQL-->>Push: OK
+    Push-->>Test: SimpleState OK
+
+    Test->>Push: getProduct(marketplace, shopifyId)
+    Push->>GQL: GetProductDetailQuery
+    GQL-->>Push: Product (verify testTitle)
+    Push-->>Test: updateVerified = (title == testTitle)
+
+    Note over Test: try/finally — always revert
+
+    Test->>Push: updateProduct(marketplace, originalProduct, shopifyId)
+    Push->>GQL: ProductUpdateMutation
+    GQL-->>Push: OK
+
+    Test->>Push: getProduct(marketplace, shopifyId)
+    Push->>GQL: GetProductDetailQuery
+    GQL-->>Push: Product (verify originalTitle)
+    Push-->>Test: revertVerified = (title == originalTitle)
+
+    Test-->>Test: Return SmokeTestResult
+```
+
+## 6. Error Handling
 
 ```mermaid
 flowchart TD

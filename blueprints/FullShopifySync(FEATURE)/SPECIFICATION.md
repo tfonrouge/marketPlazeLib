@@ -40,6 +40,14 @@ Enhance marketPlazeLib from v1.3.0 to v2.0.0 with full Shopify sync capabilities
 | **FR-MPL-013** | `bulkSyncToRemote` SHALL reconcile first, then execute creates and updates in configurable batches, accumulating errors into `BulkSyncResult` |
 | **FR-MPL-014** | `BulkSyncResult` SHALL report `created: Int, updated: Int, failed: Int, errors: List<SyncError>` |
 
+### Product Query & Smoke Testing
+
+| ID | Requirement |
+|----|-------------|
+| **FR-MPL-018** | `IShopifyPushService` SHALL provide `getProduct(marketplace, shopifyId): ItemState<Product>` that fetches a single product's current state from Shopify via `GetProductDetailQuery` |
+| **FR-MPL-019** | The library SHALL provide `ShopifySmokeTest` (JVM-only) that performs a self-reverting round-trip test: fetch product → mutate one field → push → verify change → revert → verify revert. The test SHALL use `try/finally` to guarantee revert even on failure |
+| **FR-MPL-020** | `ShopifySmokeTest` SHALL return a `SmokeTestResult` with: `productId`, `fieldTested`, `originalValue`, `testValue`, `updateVerified: Boolean`, `revertVerified: Boolean`, `error: String?` |
+
 ### Dependency Stabilization
 
 | ID | Requirement |
@@ -58,6 +66,9 @@ Enhance marketPlazeLib from v1.3.0 to v2.0.0 with full Shopify sync capabilities
 | **BR-MPL-004** | Bulk operations use 500ms delay between Shopify API calls |
 | **BR-MPL-005** | `FieldChange.oldValue` and `newValue` are `String?` (serializable) |
 | **BR-MPL-006** | Image maximum size per Shopify: 20MB. Pipeline validates before upload |
+| **BR-MPL-007** | `ShopifySmokeTest` uses `title` as the test field — appends ` [SMOKE TEST]` suffix, then reverts to original. Title is chosen because it's visible, has no side effects, and is a simple string comparison |
+| **BR-MPL-008** | `ShopifySmokeTest` MUST revert the product even if the verification step fails. Uses `try/finally` to guarantee cleanup |
+| **BR-MPL-009** | `ShopifySmokeTest` requires a valid `Marketplace` with live credentials and an existing Shopify product GID. It is NOT safe for automated CI — designed for manual integration verification |
 
 ## 4. Consumer Roles
 

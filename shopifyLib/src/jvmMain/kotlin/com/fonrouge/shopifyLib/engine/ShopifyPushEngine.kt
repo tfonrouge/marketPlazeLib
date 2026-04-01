@@ -19,12 +19,15 @@ import com.fonrouge.CollectionCreateMutation
 import com.fonrouge.CollectionDeleteMutation
 import com.fonrouge.CollectionUpdateMutation
 import com.fonrouge.StagedUploadsCreateMutation
+import com.fonrouge.GetProductDetailQuery
+import com.fonrouge.base.state.ItemState
 import com.fonrouge.base.state.SimpleState
 import com.fonrouge.base.types.StringId
 import com.fonrouge.commonLib.model.Marketplace
 import com.fonrouge.commonLib.model.Product
 import com.fonrouge.shopifyLib.IShopifyPushService
 import com.fonrouge.shopifyLib.model.ShopifyCollection
+import com.fonrouge.shopifyLib.model.ShopifyProduct
 import com.fonrouge.type.CollectionDeleteInput
 import com.fonrouge.type.CollectionInput
 import com.fonrouge.type.CollectionRuleColumn
@@ -474,6 +477,31 @@ class ShopifyPushEngine : IShopifyPushService {
             return SimpleState(isOk = true, msgOk = "Uploaded image $mediaId to $shopifyId")
         } catch (e: Exception) {
             return SimpleState(isOk = false, msgError = "uploadImageFromBytes error: ${e.message}")
+        } finally {
+            client.close()
+        }
+    }
+
+    override suspend fun getProduct(marketplace: Marketplace, shopifyId: String): ItemState<ShopifyProduct> {
+        val client = buildApolloClient(marketplace)
+        try {
+            val response = client.query(GetProductDetailQuery(id = shopifyId)).execute()
+            val product = response.data?.product
+                ?: return ItemState(msgError = "Product not found: $shopifyId")
+            val shopifyProduct = ShopifyProduct(
+                _id = StringId(product.id),
+                title = product.title,
+                handle = product.handle,
+                vendor = product.vendor,
+                productType = product.productType,
+                publishedAt = null, // GetProductDetailQuery returns String; full parsing would need date conversion
+                description = "",
+                descriptionHtml = "",
+                totalInventory = 0,
+            )
+            return ItemState(item = shopifyProduct)
+        } catch (e: Exception) {
+            return ItemState(msgError = "getProduct error: ${e.message}")
         } finally {
             client.close()
         }

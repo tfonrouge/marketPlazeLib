@@ -1,3 +1,4 @@
+import com.fonrouge.base.state.ItemState
 import com.fonrouge.base.state.SimpleState
 import com.fonrouge.base.types.StringId
 import com.fonrouge.commonLib.model.*
@@ -5,6 +6,7 @@ import com.fonrouge.commonLib.sync.IErpProductReader
 import com.fonrouge.shopifyLib.IShopifyPushService
 import com.fonrouge.shopifyLib.engine.ShopifyBidirectionalSyncEngine
 import com.fonrouge.shopifyLib.model.ShopifyCollection
+import com.fonrouge.shopifyLib.model.ShopifyProduct
 import com.fonrouge.shopifyLib.model.SyncReport
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
@@ -59,6 +61,17 @@ class SyncEngineTest {
         override suspend fun updateCollection(marketplace: Marketplace, collection: ShopifyCollection) = SimpleState(isOk = true, msgOk = "OK")
         override suspend fun deleteCollection(marketplace: Marketplace, collectionId: String) = SimpleState(isOk = true, msgOk = "OK")
         override suspend fun uploadImageFromBytes(marketplace: Marketplace, shopifyId: String, imageBytes: ByteArray, filename: String, altText: String?) = SimpleState(isOk = true, msgOk = "OK")
+        override suspend fun getProduct(marketplace: Marketplace, shopifyId: String) = ItemState(item = ShopifyProduct(
+            _id = com.fonrouge.base.types.StringId(shopifyId),
+            title = "Fake Product",
+            handle = "fake-product",
+            vendor = "Fake Vendor",
+            productType = "test",
+            publishedAt = null,
+            description = "",
+            descriptionHtml = "",
+            totalInventory = 0,
+        ))
     }
 
     @Test

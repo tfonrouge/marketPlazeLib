@@ -96,6 +96,9 @@ suspend fun uploadImageFromBytes(
     altText: String? = null,
 ): SimpleState
 
+// Product query (FR-MPL-018)
+suspend fun getProduct(marketplace: Marketplace, shopifyId: String): ItemState<Product>
+
 // Bulk operations live on ShopifyBidirectionalSyncEngine, not IShopifyPushService:
 // suspend fun bulkSyncToRemote(marketplace: Marketplace, batchSize: Int = 50, delayMs: Long = 500): BulkSyncResult
 ```
@@ -126,6 +129,31 @@ object ImageHasher {
     fun sha256(bytes: ByteArray): String
 }
 ```
+
+### `ShopifySmokeTest` — NEW (shopifyLib/jvmMain)
+
+- **Kind**: Class
+- **Module**: shopifyLib/jvmMain
+- **Purpose**: Self-reverting round-trip integration test against a live Shopify store
+- **Signature**:
+  ```kotlin
+  class ShopifySmokeTest(private val pushService: IShopifyPushService) {
+      suspend fun run(marketplace: Marketplace, shopifyProductId: String): SmokeTestResult
+  }
+
+  @Serializable
+  data class SmokeTestResult(
+      val productId: String,
+      val fieldTested: String,
+      val originalValue: String?,
+      val testValue: String?,
+      val updateVerified: Boolean,
+      val revertVerified: Boolean,
+      val error: String? = null,
+  )
+  ```
+- **Flow**: getProduct → modify title → updateProduct → getProduct (verify) → updateProduct (revert) → getProduct (verify revert)
+- **Constraints**: Requires live Shopify credentials. Always reverts via `try/finally`. NOT for CI.
 
 ### `ShopifyBidirectionalSyncEngine` — ENHANCED (shopifyLib/jvmMain)
 
@@ -168,6 +196,7 @@ fun ByteArray.imageDimensions(): Pair<Int, Int>  // Width x Height without full 
 |------|--------|
 | `SyncError` | Existing — unchanged |
 | `BulkSyncResult` | New |
+| `SmokeTestResult` | New — round-trip test result with before/after values |
 | `SimpleState` | External (fsLib) — unchanged |
 | `ItemState<T>` | External (fsLib) — unchanged |
 
