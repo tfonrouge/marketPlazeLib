@@ -15,29 +15,35 @@ mutation StagedUploadsCreate($input: [StagedUploadInput!]!) {
     }
 }
 
-mutation ProductCreateMedia($productId: ID!, $media: [CreateMediaInput!]!) {
-    productCreateMedia(productId: $productId, media: $media) {
-        media {
-            ... on MediaImage {
-                id
-                image {
-                    url
-                    altText
+mutation ProductAddMedia($product: ProductUpdateInput, $media: [CreateMediaInput!]) {
+    productUpdate(product: $product, media: $media) {
+        product {
+            id
+            media(first: 1, reverse: true) {
+                edges {
+                    node {
+                        ... on MediaImage {
+                            id
+                            image {
+                                url
+                                altText
+                            }
+                        }
+                    }
                 }
             }
         }
-        mediaUserErrors {
+        userErrors {
             field
             message
-            code
         }
     }
 }
 
-mutation ProductDeleteMedia($productId: ID!, $mediaIds: [ID!]!) {
-    productDeleteMedia(productId: $productId, mediaIds: $mediaIds) {
-        deletedMediaIds
-        mediaUserErrors {
+mutation FileDelete($fileIds: [ID!]!) {
+    fileDelete(fileIds: $fileIds) {
+        deletedFileIds
+        userErrors {
             field
             message
             code

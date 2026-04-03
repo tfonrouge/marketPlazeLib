@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.dokka)
     id("maven-publish")
-    id("org.jetbrains.dokka") version "2.0.0"
 }
 
 group = "com.fonrouge.marketPlazeLib"
@@ -37,16 +37,9 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":commonLib"))
-            implementation(libs.fonrouge.base)
-            implementation(libs.fonrouge.fullStack)
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.kotlinx.datetime)
-            implementation(libs.kvision.common.remote)
         }
 
         jvmMain.dependencies {
-            implementation(kotlin("reflect"))
-            implementation(libs.fonrouge.mongodb)
         }
 
         jvmTest.dependencies {

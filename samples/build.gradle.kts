@@ -66,20 +66,14 @@ kotlin {
         commonMain.dependencies {
             api(project(":commonLib"))
             api(project(":shopifyLib"))
-            implementation(libs.fonrouge.base)
-            implementation(libs.fonrouge.fullStack)
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.kotlinx.datetime)
-            implementation(libs.kvision.common.remote)
             implementation(libs.kilua.rpc.ktor)
         }
 
         jvmMain.dependencies {
-            implementation(kotlin("reflect"))
             implementation(libs.fonrouge.memorydb)
             implementation(libs.logback.classic)
-            implementation("io.ktor:ktor-server-netty:3.4.0")
-            implementation("io.ktor:ktor-server-compression:3.4.0")
+            implementation(libs.ktor.server.netty)
+            implementation(libs.ktor.server.compression)
         }
 
         jvmTest.dependencies {

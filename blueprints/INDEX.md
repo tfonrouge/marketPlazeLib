@@ -1,10 +1,10 @@
 # Blueprints Index
-**Updated**: 2026-03-31
+**Updated**: 2026-04-01
 
 ## Active Modules & Libraries
 | Name | Mode | Status | Phase | Owner | Notes |
 |------|------|--------|-------|-------|-------|
-| [MarketPlazeLib(MODULE)](MarketPlazeLib(MODULE)/BRIEF.md) | LIBRARY | ✅ Complete | — | @tfonrouge | Published v2.3.0 under `com.fonrouge.marketPlazeLib` |
+| [MarketPlazeLib(MODULE)](MarketPlazeLib(MODULE)/BRIEF.md) | LIBRARY | ✅ Complete | — | @tfonrouge | Published v2.4.0 under `com.fonrouge.marketPlazeLib` |
 
 ## Active Bridges
 | Bridge | Connects | Type | Status | Expiry Condition |
@@ -14,7 +14,7 @@
 ## Active Features
 | Feature | Module | Status | Owner | Notes |
 |---------|--------|--------|-------|-------|
-| [FullShopifySync(FEATURE)](FullShopifySync(FEATURE)/BRIEF.md) | shopifyLib + commonLib | ✅ Complete | @tfonrouge | v2.3.0: collection CRUD, image pipeline, diff engine, bulk ops, dep stabilization |
+| [FullShopifySync(FEATURE)](FullShopifySync(FEATURE)/BRIEF.md) | shopifyLib + commonLib | ✅ Complete | @tfonrouge | v2.3.0+v2.4.0: collection CRUD, image pipeline, diff engine, bulk ops, smoke test, dep stabilization |
 | [MercadoLibreOrders(FEATURE)](MercadoLibreOrders(FEATURE)/BRIEF.md) | mercadoLibreLib | 🔵 Planning | @tfonrouge | Order models + abstract coll + sync logic |
 
 ## Planned (blueprint only)

@@ -1,9 +1,9 @@
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.serialization)
+    alias(libs.plugins.apollo)
+    alias(libs.plugins.dokka)
     id("maven-publish")
-    id("org.jetbrains.dokka") version "2.0.0"
-    id("com.apollographql.apollo") version "4.3.3"
 }
 
 group = "com.fonrouge.marketPlazeLib"
@@ -39,17 +39,11 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(project(":commonLib"))
-            api("com.apollographql.apollo:apollo-runtime:4.3.3")
-            implementation(libs.fonrouge.base)
-            implementation(libs.fonrouge.fullStack)
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.kotlinx.datetime)
-            implementation(libs.kvision.common.remote)
+            api(libs.apollo.runtime)
         }
 
         jvmMain.dependencies {
             implementation(kotlin("reflect"))
-            implementation(libs.fonrouge.mongodb)
         }
 
         jvmTest.dependencies {

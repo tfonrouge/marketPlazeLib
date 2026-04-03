@@ -7,9 +7,9 @@ import com.fonrouge.CollectionAddProductsMutation
 import com.fonrouge.CollectionRemoveProductsMutation
 import com.fonrouge.GetProductInventoryItemsQuery
 import com.fonrouge.InventorySetQuantitiesMutation
-import com.fonrouge.ProductCreateMediaMutation
+import com.fonrouge.FileDeleteMutation
+import com.fonrouge.ProductAddMediaMutation
 import com.fonrouge.ProductCreateMutation
-import com.fonrouge.ProductDeleteMediaMutation
 import com.fonrouge.ProductDeleteMutation
 import com.fonrouge.ProductReorderMediaMutation
 import com.fonrouge.ProductUpdateMutation
@@ -264,24 +264,23 @@ class ShopifyPushEngine : IShopifyPushService {
     override suspend fun uploadImage(marketplace: Marketplace, shopifyId: String, imageUrl: String, altText: String?): SimpleState {
         val client = buildApolloClient(marketplace)
         try {
-            // Use originalSource URL directly via productCreateMedia (no staged upload needed for URLs)
-            val mutation = ProductCreateMediaMutation(
-                productId = shopifyId,
-                media = listOf(
+            val mutation = ProductAddMediaMutation(
+                product = Optional.present(ProductUpdateInput(id = Optional.present(shopifyId))),
+                media = Optional.present(listOf(
                     CreateMediaInput(
                         originalSource = imageUrl,
                         alt = Optional.presentIfNotNull(altText),
                         mediaContentType = MediaContentType.IMAGE,
                     )
-                )
+                ))
             )
             val response = client.mutation(mutation).execute()
-            val data = response.data?.productCreateMedia
-                ?: return SimpleState(isOk = false, msgError = "No response data from productCreateMedia")
-            if (data.mediaUserErrors.isNotEmpty()) {
-                return SimpleState(isOk = false, msgError = data.mediaUserErrors.joinToString { it.message })
+            val data = response.data?.productUpdate
+                ?: return SimpleState(isOk = false, msgError = "No response data from productUpdate (addMedia)")
+            if (data.userErrors.isNotEmpty()) {
+                return SimpleState(isOk = false, msgError = data.userErrors.joinToString { it.message })
             }
-            val mediaId = data.media?.firstOrNull()?.onMediaImage?.id ?: "unknown"
+            val mediaId = data.product?.media?.edges?.firstOrNull()?.node?.onMediaImage?.id ?: "unknown"
             return SimpleState(isOk = true, msgOk = "Uploaded image $mediaId to $shopifyId")
         } catch (e: Exception) {
             return SimpleState(isOk = false, msgError = "uploadImage error: ${e.message}")
@@ -293,14 +292,14 @@ class ShopifyPushEngine : IShopifyPushService {
     override suspend fun deleteImage(marketplace: Marketplace, shopifyId: String, imageId: String): SimpleState {
         val client = buildApolloClient(marketplace)
         try {
-            val mutation = ProductDeleteMediaMutation(productId = shopifyId, mediaIds = listOf(imageId))
+            val mutation = FileDeleteMutation(fileIds = listOf(imageId))
             val response = client.mutation(mutation).execute()
-            val data = response.data?.productDeleteMedia
-                ?: return SimpleState(isOk = false, msgError = "No response data from productDeleteMedia")
-            if (data.mediaUserErrors.isNotEmpty()) {
-                return SimpleState(isOk = false, msgError = data.mediaUserErrors.joinToString { it.message })
+            val data = response.data?.fileDelete
+                ?: return SimpleState(isOk = false, msgError = "No response data from fileDelete")
+            if (data.userErrors.isNotEmpty()) {
+                return SimpleState(isOk = false, msgError = data.userErrors.joinToString { it.message })
             }
-            return SimpleState(isOk = true, msgOk = "Deleted media $imageId from $shopifyId")
+            return SimpleState(isOk = true, msgOk = "Deleted media $imageId")
         } catch (e: Exception) {
             return SimpleState(isOk = false, msgError = "deleteImage error: ${e.message}")
         } finally {
@@ -456,24 +455,24 @@ class ShopifyPushEngine : IShopifyPushService {
                 return SimpleState(isOk = false, msgError = "Staged upload HTTP ${httpResponse.statusCode()}: ${httpResponse.body().take(200)}")
             }
 
-            // Step 3: Attach to product via productCreateMedia
-            val mediaMutation = ProductCreateMediaMutation(
-                productId = shopifyId,
-                media = listOf(
+            // Step 3: Attach to product via productUpdate with media
+            val mediaMutation = ProductAddMediaMutation(
+                product = Optional.present(ProductUpdateInput(id = Optional.present(shopifyId))),
+                media = Optional.present(listOf(
                     CreateMediaInput(
                         originalSource = resourceUrl,
                         alt = Optional.presentIfNotNull(altText),
                         mediaContentType = MediaContentType.IMAGE,
                     )
-                )
+                ))
             )
             val mediaResponse = client.mutation(mediaMutation).execute()
-            val mediaData = mediaResponse.data?.productCreateMedia
-                ?: return SimpleState(isOk = false, msgError = "No response from productCreateMedia")
-            if (mediaData.mediaUserErrors.isNotEmpty()) {
-                return SimpleState(isOk = false, msgError = mediaData.mediaUserErrors.joinToString { it.message })
+            val mediaData = mediaResponse.data?.productUpdate
+                ?: return SimpleState(isOk = false, msgError = "No response from productUpdate (addMedia)")
+            if (mediaData.userErrors.isNotEmpty()) {
+                return SimpleState(isOk = false, msgError = mediaData.userErrors.joinToString { it.message })
             }
-            val mediaId = mediaData.media?.firstOrNull()?.onMediaImage?.id ?: "unknown"
+            val mediaId = mediaData.product?.media?.edges?.firstOrNull()?.node?.onMediaImage?.id ?: "unknown"
             return SimpleState(isOk = true, msgOk = "Uploaded image $mediaId to $shopifyId")
         } catch (e: Exception) {
             return SimpleState(isOk = false, msgError = "uploadImageFromBytes error: ${e.message}")
