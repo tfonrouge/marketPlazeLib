@@ -7,6 +7,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.5.0] - 2026-05-01
+
+### Added
+- **`MarketplaceType` constants object** in `commonLib` — string constants `MERCADO_LIBRE`, `SHOPIFY`, `AMAZON` to replace magic strings when populating `Marketplace.type`
+
 ### Changed
 - **Build: centralize all versions in catalog** — Apollo (4.3.3 -> 4.4.2), Dokka (2.0.0 -> 2.2.0), Ktor (3.4.0 -> 3.4.2) moved to `libs.versions.toml`
 - **Build: Dokka V1 -> V2** — migrated from deprecated Dokka V1 plugin to V2 (version 2.2.0)

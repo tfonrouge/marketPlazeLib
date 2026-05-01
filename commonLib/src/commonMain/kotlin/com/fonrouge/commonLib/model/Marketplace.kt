@@ -6,6 +6,12 @@ import kotlinx.serialization.Serializable
 
 typealias MarketplaceId = OId<Marketplace>
 
+object MarketplaceType {
+    const val MERCADO_LIBRE = "MercadoLibre"
+    const val SHOPIFY = "Shopify"
+    const val AMAZON = "Amazon"
+}
+
 @Serializable
 data class Marketplace(
     override val _id: MarketplaceId = OId(),
