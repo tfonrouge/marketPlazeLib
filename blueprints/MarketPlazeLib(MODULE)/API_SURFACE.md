@@ -9,8 +9,18 @@
 ## Core Models (commonLib)
 
 ```kotlin
+object MarketplaceType {                                   // v2.5.0
+    const val MERCADO_LIBRE = "MercadoLibre"
+    const val SHOPIFY = "Shopify"
+    const val AMAZON = "Amazon"
+}
+
 data class Marketplace(_id, name, type, connectionConfig: Map<String,String>, enabled,
-    ivaRate: Double, isrRate: Double, ivaIncluded: Boolean)
+    ivaRate: Double, isrRate: Double, ivaIncluded: Boolean,
+    commissionRateClassic: Double, commissionRatePremium: Double,    // v1.2.0/2.1.0 (Mexican pricing)
+    cargoFijoTiers: List<CargoFijoTier>,                             // v1.2.0/2.1.0
+    envioTiers: List<EnvioTier>, envioDiscounts: List<EnvioDiscount>,// v1.2.0/2.1.0
+    isDefault: Boolean, minimumPrice: Money)
 
 data class Product(_id, sku, name, baseCost: Money, variants, images,
     presentations: List<ProductPresentation>)
@@ -86,6 +96,7 @@ interface IErpProductReader {                                         // v1.1.0
     suspend fun readProductById(erpId: String): Product?
     suspend fun readInventoryLevels(): Map<String, Int>
     suspend fun readPriceLists(): Map<String, List<PriceListEntry>>
+    suspend fun readInventoryByLocation(): Map<String, Map<String, Int>> = emptyMap()  // v2.3.0
 }
 
 class SyncScheduler(scope) {
@@ -123,7 +134,7 @@ All sync operations return `SimpleState(isOk, msgOk/msgError)`.
 > See [blueprints/ShopifyPushSync(BRIDGE)/](../ShopifyPushSync(BRIDGE)/BRIEF.md) — 22/22 tasks complete
 
 - `IMarketplaceSync.syncToRemote(marketplace)` — ✅ abstract; stubs in MercadoLibre/Amazon
-- `IErpProductReader` — ✅ commonLib/sync (4 methods; consumer implements)
+- `IErpProductReader` — ✅ commonLib/sync (5 methods as of v2.3.0; consumer implements; `readInventoryByLocation` defaults to empty map)
 - `IShopifyPushService` — ✅ shopifyLib (10 methods)
 - `Product` — ✅ enriched with 12 optional fields
 - `ShopifyCollection` — ✅ model + filter + CommonContainer + Coll + registered in IShopifyCollections

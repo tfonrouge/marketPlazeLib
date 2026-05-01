@@ -9,8 +9,9 @@
 | Out of Scope | Amazon FBA integration, Amazon Advertising API, Amazon order management, Amazon A+ Content, Amazon Brand Registry |
 | Owner | Teo Fonrouge |
 | Target | TBD |
-| **Library Version Target** | **MarketPlazeLib v1.2.0+** |
+| **Library Version Target** | TBD (current ≥ v2.5.0) |
 | **Lifecycle Type** | **Permanent** |
+| **Status** | ⏸️ Deferred — only BRIEF.md exists; reactivate when a consumer registers SP-API access (LWA + STS AssumeRole) |
 
 ## Prerequisites
 - Amazon Selling Partner API developer registration

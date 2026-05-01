@@ -8,9 +8,9 @@
 | Business Justification | Shared order models for MercadoLibre, reusable by any app consuming marketPlazeLib. Orders are the next data domain after products &mdash; apps need to pull ML orders, store them locally, and display them. Centralizing the model + sync logic in the library avoids duplication across consumers. |
 | Affected Module | **mercadoLibreLib** (new model + filter + common + abstract coll) |
 | Platform/Runtime Targets | KMP &mdash; JVM + JS (ES2015, IR compiler) |
-| Target | MarketPlazeLib v1.4.0+ |
+| Target | TBD (current ≥ v2.5.0); model + abstract coll already shipped in commit `7df6b3f` |
 | Lifecycle Type | Permanent |
-| Status | Planning |
+| Status | 🟡 In Progress — TEST_PLAN and AUDIT pending |
 
 ## Scope
 

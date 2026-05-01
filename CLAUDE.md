@@ -2,6 +2,16 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Premise: cathedral
+Follow the cathedral premise.
+
+### Project config
+- Blueprint skill: business-blueprint-workflow
+- Blueprint root: blueprints/
+- Build verification: `./gradlew build` (all modules); `./gradlew test` for the full test suite
+- Project language: Kotlin Multiplatform (JVM + JS / ES2015, IR)
+- Test formats: unit tests (`*Test.kt`), integration tests (`ShopifySmokeTest`, `SampleIntegrationTest`)
+
 ## Build Commands
 
 ```bash
@@ -49,11 +59,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Dependencies
 
-Core dependencies are managed via `gradle/libs.versions.toml`. Key ones:
-- **fsLib** (Fonrouge full-stack library, 3.1.1) — BaseDoc, ICommonContainer, Coll, InMemoryRepository, ViewList/ViewItem, OId, StringId
+All dependencies and versions are managed in `gradle/libs.versions.toml` — that is the source of truth. Key roles:
+- **fsLib** (Fonrouge full-stack library) — BaseDoc, ICommonContainer, Coll, InMemoryRepository, ViewList/ViewItem, OId, StringId
 - **Kilua RPC** — RPC framework for service interface generation
 - **KVision** — UI framework for JS target
-- **Apollo GraphQL** (4.3.3) — GraphQL client for Shopify API; configured as Apollo service "shopify" in package `com.fonrouge`
+- **Apollo GraphQL** — GraphQL client for Shopify API; configured as Apollo service "shopify" in package `com.fonrouge`
 - **kotlinx-serialization** and **kotlinx-datetime** — serialization and date/time
 
 Published as Maven artifacts under group `com.fonrouge.marketPlazeLib` (version managed in `gradle/libs.versions.toml`).

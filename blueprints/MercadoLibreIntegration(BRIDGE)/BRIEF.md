@@ -9,8 +9,9 @@
 | Out of Scope | MercadoLibre order management, MercadoLibre shipping integration, MercadoLibre advertising API, MercadoLibre webhook listeners |
 | Owner | Teo Fonrouge |
 | Target | TBD |
-| **Library Version Target** | **MarketPlazeLib v1.2.0+** |
+| **Library Version Target** | TBD (current ≥ v2.5.0) |
 | **Lifecycle Type** | **Permanent** |
+| **Status** | ⏸️ Deferred — only BRIEF.md exists; reactivate when a consumer commits to providing OAuth2 token-refresh flow and endpoint priorities |
 
 ## Prerequisites
 - MercadoLibre developer account with API credentials

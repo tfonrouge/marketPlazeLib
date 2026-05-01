@@ -8,6 +8,7 @@
 | Consumer → Library | App → IErpProductReader | readProductById() | App provides single product |
 | Consumer → Library | App → IErpProductReader | readInventoryLevels() | App provides inventory |
 | Consumer → Library | App → IErpProductReader | readPriceLists() | App provides prices |
+| Consumer → Library | App → IErpProductReader | readInventoryByLocation() | App provides per-location inventory (v2.3.0+) |
 | Library → Library | Engine → IMarketplaceSync | syncToRemote() | Push trigger |
 | Library → Shopify | IShopifyPushService → Shopify API | createProduct() | Create on Shopify |
 | Library → Shopify | IShopifyPushService → Shopify API | updateProduct() | Update on Shopify |
@@ -31,6 +32,8 @@ interface IErpProductReader {
     suspend fun readProductById(erpId: String): Product?
     suspend fun readInventoryLevels(): Map<String, Int>   // sku → quantity
     suspend fun readPriceLists(): Map<String, List<PriceListEntry>>  // sku → prices
+    suspend fun readInventoryByLocation(): Map<String, Map<String, Int>> = emptyMap()
+        // sku → (locationId → qty); v2.3.0+, default empty for backward compatibility
 }
 ```
 
@@ -102,7 +105,11 @@ interface IMarketplaceSync<T : BaseDoc<*>> {
 
 ### uploadImage(marketplace, shopifyId, imageUrl, altText) / deleteImage / reorderImages
 - **Trigger**: Image changes detected during sync
-- **GraphQL**: `stagedUploadsCreate` → HTTP POST → `productCreateMedia` / `productDeleteMedia` / `productReorderMedia`
+- **GraphQL**:
+  - URL-based upload: `productUpdate` with `media` param (replaced deprecated `productCreateMedia` in v2.5.0)
+  - Binary upload: `stagedUploadsCreate` → HTTP PUT → `productUpdate` with `media`
+  - Delete: `fileDelete` (replaced deprecated `productDeleteMedia` in v2.5.0)
+  - Reorder: `productReorderMedia`
 
 ## Events
 
