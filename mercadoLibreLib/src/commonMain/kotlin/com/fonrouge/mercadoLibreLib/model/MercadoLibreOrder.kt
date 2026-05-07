@@ -24,6 +24,13 @@ data class MercadoLibreOrder(
     val packId: Long? = null,
 ) : BaseDoc<StringId<MercadoLibreOrder>> {
 
+    /**
+     * Lookup-only field populated by host-app aggregation pipeline (e.g., via
+     * `lookupField(coll = MlOrderReviewColl, ...)` on the order collection registration).
+     * Default null — no review yet, or pipeline not configured. Never persisted by sync.
+     */
+    var mlOrderReview: MlOrderReview? = null
+
     @Serializable
     data class Buyer(
         val id: Long = 0,
