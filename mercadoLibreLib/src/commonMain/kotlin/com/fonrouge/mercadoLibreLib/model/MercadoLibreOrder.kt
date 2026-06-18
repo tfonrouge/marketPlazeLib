@@ -31,6 +31,22 @@ data class MercadoLibreOrder(
      */
     var mlOrderReview: MlOrderReview? = null
 
+    /**
+     * Lookup-only: snapshot logístico del envío (FULL/Normal) proyectado por la aggregation del
+     * host-app desde la colección de documentos de la orden (host-side `lookupAnyField(...,
+     * pipeline = [replaceWith "$shipment"])`). Tipo NEUTRO (sin dependencia downstream del host).
+     * Default null — sin envío capturado, o pipeline no configurado. Nunca persistido por sync.
+     */
+    var mlShipment: MlShipmentInfo? = null
+
+    /** Subconjunto neutro del snapshot logístico de la orden (FULL/Normal). `fulfillment` = FULL. */
+    @Serializable
+    data class MlShipmentInfo(
+        val logisticType: String? = null,
+        val status: String? = null,
+        val substatus: String? = null,
+    )
+
     @Serializable
     data class Buyer(
         val id: Long = 0,
