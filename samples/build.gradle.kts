@@ -39,6 +39,7 @@ tasks.register("run") {
 }
 
 kotlin {
+    jvmToolchain(25)
     jvm {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
