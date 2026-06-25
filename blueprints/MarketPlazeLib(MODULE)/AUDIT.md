@@ -14,6 +14,8 @@
 | 2.3.0 | 2026-03-31 | FullShopifySync — collection CRUD, image pipeline (`ImageProcessor`/`ImageHasher`), 10-field diff engine, bulk ops, `readInventoryByLocation()` |
 | 2.4.0 | 2026-04-01 | `getProduct()` query, `ShopifySmokeTest` round-trip |
 | 2.5.0 | 2026-05-01 | `MarketplaceType` constants object; build cleanup (catalog centralization, Dokka V2, dependency dedup, deprecated Shopify mutations replaced) |
+| 2.6.1 | 2026-06 | MercadoLibreOrders(FEATURE) — `MercadoLibreOrder`, `MlOrderReview`, `mlShipment` (lookup-only FULL/Normal) |
+| 2.7.0 | 2026-06-24 | **Toolchain migration** — fsLib 6.0.0, Kotlin 2.4.0, KVision 9.6.0, kilua-rpc 0.0.45, KSP 2.3.9, Apollo 5.0.0, serialization 1.11.0; **JDK 25 / JVM target 25** (published bytecode major 69). Driven by mppErsaPack's fsLib-6 migration; eliminates the stale fsLib 3.2.0 transitive request. `allTests` green (77 JVM tests); downstream mppErsaPack build gate re-verified green. See LEDGER 2026-06-24. |
 
 ## Drift Log (resolved 2026-05-01)
 | Artifact | Section | Blueprint Said | Reality | Severity | Action Taken |

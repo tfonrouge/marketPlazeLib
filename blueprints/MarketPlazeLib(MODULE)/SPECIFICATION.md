@@ -93,8 +93,8 @@ Library — role management delegated to consuming app. The library provides:
 | Consumer | Data Exchanged | Direction |
 |----------|---------------|-----------|
 | **mppErsaPack** | All entities, pricing services, Shopify sync, collections | consumes library |
-| **fsLib 3.1.1** | BaseDoc, ICommonContainer, Coll, InMemoryRepository, ViewList/ViewItem, OId, StringId | infrastructure dependency |
-| **Apollo GraphQL** | Shopify Admin API queries | shopifyLib → Shopify |
+| **fsLib 6.0.0** | BaseDoc, ICommonContainer, Coll, InMemoryRepository, ViewList/ViewItem, OId, StringId | infrastructure dependency (requires JDK 25 / JVM target 25 since v2.7.0) |
+| **Apollo GraphQL 5.0.0** | Shopify Admin API queries | shopifyLib → Shopify |
 
 ## Performance Requirements
 

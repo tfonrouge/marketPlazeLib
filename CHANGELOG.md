@@ -7,6 +7,20 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.7.0] - 2026-06-24
+
+### Changed
+- **Toolchain migration to the fsLib 6.0.0 ecosystem (requires JDK 25).** Driven by mppErsaPack's migration to fsLib 6.0.0, whose public `inline` functions are compiled at JVM target 25. Raising the JVM toolchain to **25** (JVM target 25) across all modules; published JVM bytecode is now major version 69 (Java 25, was 65 / Java 21). Consumers must build on JDK 25.
+- **Eliminates the stale fsLib 3.2.0 transitive request.** Until now mppErsaPack only linked this library by relying on Gradle's silent `3.2.0 -> 6.0.0` conflict-resolution upgrade — a latent runtime/hygiene exposure. The published 2.7.0 POMs now request fsLib 6.0.0 directly. `allTests` is green on the new stack (77 JVM tests), and the downstream mppErsaPack build gate was re-verified green with no remaining version-upgrade arrows.
+
+### Dependencies
+- fsLib 3.2.0 -> **6.0.0**
+- Kotlin 2.3.20 -> **2.4.0**; KSP 2.3.6 -> **2.3.9**
+- KVision 9.5.0 -> **9.6.0**; kilua-rpc 0.0.43 -> **0.0.45**
+- Apollo 4.4.2 -> **5.0.0** (4.4.x's Gradle plugin references `KotlinJsTarget`, removed in Kotlin 2.4.0)
+- kotlinx-serialization 1.10.0 -> **1.11.0**
+- Removed dead `dulceLib` catalog entry (referenced by nothing)
+
 ## [2.5.0] - 2026-05-01
 
 ### Added
