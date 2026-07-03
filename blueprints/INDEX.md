@@ -1,5 +1,5 @@
 # Blueprints Index
-**Updated**: 2026-05-01
+**Updated**: 2026-07-03
 
 ## Active Modules & Libraries
 | Name | Mode | Status | Phase | Owner | Notes |
@@ -9,7 +9,8 @@
 ## Active Bridges
 | Bridge | Connects | Type | Status | Expiry Condition |
 |--------|----------|------|--------|-----------------|
-| [ShopifyPushSync(BRIDGE)](ShopifyPushSync(BRIDGE)/BRIEF.md) | commonLib ↔ shopifyLib | Permanent | ✅ Complete (22/22; v2.5.0 mutation refresh) | — |
+| [ShopifyPushSync(BRIDGE)](ShopifyPushSync(BRIDGE)/BRIEF.md) | commonLib ↔ shopifyLib | Permanent | ⚠️ Drifted (library 22/22 complete; consumer never wired — see AUDIT.md) | — |
+| [MercadoLibreIntegration(BRIDGE)](MercadoLibreIntegration(BRIDGE)/BRIEF.md) | mercadoLibreLib ↔ MercadoLibre API | Permanent | 🟡 ACTIVE (push service shipped 2026-07-03, 9/9 library tasks; not STABLE until a consumer wires it, see LEDGER D5) | — |
 
 ## Active Features
 | Feature | Module | Status | Owner | Notes |
@@ -20,7 +21,6 @@
 ## Deferred (blueprint only — no active development)
 | Bridge | Connects | Type | Status | Reactivation Trigger |
 |--------|----------|------|--------|---------------------|
-| [MercadoLibreIntegration(BRIDGE)](MercadoLibreIntegration(BRIDGE)/BRIEF.md) | mercadoLibreLib ↔ ML API | Permanent | ⏸️ Deferred | Consumer commits to providing OAuth2 flow + endpoint priority list; only BRIEF.md exists, 5/6 BRIDGE artifacts pending |
 | [AmazonIntegration(BRIDGE)](AmazonIntegration(BRIDGE)/BRIEF.md) | amazonLib ↔ SP-API | Permanent | ⏸️ Deferred | Consumer registers SP-API access + LWA/STS flow; only BRIEF.md exists, 5/6 BRIDGE artifacts pending |
 
 ## Deprecated
@@ -33,9 +33,11 @@ graph LR
   MarketPlazeLib --> ShopifyPushSync
   MarketPlazeLib --> FullShopifySync
   MarketPlazeLib --> MercadoLibreOrders
+  MarketPlazeLib --> MercadoLibreIntegration
   FullShopifySync --> ConsumerApps[Consumer Applications]
   ShopifyPushSync --> ConsumerApps
   MercadoLibreOrders --> ConsumerApps
+  MercadoLibreIntegration --> ConsumerApps
 ```
 
 ## Status Legend
