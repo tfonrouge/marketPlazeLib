@@ -1,0 +1,1 @@
+DRIFTED: IShopifyPushService/ShopifyPushEngine ship in shopifyLib but mppErsaPack's pushInventoryToShopify() reimplements the Apollo calls inline instead of consuming them — zero references confirmed by grep 2026-07-03. See AUDIT.md drift log.

@@ -1,7 +1,12 @@
 # Audit — ShopifyPushSync
-**Last Audit**: 2026-05-01
+**Last Audit**: 2026-07-03
 **Audited By**: Claude Code assisted (cathedral-premise)
-**Overall Status**: ✅ Complete (with v2.5.0 mutation swap reconciled)
+**Overall Status**: ⚠️ Partial Drift (library complete and functional; consumer wiring drifted — see 2026-07-03 entry)
+
+## Drift Log (open, found 2026-07-03)
+| Artifact | Section | Blueprint Said | Reality | Severity | Action |
+|----------|---------|----------------|---------|----------|--------|
+| BRIEF.md / IMPLEMENTATION_ORDER.md | Overall status | ✅ Complete, 22/22 tasks, implies the push path is live | `IShopifyPushService`/`ShopifyPushEngine` (10/10 methods) ship in shopifyLib but are **never referenced** by the consumer: `grep -rln "ShopifyPushEngine\|IShopifyPushService" mppErsaPack/ersaPack mppErsaPack/ersaPackLib` → zero matches (2026-07-03). mppErsaPack's real `pushInventoryToShopify()` (`MarketPlaceService.kt:32`) reimplements its own Apollo `InventorySetQuantitiesMutation` batching inline instead of calling `updateInventory()` | High | Not fixed in this audit (out of scope — this session's work was on `MercadoLibreIntegration(BRIDGE)`, not this bridge). Flagged so it isn't mistaken for "Complete and consumed." Fix options: (a) refactor mppErsaPack's `executePushSync` to call `IShopifyPushService` per-item instead of building its own batched mutation, accepting the per-item vs. batched-250 tradeoff; (b) extend `IShopifyPushService` with a batched `updateInventoryBulk()` matching what mppErsaPack actually needs, then wire it. Either requires a change in mppErsaPack, a separate repo/blueprint. |
 
 ## Drift Log (resolved 2026-05-01)
 | Artifact | Section | Blueprint Said | Reality | Severity | Action Taken |
@@ -24,6 +29,7 @@
 - [x] IMPLEMENTATION_ORDER.md progress reflects actual completion
 - [x] BRIEF.md scope still matches the planned feature
 - [x] LEDGER.md created (2026-05-01) with falsification conditions for Permanent lifecycle and IErpProductReader contract
+- [ ] **Real consumer confirmed calling `IShopifyPushService`** — FAILED 2026-07-03, see open Drift Log entry above. "22/22 tasks complete" tracked library-side work only; it did not track whether any consumer actually adopted the contract.
 
 ## Notes
 - All 5 layers shipped on 2026-03-16 (v1.1.0)
