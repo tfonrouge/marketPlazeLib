@@ -27,6 +27,13 @@ data class MarketplaceListingFilter(
 ) : IApiFilter<MarketplaceId>()
 
 @Serializable
+data class MarketplaceListingDraftFilter(
+    override var masterItemId: MarketplaceId? = null,
+    var status: MarketplaceListingDraftStatus? = null,
+    var erpItemId: String? = null,
+) : IApiFilter<MarketplaceId>()
+
+@Serializable
 data class CostStructureFilter(
     override var masterItemId: MarketplaceId? = null,
 ) : IApiFilter<MarketplaceId>()
