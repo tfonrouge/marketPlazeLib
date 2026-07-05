@@ -31,6 +31,8 @@ data class MarketplaceListingDraft(
     val price: Money = Money.ZERO,
     val status: MarketplaceListingDraftStatus = MarketplaceListingDraftStatus.Borrador,
     val categoryId: String? = null,
+    /** Human-readable label for [categoryId], cached at confirmation time so callers don't need to re-look it up for display. */
+    val categoryName: String? = null,
     val attributes: Map<String, String> = emptyMap(),
     val pictureUrls: List<String> = emptyList(),
     val listingTypeId: String? = null,

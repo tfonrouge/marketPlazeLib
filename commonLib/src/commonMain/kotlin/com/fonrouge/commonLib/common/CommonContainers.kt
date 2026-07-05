@@ -24,6 +24,13 @@ data object CommonMarketplaceListing : ICommonContainer<MarketplaceListing, Mark
     labelList = "Marketplace Listings"
 )
 
+data object CommonMarketplaceListingDraft : ICommonContainer<MarketplaceListingDraft, MarketplaceListingDraftId, MarketplaceListingDraftFilter>(
+    itemKClass = MarketplaceListingDraft::class,
+    filterKClass = MarketplaceListingDraftFilter::class,
+    labelItem = "Marketplace Listing Draft",
+    labelList = "Marketplace Listing Drafts"
+)
+
 data object CommonCostStructure : ICommonContainer<CostStructure, CostStructureId, CostStructureFilter>(
     itemKClass = CostStructure::class,
     filterKClass = CostStructureFilter::class,
