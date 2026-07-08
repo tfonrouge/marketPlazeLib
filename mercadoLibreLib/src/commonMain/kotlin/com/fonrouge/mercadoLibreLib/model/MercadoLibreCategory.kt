@@ -41,3 +41,14 @@ data class MercadoLibreCategorySettings(
     val itemConditions: List<String> = emptyList(),
     val catalogDomain: String? = null,
 )
+
+/**
+ * Everything a `POST /items` publish form needs about a confirmed category in one shot — the
+ * per-category attribute schema plus the item-level rules (title length, minimum price, allowed
+ * conditions). Bundled so callers building the publish wizard make one round-trip, not two.
+ */
+@Serializable
+data class MercadoLibreCategoryDetail(
+    val attributes: List<MercadoLibreCategoryAttribute>,
+    val settings: MercadoLibreCategorySettings,
+)
