@@ -41,10 +41,11 @@ class MercadoLibreItemCreationEngine(private val testEngine: io.ktor.client.engi
     }
 
     private fun buildBody(payload: MercadoLibreItemPayload): JsonObject = buildJsonObject {
-        put("title", payload.title)
-        // `family_name` es requerido por `POST /items` (verificado en vivo, mppErsaPack LEDGER D70):
-        // agrupa el item en una "familia" de producto. Para un item sin variaciones, el título es un
-        // nombre de familia válido. ML lo exige como propiedad top-level del body.
+        // La API actual de ML crea el item por "familia": exige `family_name` y RECHAZA `title`
+        // ("The fields [title] are invalid") — verificado en vivo (mppErsaPack LEDGER D70, dos
+        // iteraciones: sin family_name → "family_name requerido"; con title+family_name → "title
+        // inválido"). Para un item sin variaciones ML deriva el título de `family_name`, así que el
+        // título editado por el operador va acá y NO se manda `title`.
         put("family_name", payload.title)
         put("category_id", payload.categoryId)
         put("price", payload.price)

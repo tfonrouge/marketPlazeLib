@@ -54,9 +54,9 @@ class MercadoLibreItemCreationEngineTest {
         assertEquals("https://articulo.mercadolibre.com.mx/MLM999888777", result.permalink)
         assertEquals("https://api.mercadolibre.com/items", capturedUrl)
         assertEquals("Bearer APP_USR-token", capturedAuth)
-        assertTrue(capturedBody.contains(""""title":"Cuchara Pastelera Biodegradable 25 pzs""""))
-        // family_name (requerido por ML, D70) se deriva del título.
+        // La API de ML crea por familia: se manda family_name (del título) y NO title (D70).
         assertTrue(capturedBody.contains(""""family_name":"Cuchara Pastelera Biodegradable 25 pzs""""))
+        assertTrue(!capturedBody.contains(""""title":"""), "no debe mandar title (ML lo rechaza): $capturedBody")
         assertTrue(capturedBody.contains(""""category_id":"MLM167574""""))
         assertTrue(capturedBody.contains(""""price":49.9"""))
         assertTrue(capturedBody.contains(""""listing_type_id":"gold_special""""))
