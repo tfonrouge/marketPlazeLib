@@ -92,18 +92,31 @@ class MercadoLibreItemCreationEngine(private val testEngine: io.ktor.client.engi
             if (!response.status.isSuccess()) {
                 val message = try {
                     val errorBody = jsonParser.parseToJsonElement(bodyText).jsonObject
-                    // ML's validation errors for POST /items commonly list field-level failures under
-                    // `cause` (e.g. a missing required attribute) — surface them alongside the base message.
-                    val cause = errorBody["cause"]?.jsonArray?.mapNotNull {
-                        it.jsonObject["message"]?.jsonPrimitive?.contentOrNull
+                    // ML's validation errors for POST /items list field-level failures under `cause`.
+                    // Depending on the error kind the detail lives in different keys: `message` for
+                    // required/attribute errors, `code`/`references`/`department` for `invalid_fields`.
+                    // Render each cause entry as compactly-but-completely as possible so the operator
+                    // sees WHICH field ML rejected — falling back to the raw entry when unstructured.
+                    val cause = errorBody["cause"]?.jsonArray?.mapNotNull { entry ->
+                        val obj = entry.jsonObject
+                        val code = obj["code"]?.jsonPrimitive?.contentOrNull
+                        val msg = obj["message"]?.jsonPrimitive?.contentOrNull
+                        val refs = obj["references"]?.jsonArray?.mapNotNull { it.jsonPrimitive.contentOrNull }
+                            ?.takeIf { it.isNotEmpty() }?.joinToString(",")
+                        val parts = listOfNotNull(code, msg, refs?.let { "[$it]" }).filter { it.isNotBlank() }
+                        if (parts.isNotEmpty()) parts.joinToString(" ") else obj.toString()
                     }?.filter { it.isNotBlank() } ?: emptyList()
                     val base = errorBody["message"]?.jsonPrimitive?.contentOrNull
                         ?: errorBody["error"]?.jsonPrimitive?.contentOrNull
                         ?: bodyText.take(200)
-                    if (cause.isNotEmpty()) "$base — ${cause.joinToString("; ")}" else base
+                    // If cause parsing yielded nothing useful, include the raw body so no detail is lost.
+                    when {
+                        cause.isNotEmpty() -> "$base — ${cause.joinToString("; ")}"
+                        else -> "$base — ${bodyText.take(400)}"
+                    }
                 } catch (e: Exception) {
                     // ML sometimes returns a non-JSON error body (HTML gateway page on 502/503).
-                    bodyText.take(200)
+                    bodyText.take(400)
                 }
                 return MercadoLibreCreateItemResult(isOk = false, msgError = "MercadoLibre item creation failed: ${response.status} — $message")
             }
