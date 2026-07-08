@@ -42,6 +42,10 @@ class MercadoLibreItemCreationEngine(private val testEngine: io.ktor.client.engi
 
     private fun buildBody(payload: MercadoLibreItemPayload): JsonObject = buildJsonObject {
         put("title", payload.title)
+        // `family_name` es requerido por `POST /items` (verificado en vivo, mppErsaPack LEDGER D70):
+        // agrupa el item en una "familia" de producto. Para un item sin variaciones, el título es un
+        // nombre de familia válido. ML lo exige como propiedad top-level del body.
+        put("family_name", payload.title)
         put("category_id", payload.categoryId)
         put("price", payload.price)
         put("currency_id", payload.currencyId)
