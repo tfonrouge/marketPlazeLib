@@ -1,5 +1,7 @@
 package com.fonrouge.mercadoLibreLib.model
 
+import kotlinx.serialization.Serializable
+
 /**
  * The subset of MercadoLibre item `status` values a seller can *set* via `PUT /items/{id}`.
  *
@@ -12,6 +14,7 @@ package com.fonrouge.mercadoLibreLib.model
  * - [CLOSED]  — finished/retired. Treated as terminal by ML (may not be reopenable) — the UI
  *               must confirm before setting this.
  */
+@Serializable
 enum class MercadoLibreItemStatus(val apiValue: String) {
     ACTIVE("active"),
     PAUSED("paused"),
