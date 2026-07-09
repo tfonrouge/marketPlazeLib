@@ -158,4 +158,44 @@ class MercadoLibrePushEngineTest {
         assertTrue(result.hasError)
         assertTrue(result.msgError?.contains("seller_custom_field already in use") == true)
     }
+
+    @Test
+    fun `updateItemStatus sends PUT with status apiValue body (11d control)`() = runBlocking {
+        var capturedUrl = ""
+        var capturedBody = ""
+        val engine = MockEngine { request ->
+            capturedUrl = request.url.toString()
+            capturedBody = (request.body as io.ktor.http.content.TextContent).text
+            respond(
+                content = """{"id":"MLM123","status":"paused"}""",
+                status = HttpStatusCode.OK,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        val result = MercadoLibrePushEngine(engine)
+            .updateItemStatus(marketplace, "MLM123", com.fonrouge.mercadoLibreLib.model.MercadoLibreItemStatus.PAUSED)
+
+        assertTrue(!result.hasError, "expected success, got: ${result.msgError}")
+        assertEquals("https://api.mercadolibre.com/items/MLM123", capturedUrl)
+        // Sends ML's lowercase apiValue, not the enum name.
+        assertEquals("""{"status":"paused"}""", capturedBody)
+    }
+
+    @Test
+    fun `updateItemStatus surfaces MercadoLibre error message on failure`() = runBlocking {
+        val engine = MockEngine {
+            respond(
+                content = """{"message":"item cannot be closed","error":"bad_request"}""",
+                status = HttpStatusCode.BadRequest,
+                headers = headersOf(HttpHeaders.ContentType, "application/json"),
+            )
+        }
+
+        val result = MercadoLibrePushEngine(engine)
+            .updateItemStatus(marketplace, "MLM123", com.fonrouge.mercadoLibreLib.model.MercadoLibreItemStatus.CLOSED)
+
+        assertTrue(result.hasError)
+        assertTrue(result.msgError?.contains("item cannot be closed") == true)
+    }
 }

@@ -24,6 +24,14 @@ abstract class IMercadoLibreProductColl<UID : Any>(
 
     abstract suspend fun fetchProducts(marketplace: Marketplace): List<MercadoLibreProduct>
 
+    /**
+     * Targeted multi-get of just [itemIds] (MarketPlace(MODULE) 11d / D71) — the freshness primitive
+     * behind [refreshItems]. Returns real ML data (never a synthetic product), and unlike
+     * [fetchProducts]'s `/users/{id}/items/search` it also returns items ML has already `closed`
+     * (which the search endpoint drops), so a just-closed listing still refreshes correctly.
+     */
+    abstract suspend fun fetchProductsByIds(marketplace: Marketplace, itemIds: List<String>): List<MercadoLibreProduct>
+
     override suspend fun syncToRemote(marketplace: Marketplace): SimpleState {
         return SimpleState(isOk = false, "syncToRemote not supported for MercadoLibre")
     }
@@ -39,6 +47,29 @@ abstract class IMercadoLibreProductColl<UID : Any>(
             val useTime = System.currentTimeMillis() - initTime
             return SimpleState(isOk = true, "No products found, $useTime ms used")
         }
+        return upsertProducts(products, initTime)
+    }
+
+    /**
+     * Refresh just [itemIds] into the local mirror (11d / D71) — used right after a publish (to fold
+     * the new listing in with real status at once) or a status change (pause/close/reactivate), so
+     * the app reflects the current ML status without waiting for the periodic full sync.
+     */
+    suspend fun refreshItems(marketplace: Marketplace, itemIds: List<String>): SimpleState {
+        if (itemIds.isEmpty()) return SimpleState(isOk = true, "No item ids to refresh")
+        val initTime = System.currentTimeMillis()
+        val products = try {
+            fetchProductsByIds(marketplace, itemIds)
+        } catch (e: Exception) {
+            return simpleErrorState("MercadoLibre fetch-by-ids error: ${e.message}")
+        }
+        if (products.isEmpty()) {
+            return SimpleState(isOk = true, "No products returned for ${itemIds.size} id(s)")
+        }
+        return upsertProducts(products, initTime)
+    }
+
+    private suspend fun upsertProducts(products: List<MercadoLibreProduct>, initTime: Long): SimpleState {
         val updateOneModels = products.map { product ->
             UpdateOneModel<MercadoLibreProduct>(
                 BaseDoc<StringId<MercadoLibreProduct>>::_id eq product._id,

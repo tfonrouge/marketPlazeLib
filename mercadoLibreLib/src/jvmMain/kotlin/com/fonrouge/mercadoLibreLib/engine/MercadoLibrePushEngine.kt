@@ -96,6 +96,18 @@ class MercadoLibrePushEngine(private val testEngine: io.ktor.client.engine.HttpC
             "Updated $itemId to seller_custom_field=$sellerCustomField",
         )
 
+    override suspend fun updateItemStatus(
+        marketplace: Marketplace,
+        itemId: String,
+        status: com.fonrouge.mercadoLibreLib.model.MercadoLibreItemStatus,
+    ): SimpleState =
+        putItemField(
+            marketplace,
+            itemId,
+            buildJsonObject { put("status", status.apiValue) },
+            "Updated $itemId to status=${status.apiValue}",
+        )
+
     companion object {
         private const val API_BASE = "https://api.mercadolibre.com"
     }
