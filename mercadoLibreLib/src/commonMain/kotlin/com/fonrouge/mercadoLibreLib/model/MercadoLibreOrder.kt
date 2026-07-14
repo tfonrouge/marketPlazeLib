@@ -59,6 +59,20 @@ data class MercadoLibreOrder(
 
     @Serializable
     data class OrderItem(
+        /**
+         * El id del listing de ML (`item.id`, p.ej. `MLM5072161188`) — **la identidad real de la linea**.
+         *
+         * El [sku] (`seller_sku`) **no sirve como identidad**: es una **etiqueta editable** por el
+         * vendedor, puede venir **vacia** (hay listings activos sin `seller_sku`) y dos publicaciones
+         * distintas pueden compartirla. [itemId] es inmutable y lo asigna ML.
+         *
+         * Lo consume el pipeline de pedidos de ErsaPack (LEDGER D79) para casar cada linea de la orden
+         * con su partida: sin una identidad estable no se puede verificar que un pedido este completo,
+         * y un pedido parcial consolidado en silencio es un descuadre fiscal.
+         *
+         * Default `""` para no romper los documentos ya persistidos: se rellenan en el proximo sync.
+         */
+        val itemId: String = "",
         val title: String = "",
         val quantity: Int = 0,
         val unitPrice: Money = Money.ZERO,
