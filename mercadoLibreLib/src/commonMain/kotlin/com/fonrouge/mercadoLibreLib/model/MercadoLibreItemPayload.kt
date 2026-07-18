@@ -35,4 +35,12 @@ data class MercadoLibreCreateItemResult(
     val itemId: String? = null,
     val permalink: String? = null,
     val msgError: String? = null,
+    /**
+     * mppErsaPack D82 (ROAR r9) — `true` cuando el fallo es **ambiguo**: no se sabe si ML llegó a crear el
+     * ítem (excepción de red/timeout, o `2xx` sin `id` en el body). Distinto de un rechazo **definitivo**
+     * (ML respondió con status de error → el ítem NO se creó), donde `ambiguous=false`. El consumidor lo
+     * usa para decidir entre reintentar limpio (definitivo) vs reconciliar contra ML (ambiguo, posible
+     * huérfano). Sólo aplica cuando `isOk=false`.
+     */
+    val ambiguous: Boolean = false,
 )

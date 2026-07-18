@@ -24,6 +24,9 @@ data class MarketplaceListingFilter(
     override var masterItemId: MarketplaceId? = null,
     var productId: ProductId? = null,
     var publishEnabled: Boolean? = null,
+    // D81 (H3 híbrido): filtro remoto nativo para aislar la cola de bindings sin confirmar
+    // (linkConfirmed=false) en la vista de listings. Ver MarketplaceListing.linkConfirmed.
+    var linkConfirmed: Boolean? = null,
 ) : IApiFilter<MarketplaceId>()
 
 @Serializable

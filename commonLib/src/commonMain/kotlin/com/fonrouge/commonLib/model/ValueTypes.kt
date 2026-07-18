@@ -124,6 +124,26 @@ enum class PublicationType {
     PREMIUM,
 }
 
+/**
+ * Procedencia de un [MarketplaceListing.erpItemId] (el vínculo listing→artículo del ERP que decide
+ * qué se factura). Es evidencia de auditoría, no de estado de venta.
+ *
+ * - [PUBLICATION]: el listing nació de una publicación hecha DESDE la app (el operador eligió el
+ *   artículo al publicar) — vínculo intencional y humano.
+ * - [MANUAL]: un operador ligó/religó el listing a mano contra un `CVE_ART`.
+ * - [AUTO_LINK]: lo sugirió el auto-link por `sellerSku`. **No verificado por una persona** —
+ *   el pipeline lo bloquea hasta que alguien lo confirma.
+ * - [LEGACY]: doc anterior a este campo; procedencia desconocida. Trátalo como no confirmado
+ *   (default fail-closed) salvo backfill explícito con evidencia real de procedencia.
+ */
+@Serializable
+enum class MlLinkSource {
+    PUBLICATION,
+    MANUAL,
+    AUTO_LINK,
+    LEGACY,
+}
+
 enum class HealthLevel(val label: String, val minMargin: Double) {
     NO_DATA("Sin datos", -1.0),
     CRITICAL("Crítico", 0.0),

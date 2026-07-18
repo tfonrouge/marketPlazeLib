@@ -119,19 +119,31 @@ class MercadoLibreItemCreationEngine(private val testEngine: io.ktor.client.engi
                     // ML sometimes returns a non-JSON error body (HTML gateway page on 502/503).
                     bodyText.take(400)
                 }
-                return MercadoLibreCreateItemResult(isOk = false, msgError = "MercadoLibre item creation failed: ${response.status} — $message")
+                // mppErsaPack D82 (ROAR r10) — sólo un **4xx** demuestra ausencia de efecto: ML validó y
+                // RECHAZÓ la request antes de crear el ítem → definitivo (`ambiguous=false`), reintentable
+                // sin duplicar. Un **5xx** (500/502/503/504, gateway) NO prueba que ML no haya creado el
+                // ítem (el error puede venir DESPUÉS de la creación) → **ambiguo**: el consumidor debe
+                // reconciliar contra ML, no re-postear a ciegas. (401 se resolvió arriba como 4xx.)
+                val definitivelyNotCreated = response.status.value in 400..499
+                return MercadoLibreCreateItemResult(
+                    isOk = false,
+                    ambiguous = !definitivelyNotCreated,
+                    msgError = "MercadoLibre item creation failed: ${response.status} — $message",
+                )
             }
 
             val created = jsonParser.parseToJsonElement(bodyText).jsonObject
             val itemId = created["id"]?.jsonPrimitive?.contentOrNull
-                ?: return MercadoLibreCreateItemResult(isOk = false, msgError = "MercadoLibre creation succeeded but response had no item id: ${bodyText.take(200)}")
+                // ML respondió 2xx pero sin `id`: probablemente creó el ítem y no pudimos leerlo → AMBIGUO.
+                ?: return MercadoLibreCreateItemResult(isOk = false, ambiguous = true, msgError = "MercadoLibre creation succeeded but response had no item id: ${bodyText.take(200)}")
             return MercadoLibreCreateItemResult(
                 isOk = true,
                 itemId = itemId,
                 permalink = created["permalink"]?.jsonPrimitive?.contentOrNull,
             )
         } catch (e: Exception) {
-            return MercadoLibreCreateItemResult(isOk = false, msgError = "MercadoLibre item creation error: ${e.message}")
+            // Excepción de red/timeout: NO prueba que ML no haya creado el ítem → AMBIGUO (posible huérfano).
+            return MercadoLibreCreateItemResult(isOk = false, ambiguous = true, msgError = "MercadoLibre item creation error: ${e.message}")
         } finally {
             client.close()
         }
