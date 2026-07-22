@@ -1,10 +1,10 @@
 # Blueprints Index
-**Updated**: 2026-07-03
+**Updated**: 2026-07-22
 
 ## Active Modules & Libraries
 | Name | Mode | Status | Phase | Owner | Notes |
 |------|------|--------|-------|-------|-------|
-| [MarketPlazeLib(MODULE)](MarketPlazeLib(MODULE)/BRIEF.md) | LIBRARY | ✅ Complete | v2.5.0 shipped | @tfonrouge | Published v2.5.0 under `com.fonrouge.marketPlazeLib` |
+| [MarketPlazeLib(LIBRARY)](MarketPlazeLib(LIBRARY)/BRIEF.md) | LIBRARY | ✅ Complete | v2.5.0 shipped | @tfonrouge | Published v2.5.0 under `com.fonrouge.marketPlazeLib` |
 
 ## Active Bridges
 | Bridge | Connects | Type | Status | Expiry Condition |

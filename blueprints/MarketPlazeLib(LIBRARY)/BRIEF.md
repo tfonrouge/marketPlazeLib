@@ -3,6 +3,7 @@
 | Field | Value |
 |-------|-------|
 | Library Name | `MarketPlazeLib` |
+| Mode | LIBRARY |
 | Business Owner | Teo Fonrouge |
 | Business Justification | Replace the single-marketplace Shopify-only sync library with a multi-marketplace intelligence platform: unified product management, cost structure modeling, profit calculation, competitive pricing, and pluggable sync for Shopify/MercadoLibre/Amazon |
 | Platform/Runtime Targets | KMP — JVM + JS (ES2015, IR compiler) |
