@@ -39,6 +39,36 @@ data class MercadoLibreOrder(
      */
     var mlShipment: MlShipmentInfo? = null
 
+    /**
+     * Lookup-only: estado fiscal de la venta proyectado por la aggregation del host desde su propia
+     * colección de documentos. Tipo NEUTRO (sin dependencia downstream del host). Default null —
+     * sin observación fiscal, o pipeline no configurado. Nunca persistido por sync.
+     *
+     * **No lleva datos fiscales del comprador**: la proyección excluye deliberadamente RFC y
+     * domicilio del receptor. Lo que viaja acá es estado e identidad del comprobante, que puede
+     * pintarse en una lista sin control de acceso por documento; los datos personales exigen una
+     * ruta propia con autorización, no un campo hidratado en cada renglón.
+     */
+    var mlFiscal: MlFiscalInfo? = null
+
+    /**
+     * Subconjunto neutro del estado fiscal de la venta. Todos los campos son opcionales: una orden
+     * puede tener estado sin comprobante (aún no emitido, o no corresponde).
+     *
+     * [estado] viaja como `String` a propósito — el catálogo de estados lo define el host, y esta
+     * librería no puede depender de él sin invertir la dirección de las dependencias.
+     */
+    @Serializable
+    data class MlFiscalInfo(
+        val estado: String? = null,
+        val uuid: String? = null,
+        val serie: String? = null,
+        val folio: String? = null,
+        val fecha: String? = null,
+        val totalCents: Long? = null,
+        val verificadoAt: Instant? = null,
+    )
+
     /** Subconjunto neutro del snapshot logístico de la orden (FULL/Normal). `fulfillment` = FULL. */
     @Serializable
     data class MlShipmentInfo(
