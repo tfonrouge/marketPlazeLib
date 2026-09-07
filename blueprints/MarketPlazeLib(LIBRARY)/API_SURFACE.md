@@ -5,6 +5,7 @@
 | Consumer | Version | Integration |
 |----------|---------|-------------|
 | **mppErsaPack** | 1.1.0+ | Full: ShopifyCollections, RPC services, views, push sync |
+| **mppDulce** | 2.11.10 (2.11.14 pending) | `shopifyLib` only — Tiendas (BRIDGE) WinCaja + Tiendas ↔ marketPlazeLib |
 
 ## Core Models (commonLib)
 
@@ -105,6 +106,63 @@ class SyncScheduler(scope) {
     fun isRunning(taskId): Boolean / activeTaskIds(): Set<String>
 }
 ```
+
+### Sync Persistence Ports (commonLib/sync) — v2.11.12, hardened v2.11.13–v2.11.14
+
+> Where listings, run history and incremental cursors live between syncs. The library reads and
+> writes them but never decides the store: the consumer implements the port (Mongo, Postgres…) and
+> must satisfy the same assertions as `SyncStoreContractTest` (commonLib:jvmTest, 17 test cases) — if
+> it diverges from the in-memory reference, the consumer's implementation is the one that is wrong.
+> Decisions: LEDGER 2026-09-06 (ports; no mutual exclusion / kill switch in this batch — both are
+> prerequisites before automating any write; `_id` preservation; `SyncRun` snapshot).
+
+```kotlin
+interface IListingStore {                                              // v2.11.12
+    suspend fun listings(marketplaceId↗): List<MarketplaceListing>     // empty list, never null
+    suspend fun byExternalId(marketplaceId↗, externalId: String): MarketplaceListing?
+    suspend fun upsert(listing: MarketplaceListing)                    // keyed by (marketplaceId, externalId), idempotent;
+                                                                       // on replace KEEPS the stored _id (v2.11.13); delete frees the key
+    suspend fun upsertAll(listings: List<MarketplaceListing>)          // default: N × upsert; batch, not transactional unless the impl says so
+    suspend fun count(marketplaceId↗): Int                             // default: listings(m).size
+    suspend fun delete(marketplaceId↗, externalId: String)             // per item only — no bulk delete on purpose
+}
+
+interface ISyncRunStore {                                              // v2.11.12
+    suspend fun record(run: SyncRun)                                   // stores as given, never interprets
+    suspend fun last(marketplaceId↗, kind: SyncKind): SyncRun?         // most recent by finishedAt, not last inserted
+    suspend fun history(marketplaceId↗, kind: SyncKind? = null, limit: Int = 50): List<SyncRun>  // newest first
+}
+
+interface ISyncCheckpointStore {                                       // v2.11.12
+    suspend fun get(marketplaceId↗, key: String): String?              // null = "start from the beginning"; "" is a stored value
+    suspend fun set(marketplaceId↗, key: String, value: String)        // opaque value; key must not embed the marketplace
+    suspend fun clear(marketplaceId↗, key: String)                     // forces the next pass to be full
+}
+
+enum class SyncKind { RECONCILE, PUSH_PRODUCTS, PUSH_INVENTORY, PUSH_MEDIA, COLLECTIONS }
+enum class SyncOutcome { OK, PARTIAL, FAILED, SKIPPED }
+
+@Serializable data class SyncRunError(item: String? = null, message: String)   // text, not a counter
+
+@Serializable @ConsistentCopyVisibility
+data class SyncRun private constructor(marketplaceId↗, kind: SyncKind, outcome: SyncOutcome,
+    finishedAt: Long /* epoch ms UTC */, durationMillis: Long = 0, examined: Int = 0, changed: Int = 0,
+    errors: List<SyncRunError> = emptyList(), skippedReason: String? = null) {
+    companion object { operator fun invoke(/* same parameters and defaults */): SyncRun }
+    // Public entry is SyncRun(...) via invoke — same call syntax. errors is a read-only snapshot: independent of
+    // the input list (v2.11.13) and not mutable through the getter or after deserialization (v2.11.14).
+    // init: SKIPPED requires skippedReason; OK rejects errors (that case is PARTIAL). copy is private (v2.11.13).
+}
+
+// Reference implementations — tests and samples only; not concurrency-safe; lose everything on restart
+class InMemoryListingStore : IListingStore
+class InMemorySyncRunStore : ISyncRunStore
+class InMemorySyncCheckpointStore : ISyncCheckpointStore
+```
+
+Compatibility note: v2.11.13 removed `SyncRun`'s public constructor and `copy` one release after
+they appeared; no consumer had adopted `SyncRun` (mppErsaPack on 2.11.11, mppDulce on 2.11.10), so
+it shipped as a patch.
 
 ## Shopify API (shopifyLib)
 
