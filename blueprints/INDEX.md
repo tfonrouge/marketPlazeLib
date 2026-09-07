@@ -1,10 +1,10 @@
 # Blueprints Index
-**Updated**: 2026-07-22
+**Updated**: 2026-09-06
 
 ## Active Modules & Libraries
 | Name | Mode | Status | Phase | Owner | Notes |
 |------|------|--------|-------|-------|-------|
-| [MarketPlazeLib(LIBRARY)](MarketPlazeLib(LIBRARY)/BRIEF.md) | LIBRARY | ✅ Complete | v2.5.0 shipped | @tfonrouge | Published v2.5.0 under `com.fonrouge.marketPlazeLib` |
+| [MarketPlazeLib(LIBRARY)](MarketPlazeLib(LIBRARY)/BRIEF.md) | LIBRARY | ✅ Complete | v2.5.0 shipped | @tfonrouge | Published under `com.fonrouge.marketPlazeLib`. 2026-09-06: puertos de persistencia de sincronización en `commonLib/sync` (listings, corridas, checkpoints) + prueba de contrato |
 
 ## Active Bridges
 | Bridge | Connects | Type | Status | Expiry Condition |

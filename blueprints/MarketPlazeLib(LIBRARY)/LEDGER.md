@@ -17,6 +17,8 @@
 
 ## Standing Rejections
 _None recorded._
+| 2026-09-06 | Persistencia de sincronización por **puertos** (`IListingStore`, `ISyncRunStore`, `ISyncCheckpointStore`) en `commonLib/sync`, con implementaciones en memoria y una prueba de contrato | APPROVED | La librería necesita leer y escribir listings, resultados y cursores, pero no puede decidir dónde: un consumidor usa Mongo, otro Postgres, los ejemplos memoria. Salió de un consumidor real que los tenía en un `ConcurrentHashMap` estático: se perdían al reiniciar y el empuje de inventario, que cruza SKU contra listings cacheados, no tenía nada que empujar hasta volver a conciliar — sin decirlo. Un mapa en memoria es una decisión de persistencia tomada por omisión. Las invariantes se fijan en el tipo, no en la documentación: `SKIPPED` exige `skippedReason` y `OK` no admite errores, porque los dos fallos que motivaron esto fueron una omisión sin motivo y un contador de errores sin el texto. `SyncRun` es agnóstica del marketplace y no conoce `SyncReport` de shopifyLib: la dependencia va shopifyLib → commonLib, y un historial sólo-Shopify obligaría a inventar otro para ML y otro para Amazon | Un consumidor necesite transaccionalidad entre listings y corridas, o aparezca un marketplace cuyo cursor no sea representable como cadena |
+| 2026-09-06 | **No** se añade un puerto de exclusión mutua ni de kill switch en esta tanda | APPROVED | Son control de concurrencia y de operación, no persistencia, y mezclarlos habría dado un puerto que hace dos cosas. Quedan identificados como requisito previo a automatizar cualquier escritura | Se vaya a automatizar una escritura, momento en que dejan de ser opcionales |
 
 ---
 [← Index](../INDEX.md) · [BRIEF](BRIEF.md) · [AUDIT](AUDIT.md)
