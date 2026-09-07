@@ -1,7 +1,12 @@
 package com.fonrouge.commonLib.sync
 
 import com.fonrouge.commonLib.model.MarketplaceId
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 
 /** Que se estaba haciendo cuando ocurrio la corrida. */
 enum class SyncKind {
@@ -71,12 +76,15 @@ data class SyncRunError(
  * apareceria con errores al leerla del historial sin que `record` volviera a llamarse, y la
  * invariante «OK sin errores», que sólo se comprueba en `init`, quedaria burlada sin que nada lo
  * dijera. Por eso la unica entrada publica es [SyncRun.invoke] —misma sintaxis de llamada—, que
- * toma una instantanea de la lista antes de construir; y `copy` es privado
+ * guarda una copia de sólo lectura de la lista antes de construir; y `copy` es privado
  * ([ConsistentCopyVisibility]) porque un `copy(errors = lista)` recibiria la lista tal cual y
  * abriria el mismo agujero por otra puerta. Para variar una corrida se construye otra.
  *
- * La deserializacion entra por el constructor privado con una lista recien creada por el
- * decodificador, que nadie mas referencia: tambien es una instantanea.
+ * La copia es de sólo lectura **de verdad**, no un `toList()`: en JVM `List` y `MutableList` son la
+ * misma clase de Java, asi que un `ArrayList` copiado seguiria siendo vaciable con un cast desde la
+ * propia propiedad [errors]. La lista guardada implementa `List` y nada mas; las operaciones
+ * mutadoras fallan en JVM y en JS. La deserializacion pasa por el mismo envoltorio, para que una
+ * corrida leida de la base no sea mutable por la via que se cerro para las construidas.
  */
 @Serializable
 @ConsistentCopyVisibility
@@ -97,9 +105,11 @@ data class SyncRun private constructor(
      * Un consumidor imprimia `errors=1` y tiraba el mensaje; el fallo real —un campo obligatorio
      * ausente en un documento— tardo meses en diagnosticarse porque el motivo nunca se guardaba.
      *
-     * Es una instantanea propia de la corrida: mutar la lista que se paso al construirla no la
-     * cambia. Quien llame al constructor privado debe entregar una lista que nadie mas referencie.
+     * Es una instantanea de sólo lectura propia de la corrida: ni mutar la lista que se paso al
+     * construirla ni hacer un cast de esta propiedad la cambian. Quien llame al constructor privado
+     * debe entregar una lista de sólo lectura que nadie mas referencie.
      */
+    @Serializable(with = SnapshotErrorsSerializer::class)
     val errors: List<SyncRunError> = emptyList(),
     /** Por que se omitio, cuando [outcome] es [SyncOutcome.SKIPPED]. Debe ser accionable. */
     val skippedReason: String? = null,
@@ -115,8 +125,9 @@ data class SyncRun private constructor(
 
     companion object {
         /**
-         * Unica forma publica de construir una corrida; se llama como un constructor. Toma una
-         * instantanea de [errors]: la lista que guarda la corrida es suya, no la del llamador.
+         * Unica forma publica de construir una corrida; se llama como un constructor. Guarda una
+         * copia de sólo lectura de [errors]: la lista de la corrida es suya, no la del llamador, y
+         * no se puede mutar.
          */
         operator fun invoke(
             marketplaceId: MarketplaceId,
@@ -136,8 +147,36 @@ data class SyncRun private constructor(
             durationMillis = durationMillis,
             examined = examined,
             changed = changed,
-            errors = errors.toList(),
+            errors = SnapshotList(errors),
             skippedReason = skippedReason,
         )
     }
+}
+
+/**
+ * Lista de sólo lectura **de verdad**: implementa `List` y nada mas, y copia la entrada.
+ *
+ * `toList()` no basta. En JVM devuelve un `ArrayList` a partir de dos elementos, y `List` y
+ * `MutableList` son la misma clase de Java, asi que `(errors as MutableList).clear()` vaciaria la
+ * corrida —y el historial, que devuelve el mismo objeto— sin pasar por ningun constructor. Con esta
+ * clase, en JVM las operaciones mutadoras heredadas de `java.util.List` lanzan
+ * `UnsupportedOperationException` (el compilador las genera asi para las colecciones de sólo
+ * lectura) y en JS el cast a `MutableList` falla.
+ */
+private class SnapshotList<T>(source: List<T>) : AbstractList<T>() {
+    private val items: List<T> = source.toList()
+    override val size: Int get() = items.size
+    override fun get(index: Int): T = items[index]
+}
+
+/**
+ * Serializa como una lista normal y **deserializa a [SnapshotList]**: sin esto el decodificador
+ * entregaria un `ArrayList` al constructor privado, y una corrida leida de la base seria mutable
+ * por la misma via que se cerro para las construidas.
+ */
+private object SnapshotErrorsSerializer : KSerializer<List<SyncRunError>> {
+    private val delegate = ListSerializer(SyncRunError.serializer())
+    override val descriptor: SerialDescriptor get() = delegate.descriptor
+    override fun serialize(encoder: Encoder, value: List<SyncRunError>) = delegate.serialize(encoder, value)
+    override fun deserialize(decoder: Decoder): List<SyncRunError> = SnapshotList(delegate.deserialize(decoder))
 }

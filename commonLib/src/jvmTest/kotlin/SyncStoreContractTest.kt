@@ -16,6 +16,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFails
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
@@ -257,6 +258,32 @@ class SyncStoreContractTest {
         assertTrue(corrida.errors.isEmpty(), "la corrida no comparte la lista con quien la construyó")
         assertTrue(store.last(m, SyncKind.RECONCILE)!!.errors.isEmpty(), "ni el historial")
         assertEquals(SyncOutcome.OK, store.last(m, SyncKind.RECONCILE)!!.outcome)
+    }
+
+    /**
+     * Invariante: **la lista expuesta tampoco se puede mutar**.
+     *
+     * `toList()` en JVM devuelve un `ArrayList` a partir de dos elementos, y un `as MutableList` no
+     * falla en JVM porque `List` y `MutableList` son la misma clase de Java. Si la corrida guardara
+     * ese `ArrayList`, bastaria el cast para vaciar los errores de una corrida ya registrada — y del
+     * historial, que devuelve el mismo objeto. La lista guardada implementa `List` y nada mas: en JVM
+     * las operaciones mutadoras lanzan `UnsupportedOperationException`, en JS el cast falla.
+     */
+    @Test
+    @Suppress("UNCHECKED_CAST")
+    fun `la lista de errores de una corrida registrada no se puede mutar`() = runBlocking {
+        val store = InMemorySyncRunStore()
+        val m = tienda()
+        val dos = listOf(SyncRunError(item = "A", message = "uno"), SyncRunError(item = "B", message = "dos"))
+        val corrida = SyncRun(m, SyncKind.PUSH_INVENTORY, SyncOutcome.PARTIAL, finishedAt = 1, changed = 1, errors = dos)
+        store.record(corrida)
+
+        assertFails("la lista expuesta no debe ser mutable") { (corrida.errors as MutableList<SyncRunError>).clear() }
+        assertEquals(dos, store.last(m, SyncKind.PUSH_INVENTORY)!!.errors, "el historial conserva los dos errores")
+
+        val decodificada = Json.decodeFromString<SyncRun>(Json.encodeToString(corrida))
+        assertFails("tampoco tras deserializar") { (decodificada.errors as MutableList<SyncRunError>).clear() }
+        assertEquals(dos, decodificada.errors)
     }
 
     /**
