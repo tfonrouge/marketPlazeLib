@@ -33,8 +33,11 @@ class InMemoryListingStore : IListingStore {
     override suspend fun byExternalId(marketplaceId: MarketplaceId, externalId: String): MarketplaceListing? =
         porClave[clave(marketplaceId, externalId)]
 
+    /** Reemplaza los datos, conserva la identidad: el `_id` que cuenta es el del que ya estaba. */
     override suspend fun upsert(listing: MarketplaceListing) {
-        porClave[clave(listing.marketplaceId, listing.externalId)] = listing
+        val clave = clave(listing.marketplaceId, listing.externalId)
+        val existente = porClave[clave]
+        porClave[clave] = if (existente == null) listing else listing.copy(_id = existente._id)
     }
 
     override suspend fun delete(marketplaceId: MarketplaceId, externalId: String) {

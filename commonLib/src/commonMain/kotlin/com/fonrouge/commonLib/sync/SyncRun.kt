@@ -62,9 +62,25 @@ data class SyncRunError(
  *
  * [finishedAt] es epoch millis y no un tipo de fecha para no atar el puerto a una libreria de
  * tiempo en KMP; quien lo persista le dara el tipo que use su base.
+ *
+ * ## Por que el constructor es privado
+ *
+ * Una corrida es un registro historico: lo que dice al recuperarla debe ser lo que decia al
+ * registrarla. Si [errors] guardara la misma lista que le paso quien la construyo, esa lista podria
+ * seguir creciendo despues: una corrida registrada como `OK` con una `mutableListOf()` vacia
+ * apareceria con errores al leerla del historial sin que `record` volviera a llamarse, y la
+ * invariante «OK sin errores», que sólo se comprueba en `init`, quedaria burlada sin que nada lo
+ * dijera. Por eso la unica entrada publica es [SyncRun.invoke] —misma sintaxis de llamada—, que
+ * toma una instantanea de la lista antes de construir; y `copy` es privado
+ * ([ConsistentCopyVisibility]) porque un `copy(errors = lista)` recibiria la lista tal cual y
+ * abriria el mismo agujero por otra puerta. Para variar una corrida se construye otra.
+ *
+ * La deserializacion entra por el constructor privado con una lista recien creada por el
+ * decodificador, que nadie mas referencia: tambien es una instantanea.
  */
 @Serializable
-data class SyncRun(
+@ConsistentCopyVisibility
+data class SyncRun private constructor(
     val marketplaceId: MarketplaceId,
     val kind: SyncKind,
     val outcome: SyncOutcome,
@@ -80,6 +96,9 @@ data class SyncRun(
      *
      * Un consumidor imprimia `errors=1` y tiraba el mensaje; el fallo real —un campo obligatorio
      * ausente en un documento— tardo meses en diagnosticarse porque el motivo nunca se guardaba.
+     *
+     * Es una instantanea propia de la corrida: mutar la lista que se paso al construirla no la
+     * cambia. Quien llame al constructor privado debe entregar una lista que nadie mas referencie.
      */
     val errors: List<SyncRunError> = emptyList(),
     /** Por que se omitio, cuando [outcome] es [SyncOutcome.SKIPPED]. Debe ser accionable. */
@@ -92,5 +111,33 @@ data class SyncRun(
         require(outcome != SyncOutcome.OK || errors.isEmpty()) {
             "OK no admite errores; con errores y resultados útiles el desenlace es PARTIAL"
         }
+    }
+
+    companion object {
+        /**
+         * Unica forma publica de construir una corrida; se llama como un constructor. Toma una
+         * instantanea de [errors]: la lista que guarda la corrida es suya, no la del llamador.
+         */
+        operator fun invoke(
+            marketplaceId: MarketplaceId,
+            kind: SyncKind,
+            outcome: SyncOutcome,
+            finishedAt: Long,
+            durationMillis: Long = 0,
+            examined: Int = 0,
+            changed: Int = 0,
+            errors: List<SyncRunError> = emptyList(),
+            skippedReason: String? = null,
+        ): SyncRun = SyncRun(
+            marketplaceId = marketplaceId,
+            kind = kind,
+            outcome = outcome,
+            finishedAt = finishedAt,
+            durationMillis = durationMillis,
+            examined = examined,
+            changed = changed,
+            errors = errors.toList(),
+            skippedReason = skippedReason,
+        )
     }
 }

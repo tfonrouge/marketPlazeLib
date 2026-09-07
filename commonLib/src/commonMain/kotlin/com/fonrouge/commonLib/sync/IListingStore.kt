@@ -24,7 +24,11 @@ import com.fonrouge.commonLib.model.MarketplaceListing
  * - Todo esta **acotado por marketplace**. Un `externalId` sólo es único dentro del suyo, y mezclar
  *   dos marketplaces es la clase de error que no avisa.
  * - [upsert] identifica por `marketplaceId` + `externalId`, no por `_id`: el `_id` local puede no
- *   existir todavia la primera vez que se ve un listing remoto.
+ *   existir todavia la primera vez que se ve un listing remoto. **Y conserva el `_id` ya
+ *   guardado**: si la clave existe, el listing queda con los datos del que llega y el `_id` del que
+ *   estaba. `CostBreakdown.listingId` y `MarketplaceListingDraft.publishedListingId` apuntan a ese
+ *   `_id` local; una conciliacion que reconstruye el listing desde el remoto —con un objeto nuevo,
+ *   que trae un `_id` nuevo— no debe dejarlos colgando.
  * - **No hay borrado masivo a proposito.** Un listing que desaparece del remoto es informacion, no
  *   basura, y decidir que hacer con el es politica del consumidor.
  *
@@ -41,7 +45,11 @@ interface IListingStore {
     /**
      * Inserta o reemplaza por (`marketplaceId`, `externalId`).
      *
-     * Debe ser idempotente: guardar dos veces el mismo listing deja **uno**.
+     * Debe ser idempotente: guardar dos veces el mismo listing deja **uno**. Y al reemplazar
+     * **conserva el `_id` del listing ya guardado**: el `_id` que traiga [listing] sólo cuenta la
+     * primera vez. La identidad local la fija la primera escritura; lo que cambia despues son los
+     * datos. Tras un [delete] explicito la clave vuelve a estar libre y el siguiente `upsert` fija
+     * una identidad nueva.
      */
     suspend fun upsert(listing: MarketplaceListing)
 

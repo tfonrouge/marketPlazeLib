@@ -4,7 +4,7 @@
 ## Active Modules & Libraries
 | Name | Mode | Status | Phase | Owner | Notes |
 |------|------|--------|-------|-------|-------|
-| [MarketPlazeLib(LIBRARY)](MarketPlazeLib(LIBRARY)/BRIEF.md) | LIBRARY | ✅ Complete | v2.5.0 shipped | @tfonrouge | Published under `com.fonrouge.marketPlazeLib`. 2026-09-06: puertos de persistencia de sincronización en `commonLib/sync` (listings, corridas, checkpoints) + prueba de contrato |
+| [MarketPlazeLib(LIBRARY)](MarketPlazeLib(LIBRARY)/BRIEF.md) | LIBRARY | ✅ Complete | v2.5.0 shipped | @tfonrouge | Published under `com.fonrouge.marketPlazeLib`. 2026-09-06: puertos de persistencia de sincronización en `commonLib/sync` (listings, corridas, checkpoints) + prueba de contrato; mismo día (ACS-01/03): `upsert` conserva el `_id` local y `SyncRun.errors` es instantánea inmutable — ver LEDGER |
 
 ## Active Bridges
 | Bridge | Connects | Type | Status | Expiry Condition |

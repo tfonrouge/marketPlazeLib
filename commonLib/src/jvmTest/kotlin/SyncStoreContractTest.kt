@@ -13,9 +13,11 @@ import com.fonrouge.commonLib.sync.SyncOutcome
 import com.fonrouge.commonLib.sync.SyncRun
 import com.fonrouge.commonLib.sync.SyncRunError
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertNotEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -83,6 +85,47 @@ class SyncStoreContractTest {
         assertEquals(1, store.count(b))
         assertEquals("de A", store.byExternalId(a, "SKU-1")?.title)
         assertEquals("de B", store.byExternalId(b, "SKU-1")?.title)
+    }
+
+    /**
+     * Invariante: **reemplazar conserva el `_id` local**.
+     *
+     * `CostBreakdown.listingId` y `MarketplaceListingDraft.publishedListingId` apuntan al `_id` local
+     * del listing. Una conciliacion reconstruye cada listing desde el remoto con un objeto nuevo, y un
+     * objeto nuevo trae un `_id` nuevo. Si el almacen lo adoptara, cada conciliacion dejaria esas
+     * referencias apuntando a un identificador que ya no existe, sin que nada fallara.
+     */
+    @Test
+    fun `reemplazar un listing conserva su _id local`() = runBlocking {
+        val store = InMemoryListingStore()
+        val m = tienda()
+        val original = listing(m, "SKU-1", "primero")
+        store.upsert(original)
+        val reconstruido = listing(m, "SKU-1", "segundo")
+        assertNotEquals(original._id, reconstruido._id, "el objeto nuevo trae un _id nuevo: es la premisa de la prueba")
+        store.upsert(reconstruido)
+
+        val guardado = store.byExternalId(m, "SKU-1")!!
+        assertEquals(original._id, guardado._id, "la identidad local la fija la primera escritura")
+        assertEquals("segundo", guardado.title, "los datos sí son los del que llega")
+        assertEquals(1, store.count(m))
+    }
+
+    /** La conservacion del `_id` vale tambien en lote; tras un borrado explicito la identidad empieza de cero. */
+    @Test
+    fun `upsertAll conserva el _id y borrar lo libera`() = runBlocking {
+        val store = InMemoryListingStore()
+        val m = tienda()
+        val original = listing(m, "A")
+        store.upsert(original)
+        store.upsertAll(listOf(listing(m, "A", "otra vez"), listing(m, "B")))
+        assertEquals(original._id, store.byExternalId(m, "A")?._id, "en lote se conserva igual")
+        assertEquals("otra vez", store.byExternalId(m, "A")?.title)
+
+        store.delete(m, "A")
+        val renacido = listing(m, "A", "renacido")
+        store.upsert(renacido)
+        assertEquals(renacido._id, store.byExternalId(m, "A")?._id, "borrar es explícito: después la clave está libre")
     }
 
     /** `upsertAll` debe equivaler a N `upsert`, incluida la idempotencia. */
@@ -190,6 +233,52 @@ class SyncStoreContractTest {
         assertTrue(
             recuperado.errors.single().message.contains("published"),
             "el motivo debe sobrevivir al almacenamiento; es lo que faltaba cuando sólo se guardaba el conteo"
+        )
+    }
+
+    /**
+     * Invariante: **una corrida es una instantanea**.
+     *
+     * «OK sin errores» se comprueba al construir. Si la corrida guardara la lista del llamador,
+     * bastaria seguir añadiendo a esa lista para que una corrida registrada como `OK` apareciera con
+     * errores al leerla del historial — sin `record` de por medio y sin que la comprobacion volviera
+     * a correr.
+     */
+    @Test
+    fun `mutar la lista de errores despues de registrar no cambia la corrida`() = runBlocking {
+        val store = InMemorySyncRunStore()
+        val m = tienda()
+        val errores = mutableListOf<SyncRunError>()
+        val corrida = SyncRun(m, SyncKind.RECONCILE, SyncOutcome.OK, finishedAt = 1, errors = errores)
+        store.record(corrida)
+
+        errores += SyncRunError(item = "SKU-1", message = "llegó después de registrar")
+
+        assertTrue(corrida.errors.isEmpty(), "la corrida no comparte la lista con quien la construyó")
+        assertTrue(store.last(m, SyncKind.RECONCILE)!!.errors.isEmpty(), "ni el historial")
+        assertEquals(SyncOutcome.OK, store.last(m, SyncKind.RECONCILE)!!.outcome)
+    }
+
+    /**
+     * La deserializacion entra por el constructor privado: el serializador generado lo alcanza, las
+     * invariantes de `init` corren igual, y la corrida decodificada es una instantanea propia.
+     */
+    @Test
+    fun `una corrida sobrevive a la serializacion`() = runBlocking {
+        val m = tienda()
+        val corrida = SyncRun(
+            m, SyncKind.PUSH_PRODUCTS, SyncOutcome.PARTIAL, finishedAt = 7, changed = 2,
+            errors = listOf(SyncRunError(item = "SKU-1", message = "falló")),
+        )
+        val decodificada = Json.decodeFromString<SyncRun>(Json.encodeToString(corrida))
+
+        assertEquals(corrida, decodificada)
+        val rechazo = assertFailsWith<IllegalArgumentException> {
+            Json.decodeFromString<SyncRun>(Json.encodeToString(corrida).replace("PARTIAL", "OK"))
+        }
+        assertTrue(
+            rechazo.message!!.contains("OK no admite errores"),
+            "las invariantes también se comprueban al decodificar"
         )
     }
 
