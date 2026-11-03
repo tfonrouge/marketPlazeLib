@@ -164,6 +164,88 @@ Compatibility note: v2.11.13 removed `SyncRun`'s public constructor and `copy` o
 they appeared; no consumer had adopted `SyncRun` (mppErsaPack on 2.11.11, mppDulce on 2.11.10), so
 it shipped as a patch.
 
+## MercadoLibre Sale Price (mercadoLibreLib) — v2.12.0
+
+> The price a buyer pays today on the Mercado Libre channel, promotion included. Source:
+> `GET /items/{id}/sale_price?context=channel_marketplace` (ML Prices API). It is **not**
+> `MercadoLibreProduct.price`, which comes from `/items` and is the listed price **without**
+> promotion. Decision: LEDGER 2026-11-03 (and mppErsaPack `MarketPlace(MODULE)` D101).
+
+```kotlin
+// commonMain — value + pure parser
+@Serializable data class MercadoLibreSalePrice(
+    val amount: Money,                    // what the buyer pays
+    val regularAmount: Money? = null,     // only when a promotion applies
+    val currencyId: String,
+    val priceId: String? = null,
+    val promotionId: String? = null,      // metadata.promotion_id
+    val promotionType: String? = null,    // metadata.promotion_type (ML text, open set)
+    val referenceDate: String? = null,    // ISO-8601 as ML sends it
+) {
+    val hasPromotion: Boolean             // regularAmount != null && regularAmount > amount
+    fun compareWithListed(listedPrice: Money, listedCurrencyId: String): SalePriceVsListed
+    companion object {
+        const val CONTEXT_MARKETPLACE = "channel_marketplace"
+        fun parse(json: JsonObject): SalePriceParse
+        fun parse(body: String): SalePriceParse   // non-JSON / non-object -> Unreadable
+    }
+}
+sealed class SalePriceParse { Parsed(salePrice) ; Unreadable(reason) }
+enum class SalePriceVsListed { NO_PROMOTION_SAME, NO_PROMOTION_DIFFERENT,
+    PROMOTION_REGULAR_SAME, PROMOTION_REGULAR_DIFFERENT, CURRENCY_DIFFERENT }
+
+// commonMain — one HTTP answer, classified
+sealed class MercadoLibreSalePriceFetch { Found(body) ; NotFound ; Unauthorized ; Retryable(reason)
+    companion object { fun classify(status: Int, body: String?): MercadoLibreSalePriceFetch } }
+
+// commonMain — persisted observation (collection `mercadoLibreSalePriceObservation`, _id = item id)
+@Serializable enum class MercadoLibreSalePriceStatus { OBSERVED, NOT_AVAILABLE, UNREADABLE, RETRYABLE_ERROR }
+@Serializable data class MercadoLibreSalePriceObservation(
+    override val _id: StringId<MercadoLibreSalePriceObservation>,
+    val marketplaceId: MarketplaceId,
+    val context: String = MercadoLibreSalePrice.CONTEXT_MARKETPLACE,
+    val status: MercadoLibreSalePriceStatus,
+    val salePrice: MercadoLibreSalePrice? = null,   // last one obtained; kept across later failures
+    val observedAt: Instant? = null,                // when salePrice was obtained
+    val lastAttemptAt: Instant,
+    val lastError: String? = null,
+) : BaseDoc<StringId<MercadoLibreSalePriceObservation>> {
+    val isCurrent: Boolean                          // status == OBSERVED && salePrice != null
+    companion object { fun next(previous, itemId, marketplaceId, outcome, now): MercadoLibreSalePriceObservation? }
+}
+
+// commonMain — pure refresh planning and cycle fold (no I/O)
+val SALE_PRICE_ELIGIBLE_STATUSES: Set<String>        // {"active", "paused"}
+fun planSalePriceRefresh(products, previous: Map<String, MercadoLibreSalePriceObservation>, quota: Int): List<String>
+class SalePriceRefreshCycle(planned: Int, listed: Map<String, MercadoLibreProduct>, maxConsecutiveRetryable: Int = 5) {
+    val report: SalePriceRefreshReport
+    fun record(previous, itemId, marketplaceId, outcome, now): Step   // Step(toSave, stop)
+}
+
+// MercadoLibreProduct — lookup-only, hydrated by the host's aggregation; the data lives in its own
+// collection, so the product sync cannot overwrite it
+var salePrice: MercadoLibreSalePriceObservation? = null
+
+// jvmMain
+abstract class IMercadoLibreSalePriceColl<UID : Any> : Coll<MercadoLibreSalePriceObservation, …> {
+    /** One call with the marketplace's current token. MUST NOT refresh it: 401/403 -> Unauthorized. */
+    abstract suspend fun fetchSalePrice(marketplace: Marketplace, itemId: String, context: String): MercadoLibreSalePriceFetch
+    suspend fun refreshSalePrices(marketplace: Marketplace, products: List<MercadoLibreProduct>,
+        quota: Int = 200, pauseMillis: Long = 250): SalePriceRefreshReport
+}
+```
+
+**Invariants**
+- **The cycle never refreshes the token.** `Unauthorized` stops it at the first item and writes nothing for it;
+  5 consecutive `Retryable` stop it too. Who rotates the token is the host's decision.
+- **One writer per field.** The observation lives in its own collection; `upsertProducts` (which `$set`s the
+  whole product every sync) cannot overwrite it.
+- **Exact cents or nothing.** `amount`/`regular_amount` must be plain decimals with at most 2 significant
+  decimals; anything else is `Unreadable`, never rounded. A present-but-unreadable `regular_amount` is
+  `Unreadable`, not "no promotion".
+- **A failure never erases the last price**: it keeps `salePrice`/`observedAt` and changes `status`;
+  only `isCurrent` says the price is today's.
+
 ## Shopify API (shopifyLib)
 
 ```kotlin
