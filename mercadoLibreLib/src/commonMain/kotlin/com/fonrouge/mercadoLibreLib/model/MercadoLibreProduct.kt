@@ -12,6 +12,10 @@ data class MercadoLibreProduct(
     val marketplaceId: MarketplaceId,
     val title: String,
     val categoryId: String = "",
+    /**
+     * `price` de `/items`: el precio **publicado**, sin promoción. Lo que paga el comprador está en
+     * [salePrice]. ML anunció que retirará este campo de `/items` en favor de la API de Precios.
+     */
     val price: Money = Money.ZERO,
     val currencyId: String = "MXN",
     val availableQuantity: Int = 0,
@@ -23,6 +27,17 @@ data class MercadoLibreProduct(
     val status: String = "active",
     val sellerSku: String = "",
 ) : BaseDoc<StringId<MercadoLibreProduct>> {
+
+    /**
+     * Lookup-only: la última observación del precio de venta (con promoción) de esta publicación,
+     * proyectada por la aggregation del anfitrión desde `mercadoLibreSalePriceObservation` (mismo `_id`).
+     * Default null — nunca observada, o pipeline no configurado. **El sync de productos no la puede pisar**:
+     * el dato vive en su propia colección, que sólo escribe el ciclo de [MercadoLibreSalePriceObservation], y
+     * aquí sólo se llena al leer. Antes de usar el precio como el de hoy, mirar
+     * [MercadoLibreSalePriceObservation.isCurrent].
+     */
+    var salePrice: MercadoLibreSalePriceObservation? = null
+
     @Serializable
     data class Picture(
         val id: String,
