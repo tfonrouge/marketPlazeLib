@@ -246,6 +246,58 @@ abstract class IMercadoLibreSalePriceColl<UID : Any> : Coll<MercadoLibreSalePric
 - **A failure never erases the last price**: it keeps `salePrice`/`observedAt` and changes `status`;
   only `isCurrent` says the price is today's.
 
+## MercadoLibre Product Ads (mercadoLibreLib) — v2.13.0
+
+> Daily Product Ads spend per campaign, ad group and **listing** (`itemId`), read from the Mercado Ads API
+> (`GET /advertising/…`, read-only). Decision: LEDGER 2026-11-17 (and mppErsaPack `PublicidadMercadoAds(BRIDGE)`,
+> B1 v2 and B2 approved in L-026, client and cycle in L-030, L-031, L-036, L-038). Everything below is additive:
+> no existing type or function changes.
+
+```kotlin
+// commonMain — model (all amounts are exact cents parsed from the JSON text; never Double)
+enum class MercadoLibreAdsProduct { PADS, DISPLAY, BADS }
+enum class MercadoLibreAdsSource(val rank: Int) { PANEL_PERIODO(0), PANEL_DIARIO(1), API(2) }   // higher never overwritten by lower
+enum class MercadoLibreAdsDayStatus { PROVISIONAL, CERRADO }
+data class MercadoLibreAdsRow(campaignId, adGroupId, adGroupType, itemId /* from the ad, never ad_group_external_id */,
+                              logisticType, userProductId, cost: Money)
+data class MercadoLibreAdsDay(_id = "{marketplaceId}|{product}|{advertiserId}|{date}", …, date /* click day */,
+                              rows, total, adGroupsTotal, status, source, revision, history: List<MercadoLibreAdsRevision>,
+                              firstReadAt, lastReadAt /* ISO strings */, contentKey, valuesKey) : BaseDoc
+data class MercadoLibreAdsPeriod(…, from, to /* same month */, granularity, rows, total, source,
+                                 evidence: List<MercadoLibreAdsEvidence> /* ≥ 1: file + SHA-256 */, importedAt) : BaseDoc
+
+// commonMain — pure logic
+fun assembleAdsDay(date, pages, campaignsDaily, adsByAdGroup, source): MercadoLibreAdsAssembly   // Ok | Rejected(reason)
+fun applyAdsRead(saved, read, now, identity): MercadoLibreAdsApplied     // CREATED, UNCHANGED, REVISED, SOURCE_CHANGED[_WITH_DISCREPANCY], IGNORED_LOWER_SOURCE
+fun planAdsReads(today, hourMexicoCity, enabledFrom, saved, windowDays = 90, rereadDays): MercadoLibreAdsPlan
+class MercadoLibreAdsDayReader(date)                 // one HTTP request at a time: next() / accept(body) / assemble()
+class MercadoLibreAdsCycle(dates, quotaRequests)     // quota measured in HTTP requests (pages and per-group queries count)
+inline fun runAdsCycle(cycle, now, identity, get, load, store: (day, expected) -> Boolean): MercadoLibreAdsCycleReport
+
+// jvmMain
+class MercadoLibreAdsClient(testEngine: HttpClientEngine? = null)        // get / advertisers / bonifications
+class MercadoLibreAdsRefresher(client, store: MercadoLibreAdsDayStore)   // switch → plan → close → cycle
+abstract class IMercadoLibreAdsColl<UID> : Coll<…>, MercadoLibreAdsDayStore   // refreshAds(…), replaceIf(day, expected)
+abstract class IMercadoLibreAdsPeriodColl<UID> : Coll<…>
+```
+
+Invariants:
+- **Read-only and never refreshes the token.** Only `GET`, only white-listed `/advertising/` paths. `accessToken` is
+  taken from the `Marketplace` as is; 401, 403, 429, 400 and any other 4xx stop the cycle (`Cut`); 5xx, timeouts and
+  unreadable bodies skip the day (`Retryable`); 404 on `advertisers` is `NotEnabled`. The token never appears in any
+  output.
+- **Switch.** `enabledFrom = null` → zero HTTP calls and zero store access.
+- **A day is written whole or not at all.** It is written only after pagination, the daily total (C-1), the per-group
+  breakdown (C-2) and the duplicate check (C-3) agree. A day cut by the quota or by an error writes nothing, and the next
+  cycle resumes it.
+- **Conditional write.** `replaceIf` replaces only if the stored document still has the read `revision` and
+  `lastReadAt`, and inserts only if absent. A concurrent writer is never overwritten (`conflicts` in the report).
+- **No version is lost.** A changed reread keeps the previous version in `history`. The panel never overwrites the API,
+  and an API reread of a panel day keeps the panel version in `history`.
+- **Indexes.** Both collections declare their index in `indexes()`, which fsLib 6 runs only from `Coll.open()`. A
+  consumer that uses the collections only through `.coroutine` must call `open()` at boot; mppErsaPack does it in
+  `adsAsegurarIndices`.
+
 ## Shopify API (shopifyLib)
 
 ```kotlin
